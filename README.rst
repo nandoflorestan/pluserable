@@ -24,13 +24,9 @@ Minimal integration
 
 - Create your SQLAlchemy declarative initialization.
 
-- Create models inheriting from pluserable' abstract models. Find an example in the
-  file `pluserable/tests/models.py
+- Create models inheriting from pluserable' abstract models.
+  Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
-
-  Alternatively, use the pluserable scaffold script::
-
-    pluserable_scaffold development.ini > your_app/auth_models.py
 
   Then all you need to do is tell the class where to find your declarative
   base you and are good to go!
@@ -46,7 +42,7 @@ Minimal integration
     config.scan_pluserable(auth_models_package_or_module)
 
   With the above ``config.scan_pluserable()`` call, you need to edit your .ini
-  configuration file and tell pluserable which model classes to use like this:
+  configuration file and tell pluserable which model classes to use like this::
 
       pluserable.user_class = my_app.models:User
       pluserable.activation_class = my_app.models:Activation
@@ -241,5 +237,15 @@ The tests can also be run in parallel::
 
 We are going to use this build server: http://travis-ci.org/#!/nandoflorestan/pluserable
 
+
+Origin of the project
+=====================
+
 *pluserable* is a fork of *horus*, a project started by John Anderson:
 https://github.com/eventray/horus
+
+The differences are:
+
+- *pluserable* lets you log in with an email (or a username); horus only lets you log in with a username.
+- *pluserable* does not include an outdated version of *bootstrap*.
+- *pluserable* does not have a scaffolding script.
