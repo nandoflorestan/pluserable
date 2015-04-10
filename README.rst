@@ -246,6 +246,7 @@ https://github.com/eventray/horus
 
 The differences are:
 
-- *pluserable* lets you log in with an email (or a username); horus only lets you log in with a username.
+- *pluserable* lets you log in with an email (or a username);
+  *horus* only lets you log in with a username.
 - *pluserable* does not include an outdated version of *bootstrap*.
 - *pluserable* does not have a scaffolding script.

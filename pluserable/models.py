@@ -357,16 +357,17 @@ class GroupMixin(BaseModel):
             backref=pluralize(GroupMixin.__tablename__),
         )
 
-    @declared_attr
-    def permissions(self):
-        """ permissions assigned to this group"""
-        return sa.orm.relationship(
-            'GroupPermission',
-            backref='groups',
-            cascade="all, delete-orphan",
-            passive_deletes=True,
-            passive_updates=True,
-        )
+    # Removing the only mention of GroupPermission in the entire project:
+    # @declared_attr
+    # def permissions(self):
+    #     """ permissions assigned to this group"""
+    #     return sa.orm.relationship(
+    #         'GroupPermission',
+    #         backref='groups',
+    #         cascade="all, delete-orphan",
+    #         passive_deletes=True,
+    #         passive_updates=True,
+    #     )
 
     def __repr__(self):
         return '<Group: %s>' % self.name
