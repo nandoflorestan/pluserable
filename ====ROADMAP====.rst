@@ -4,6 +4,7 @@ pluserable roadmap
 
 - Use bag
 - Use nine
+- Models should not see the request object; pass the session explicitly
 - Refactor persistence
 - Refactor views: Get an action layer
 

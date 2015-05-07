@@ -244,7 +244,7 @@ class NoUsernameMixin(BaseModel):
         """ generates random string of fixed length"""
         return generate_random_string(chars)
 
-    @classmethod  # TODO REMOVE in favor of by_email()
+    @classmethod  # TODO REMOVE in favor of q_by_email()
     def get_by_email(cls, request, email):
         session = get_session(request)
         return session.query(cls).filter(
@@ -252,9 +252,12 @@ class NoUsernameMixin(BaseModel):
         ).first()
 
     @classmethod
-    def by_email(cls, sas, email):
-        return sas.query(cls).filter(
-            func.lower(cls.email) == email.lower()).first()
+    def q_by_email(cls, sas, email, **filters):
+        q = sas.query(cls).filter(
+            func.lower(cls.email) == email.lower())
+        if filters:
+            q = q.filter_by(**filters)
+        return q
 
     @classmethod
     def get_by_activation(cls, request, activation):
