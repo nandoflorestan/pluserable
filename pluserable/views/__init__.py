@@ -3,7 +3,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
-
+from bag.web.pyramid.flash_msg import FlashMessage
 from pyramid.view import view_config
 from pyramid.url import route_url
 from pyramid.security import remember
@@ -22,7 +22,6 @@ from ..interfaces import (
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from ..events import (NewRegistrationEvent, RegistrationActivatedEvent,
                       PasswordResetEvent, ProfileUpdatedEvent)
-from ..lib import FlashMessage
 from ..models import _
 from ..exceptions import AuthenticationFailure, FormValidationFailure
 from ..httpexceptions import HTTPBadRequest

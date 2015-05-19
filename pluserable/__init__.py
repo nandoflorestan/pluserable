@@ -3,6 +3,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import inspect
+from bag.web.pyramid.flash_msg import render_flash_messages_from_queues
 from hem.config import get_class_from_config
 from pyramid.events import BeforeRender
 from pyramid.path import DottedNameResolver
@@ -11,12 +12,12 @@ from .schemas import (
     UsernameResetPasswordSchema, UsernameProfileSchema, EmailLoginSchema,
     EmailRegisterSchema, EmailResetPasswordSchema, EmailProfileSchema)
 from .forms import SubmitForm
+from .lib import get_user
 from .resources import RootFactory
 from .interfaces import (
     IUIStrings, IUserClass, IActivationClass, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from .lib import get_user, render_flash_messages_from_queues
 from . import models
 from .strings import UIStringsBase
 
