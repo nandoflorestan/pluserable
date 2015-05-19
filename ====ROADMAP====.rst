@@ -2,10 +2,9 @@
 pluserable roadmap
 ==================
 
-- Use nine
 - Models should not see the request object; pass the session explicitly
+- Refactor views: Create an action layer
 - Refactor persistence with the strategy pattern
-- Refactor views: Get an action layer
 
 - Refactor sending emails
 - Lose pystache

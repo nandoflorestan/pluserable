@@ -10,16 +10,12 @@ except ImportError:
 from pyramid.compat import text_type as unicode
 from pyramid.i18n import TranslationStringFactory
 from pyramid.security import Allow
-from datetime import datetime
-from datetime import timedelta
-from datetime import date
+from datetime import datetime, timedelta, date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import or_
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
-from hem.text import generate_random_string
-from hem.text import pluralize
+from hem.text import generate_random_string, pluralize
 from hem.db import get_session
 
 import cryptacular.bcrypt

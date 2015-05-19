@@ -4,10 +4,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from pluserable.tests import IntegrationTestBase
 from pyramid import testing
+from pyramid.compat import PY3
 from mock import patch
 from mock import Mock
 import re
-import six
 
 
 def clean_byte_string(string):
@@ -64,7 +64,7 @@ class TestViews(IntegrationTestBase):
 
         csrf = res.form.fields['csrf_token'][0].value
 
-        if six.PY3:
+        if PY3:
             csrf = clean_byte_string(csrf)
 
         res = self.app.post(
@@ -92,7 +92,7 @@ class TestViews(IntegrationTestBase):
 
         csrf = res.form.fields['csrf_token'][0].value
 
-        if six.PY3:
+        if PY3:
             csrf = clean_byte_string(csrf)
 
         res = self.app.post(

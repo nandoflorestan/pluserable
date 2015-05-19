@@ -250,4 +250,5 @@ The differences are:
   *horus* only lets you log in with a username.
 - *pluserable* does not include an outdated version of *bootstrap*.
 - *pluserable* does not have a scaffolding script.
+- *pluserable* depends on pyramid.compat rather than the *six* library.
 - *pluserable* uses the bag library for a maintained version of FlashMessage.
