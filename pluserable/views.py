@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
 from bag.web.pyramid.flash_msg import FlashMessage
-from pyramid.view import view_config
 from pyramid.url import route_url
 from pyramid.security import remember
 from pyramid.security import forget
@@ -16,15 +15,15 @@ from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
 from hem.db import get_session
-from ..interfaces import (
+from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from ..events import (NewRegistrationEvent, RegistrationActivatedEvent,
+from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
                       PasswordResetEvent, ProfileUpdatedEvent)
-from ..models import _
-from ..exceptions import AuthenticationFailure, FormValidationFailure
-from ..httpexceptions import HTTPBadRequest
+from .models import _
+from .exceptions import AuthenticationFailure, FormValidationFailure
+from .httpexceptions import HTTPBadRequest
 
 import colander
 import deform
