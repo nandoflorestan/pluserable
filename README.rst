@@ -3,7 +3,7 @@ Introduction to *pluserable*
 ============================
 
 *pluserable* provides generic user registration for the Pyramid web framework,
-if your web app uses sqlalchemy.
+if your web app uses SQLAlchemy.
 
 It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
@@ -248,7 +248,10 @@ The differences are:
 
 - *pluserable* lets you log in with an email (or a username);
   *horus* only lets you log in with a username.
+- *pluserable* does not have horus' admin views -- they were rarely used.
+- *pluserable* allows you to pick a subset of the views for your project;
+  *horus* always registers all of the routes and views.
 - *pluserable* does not include an outdated version of *bootstrap*.
 - *pluserable* does not have a scaffolding script.
-- *pluserable* depends on pyramid.compat rather than the *six* library.
+- *pluserable* uses pyramid.compat rather than the *six* library.
 - *pluserable* uses the bag library for a maintained version of FlashMessage.

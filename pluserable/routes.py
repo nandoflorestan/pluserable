@@ -5,30 +5,28 @@ from __future__ import (absolute_import, division, print_function,
 from .resources import UserFactory
 
 
+routes = {  # route_name: route_kwargs
+    'login': {'pattern': '/login'},
+    'logout': {'pattern': '/logout'},
+    'register': {'pattern': '/register'},
+    'activate': {'pattern': '/activate/{user_id}/{code}',
+                 'factory': UserFactory},
+    'forgot_password': {'pattern': '/forgot_password'},
+    'reset_password': {'pattern': '/reset_password/{code}'},
+
+    'profile': {'pattern': '/profile/{user_id}', 'factory': UserFactory,
+                'traverse': "/{user_id}"},
+    'edit_profile': {'pattern': '/profile/{user_id}/edit',
+                     'factory': UserFactory, 'traverse': "/{user_id}"},
+}
+
+
 def includeme(config):
-    """Add routes to the config."""
-    config.add_route('login', '/login')
-    config.add_route('logout', '/logout')
-    config.add_route('register', '/register')
-    config.add_route('activate', '/activate/{user_id}/{code}',
-                     factory=UserFactory)
-    config.add_route('forgot_password', '/forgot_password')
-    config.add_route('reset_password', '/reset_password/{code}')
-
-    config.add_route('profile', '/profile/{user_id}',
-                     factory=UserFactory,
-                     traverse="/{user_id}")
-    config.add_route('edit_profile', '/profile/{user_id}/edit',
-                     factory=UserFactory,
-                     traverse="/{user_id}")
-
-    config.add_route('admin', '/admin')
-    config.add_route('admin_users_index', '/admin/users')
-    config.add_route('admin_users_create', '/admin/users/new')
-    config.add_route('admin_users_edit',
-                     '/admin/users/{user_id}/edit',
-                     factory=UserFactory,
-                     traverse="/{user_id}")
-
-    # config.add_static_view(name='pluserable-static', path='pluserable:static',
-    #                        cache_max_age=3600)
+    """Add routes to the config.  The ``routes`` dictionary can be manipulated
+        before this is called and this will affect view registration, too.
+        But TODO: we need a better way of allowing user code
+        to choose which routes it wants; the ``routes`` dict should not be
+        a global variable.
+        """
+    for name, kw in routes.items():
+        config.add_route(name, **kw)

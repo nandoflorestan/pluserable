@@ -18,8 +18,6 @@ class UIStringsBase(object):  # TODO Continue building
     activation_email_verified = _("Your e-mail address has been verified. "
                                   "Thank you!")
 
-    admin_create_user_done = _('The user has been created.')
-
     authenticated = _('You are now logged in.')
     login_button = _('Log in')
     logout = _('You have logged out.')

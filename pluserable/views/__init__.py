@@ -34,6 +34,17 @@ import pystache
 LOG = logging.getLogger(__name__)
 
 
+def includeme(config):
+    from pluserable.routes import routes
+    for route_name, kw in views.items():
+        if route_name in routes:
+            config.add_view(route_name=route_name, **kw)
+    if 'login' in routes:
+        config.add_view(
+            route_name='login', xhr=True, accept="application/json",
+            renderer='json', view=AuthController, attr='login_ajax')
+
+
 def get_config_route(request, config_key):
     settings = request.registry.settings
     try:
@@ -168,8 +179,6 @@ class AuthController(BaseController):
                 _('Your account is not active, please check your e-mail.'))
         return user
 
-    @view_config(route_name='login', xhr=True, accept="application/json",
-                 renderer='json')
     def login_ajax(self):
         try:
             cstruct = self.request.json_body
@@ -200,7 +209,6 @@ class AuthController(BaseController):
         return {'status': 'okay',
                 'user': user_json}
 
-    @view_config(route_name='login', renderer='pluserable:templates/login.mako')
     def login(self):
         if self.request.method == 'GET':
             if self.request.user:
@@ -227,7 +235,6 @@ class AuthController(BaseController):
             self.request.user = user  # Please keep this line, my app needs it
             return authenticated(self.request, user.id_value)
 
-    @view_config(permission='view', route_name='logout')
     def logout(self):
         """Removes the auth cookies and redirects to the view defined in
         pluserable.logout_redirect, which defaults to a view named 'index'.
@@ -249,8 +256,6 @@ class ForgotPasswordController(BaseController):
             self.settings.get('pluserable.reset_password_redirect', 'index'),
             request)
 
-    @view_config(route_name='forgot_password',
-                 renderer='pluserable:templates/forgot_password.mako')
     def forgot_password(self):
         req = self.request
         schema = req.registry.getUtility(IForgotPasswordSchema)
@@ -297,8 +302,6 @@ class ForgotPasswordController(BaseController):
             kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
-    @view_config(route_name='reset_password',
-                 renderer='pluserable:templates/reset_password.mako')
     def reset_password(self):
         schema = self.request.registry.getUtility(IResetPasswordSchema)
         schema = schema().bind(request=self.request)
@@ -360,8 +363,6 @@ class RegisterController(BaseController):
         if self.require_activation:
             self.mailer = get_mailer(request)
 
-    @view_config(route_name='register',
-                 renderer='pluserable:templates/register.mako')
     def register(self):
         if self.request.method == 'GET':
             if self.request.user:
@@ -411,7 +412,6 @@ class RegisterController(BaseController):
         self.db.add(user)
         return user
 
-    @view_config(route_name='activate')
     def activate(self):
         code = self.request.matchdict.get('code', None)
         user_id = self.request.matchdict.get('user_id', None)
@@ -437,6 +437,7 @@ class RegisterController(BaseController):
 
 
 class ProfileController(BaseController):
+
     def __init__(self, request):
         super(ProfileController, self).__init__(request)
 
@@ -446,7 +447,6 @@ class ProfileController(BaseController):
         form = self.request.registry.getUtility(IProfileForm)
         self.form = form(self.schema)
 
-    @view_config(route_name='profile', renderer='pluserable:templates/profile.mako')
     def profile(self):
         user_id = self.request.matchdict.get('user_id', None)
         user = self.User.get_by_id(self.request, user_id)
@@ -454,8 +454,6 @@ class ProfileController(BaseController):
             return HTTPNotFound()
         return {'user': user}
 
-    @view_config(permission='access_user', route_name='edit_profile',
-                 renderer='pluserable:templates/edit_profile.mako')
     def edit_profile(self):
         user = self.request.context
         if not user:
@@ -504,3 +502,25 @@ class ProfileController(BaseController):
                     ProfileUpdatedEvent(self.request, user, captured)
                 )
             return HTTPFound(location=self.request.url)
+
+
+views = {  # route_name: view_kwargs
+    'register': {'view': RegisterController, 'attr': 'register',
+                 'renderer': 'pluserable:templates/register.mako'},
+    'activate': {'view': RegisterController, 'attr': 'activate'},
+    'login': {'view': AuthController, 'attr': 'login',
+              'renderer': 'pluserable:templates/login.mako'},
+    'logout': {'permission': 'view',
+               'view': AuthController, 'attr': 'logout'},
+    'forgot_password': {
+        'view': ForgotPasswordController, 'attr': 'forgot_password',
+        'renderer': 'pluserable:templates/forgot_password.mako'},
+    'reset_password': {
+        'view': ForgotPasswordController, 'attr': 'reset_password',
+        'renderer': 'pluserable:templates/reset_password.mako'},
+    'profile': {'view': ProfileController, 'attr': 'profile',
+                'renderer': 'pluserable:templates/profile.mako'},
+    'edit_profile': {'view': ProfileController, 'attr': 'edit_profile',
+                     'permission': 'access_user',
+                     'renderer': 'pluserable:templates/edit_profile.mako'},
+    }

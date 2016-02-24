@@ -29,6 +29,7 @@ logs
 # Unit test / coverage reports
 .coverage
 .tox
+.cache/
 
 # Vim
 *.swp

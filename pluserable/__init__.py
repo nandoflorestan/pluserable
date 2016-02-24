@@ -135,4 +135,4 @@ def includeme(config):
     config.add_subscriber(on_before_render, BeforeRender)
 
     config.include('pluserable.routes')
-    config.scan(ignore=str('pluserable.tests'))
+    config.include('pluserable.views')
