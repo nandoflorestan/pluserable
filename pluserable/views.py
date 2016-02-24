@@ -20,7 +20,7 @@ from .interfaces import (
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
-                      PasswordResetEvent, ProfileUpdatedEvent)
+                     PasswordResetEvent, ProfileUpdatedEvent)
 from .models import _
 from .exceptions import AuthenticationFailure, FormValidationFailure
 from .httpexceptions import HTTPBadRequest
@@ -298,7 +298,7 @@ class ForgotPasswordController(BaseController):
         mailer.send(message)
 
         FlashMessage(self.request, Str.reset_password_email_sent,
-            kind='success')
+                     kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
@@ -352,9 +352,11 @@ class RegisterController(BaseController):
         self.form = form(self.schema)
 
         self.after_register_url = route_url(
-            self.settings.get('pluserable.register_redirect', 'index'), request)
+            self.settings.get('pluserable.register_redirect', 'index'),
+            request)
         self.after_activate_url = route_url(
-            self.settings.get('pluserable.activate_redirect', 'index'), request)
+            self.settings.get('pluserable.activate_redirect', 'index'),
+            request)
 
         self.require_activation = asbool(
             self.settings.get('pluserable.require_activation', True))

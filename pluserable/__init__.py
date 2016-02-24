@@ -96,7 +96,8 @@ def includeme(config):
 
     if not config.registry.queryUtility(IUserClass):
         try:
-            user_class = get_class_from_config(settings, 'pluserable.user_class')
+            user_class = get_class_from_config(
+                settings, 'pluserable.user_class')
             config.registry.registerUtility(user_class, IUserClass)
         except:
             # maybe they are using scan?
@@ -104,10 +105,9 @@ def includeme(config):
 
     if not config.registry.queryUtility(IActivationClass):
         try:
-            activation_class = get_class_from_config(settings,
-                                                     'pluserable.activation_class')
-            config.registry.registerUtility(activation_class,
-                                            IActivationClass)
+            activation_class = get_class_from_config(
+                settings, 'pluserable.activation_class')
+            config.registry.registerUtility(activation_class, IActivationClass)
         except:
             # maybe they are using scan?
             pass
@@ -125,8 +125,9 @@ def includeme(config):
     elif handle_config == 'email':
         EmailStrategy.set_up(config)
     else:
-        raise RuntimeError('Invalid config value for pluserable.handle: {}'.format(
-            handle_config))
+        raise RuntimeError(
+            'Invalid config value for pluserable.handle: {}'.format(
+                handle_config))
 
     def on_before_render(event):
         fn = render_flash_messages_from_queues
