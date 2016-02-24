@@ -9,6 +9,8 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
+**The current release of pluserable has a security issue inherited from horus.
+Do not use it in production.  The next release will fix this situation.**
 
 Minimal integration
 ===================

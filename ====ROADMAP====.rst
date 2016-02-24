@@ -2,6 +2,7 @@
 pluserable roadmap
 ==================
 
+- Fix the known security issue
 - Add civilized way of selecting which routes/views I want for my project
 - Models should not see the request object; pass the session explicitly
 - Refactor views: Create an action layer
