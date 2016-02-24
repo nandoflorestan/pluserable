@@ -22,8 +22,8 @@ def content_of(*files):
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
+        # self.test_args = []
+        # self.test_suite = True
 
     def run_tests(self):
         # Import here, because outside the eggs aren't loaded
@@ -81,5 +81,5 @@ setup(
     install_requires=requires,
     tests_require=requires + ['pytest', 'mock', 'webtest'],
     cmdclass={'test': PyTest},
-    test_suite='pluserable',
+    test_suite='pluserable/tests',
     )
