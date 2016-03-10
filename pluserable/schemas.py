@@ -152,15 +152,3 @@ ProfileSchema = UsernameProfileSchema  # The name "ProfileSchema" is obsolete.
 class EmailProfileSchema(CSRFSchema):
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
-
-
-class UsernameAdminUserSchema(CSRFSchema):
-    username = get_username_creation_node(description=None)
-    email = get_email_node(description=None, validator=c.Email())
-    password = get_checked_password_node(description=None, missing=c.null)
-AdminUserSchema = UsernameAdminUserSchema  # deprecated name: AdminUserSchema
-
-
-class EmailAdminUserSchema(CSRFSchema):
-    email = get_email_node(description=None, validator=c.Email())
-    password = get_checked_password_node(description=None, missing=c.null)

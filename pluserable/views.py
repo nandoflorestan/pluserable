@@ -4,12 +4,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
 from bag.web.pyramid.flash_msg import FlashMessage
-from pyramid.url import route_url
-from pyramid.security import remember
-from pyramid.security import forget
-from pyramid.httpexceptions import HTTPFound
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.security import remember, forget
 from pyramid.settings import asbool
+from pyramid.url import route_url
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
