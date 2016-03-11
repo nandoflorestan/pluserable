@@ -51,7 +51,7 @@ requires = [
 
 setup(
     name='pluserable',
-    version='0.1.1.dev1',
+    version='0.2.0',
     description='Generic user registration for the Pyramid web framework',
     long_description=content_of('README.rst'),
     classifiers=[  # http://pypi.python.org/pypi?:action=list_classifiers
