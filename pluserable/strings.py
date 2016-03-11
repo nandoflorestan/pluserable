@@ -28,13 +28,15 @@ class UIStringsBase(object):  # TODO Continue building
 
     registration_email_exists = _("Sorry, an account with the email {} "
                                   "already exists. Try logging in instead.")
-    registration_username_exists = _("Sorry, an account with this "
-        "username already exists. Please enter another one.")
+    registration_username_exists = _(
+        "Sorry, an account with this username already exists. "
+        "Please enter another one.")
     registration_done = _('You have been registered. You may log in now!')
 
     reset_password_done = _('Your password has been reset!')
-    reset_password_email_must_exist = _('We have no user with the email "{}". '
-            "Try correcting this address or trying another.")
+    reset_password_email_must_exist = _(
+        'We have no user with the email "{}". '
+        'Try correcting this address or trying another.')
     reset_password_email_body = _('''\
 Hello, {username}!
 
