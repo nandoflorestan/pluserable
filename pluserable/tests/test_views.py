@@ -1107,17 +1107,14 @@ class TestProfileController(UnitTestBase):
 
     def test_profile_update_profile_invalid(self):
         from pluserable.views import ProfileController
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.interfaces           import IProfileSchema
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
-        from pluserable.tests.schemas        import ProfileSchema
+        from pluserable.interfaces import (
+            IUserClass, IActivationClass, IProfileSchema)
+        from pluserable.tests.models import User, Activation
+        from pluserable.tests.schemas import ProfileSchema
 
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
-        self.config.registry.registerUtility(ProfileSchema,
-            IProfileSchema)
+        self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
 
         self.config.add_route('index', '/')
         self.config.include('pluserable')
@@ -1128,16 +1125,15 @@ class TestProfileController(UnitTestBase):
         self.session.flush()
 
         request = self.get_csrf_request(request_method='POST')
-        request.context = user
+        request.user = user
 
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.id
         request.matchdict.get = get
 
-        view = ProfileController(request)
-
-        response = view.edit_profile()
+        # The code being tested
+        response = ProfileController(request).edit_profile()
 
         assert len(response['errors']) == 3
 
@@ -1145,13 +1141,10 @@ class TestProfileController(UnitTestBase):
         from pluserable.views import ProfileController
         from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
+        from pluserable.interfaces import IUserClass, IActivationClass
         from pluserable.models import crypt
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.tests.models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
-
         self.config.registry.registerUtility(User, IUserClass)
 
         self.config.add_route('index', '/')
@@ -1180,25 +1173,23 @@ class TestProfileController(UnitTestBase):
         get.return_value = user.id
         request.matchdict.get = get
 
-        view = ProfileController(request)
-        view.profile()
+        # The code being tested
+        ProfileController(request).profile()
 
+        # Assertions
         new_user = User.get_by_id(request, user.id)
-
         assert new_user.email == 'sontek@gmail.com'
         assert crypt.check(user.password, 'temp' + user.salt)
 
-    def test_profile_update_password(self):
+    def test_profile_update_password(self):  # Happy
         from pluserable.views import ProfileController
         from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
+        from pluserable.interfaces import IUserClass, IActivationClass
         from pluserable.models import crypt
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
-        self.config.registry.registerUtility(Activation, IActivationClass)
+        from pluserable.tests.models import User, Activation
 
+        self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
 
         self.config.add_route('index', '/')
@@ -1224,18 +1215,17 @@ class TestProfileController(UnitTestBase):
                 'password-confirm': 'test123',
             },
         }, request_method='POST')
-
-        request.context = user
+        request.user = user
 
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.id
         request.matchdict.get = get
 
-        view = ProfileController(request)
+        # The code being tested
+        ProfileController(request).edit_profile()
 
-        view.edit_profile()
+        # Assertions
         new_user = User.get_by_id(request, user.id)
-
         assert new_user.email == 'sontek@gmail.com'
         assert not crypt.check(user.password, 'temp' + user.salt)

@@ -87,18 +87,6 @@ class TestUser(UnitTestBase):
         assert user1.password != 'password'
         assert user1.salt is not None
 
-    def test_acl(self):
-        from pluserable.tests.models import User
-        from pyramid.security import Allow
-
-        user1 = User(username='sontek', email='sontek@gmail.com')
-        user1.password = 'foo'
-
-        self.session.add(user1)
-        self.session.flush()
-
-        assert user1.__acl__ == [(Allow, 'user:%s' % user1.id, 'access_user')]
-
     def test_get_valid_user(self):
         from pluserable.tests.models import User
         user = User(username='sontek', email='sontek@gmail.com')

@@ -16,8 +16,7 @@ routes = {  # route_name: route_kwargs
 
     'profile': {'pattern': '/profile/{user_id}', 'factory': UserFactory,
                 'traverse': "/{user_id}"},
-    'edit_profile': {'pattern': '/profile/{user_id}/edit',
-                     'factory': UserFactory, 'traverse': "/{user_id}"},
+    'edit_profile': {'pattern': '/edit_profile'},
 }
 
 

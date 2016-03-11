@@ -289,11 +289,11 @@ class NoUsernameMixin(BaseModel):
     def __repr__(self):
         return '<User: %s>' % self.email
 
-    @property
-    def __acl__(self):
-        return [
-            (Allow, 'user:%s' % self.id_value, 'access_user')
-        ]
+    # @property
+    # def __acl__(self):
+    #     return [
+    #         (Allow, 'user:%s' % self.id_value, 'access_user')
+    #     ]
 
 
 class UsernameMixin(NoUsernameMixin):

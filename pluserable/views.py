@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function,
 import logging
 from bag.web.pyramid.flash_msg import FlashMessage
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
-from pyramid.security import remember, forget
+from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
 from pyramid.url import route_url
 
@@ -436,16 +436,6 @@ class RegisterController(BaseController):
 
 
 class ProfileController(BaseController):
-
-    def __init__(self, request):
-        super(ProfileController, self).__init__(request)
-
-        schema = self.request.registry.getUtility(IProfileSchema)
-        self.schema = schema().bind(request=self.request)
-
-        form = self.request.registry.getUtility(IProfileForm)
-        self.form = form(self.schema)
-
     def profile(self):
         user_id = self.request.matchdict.get('user_id', None)
         user = self.User.get_by_id(self.request, user_id)
@@ -453,22 +443,31 @@ class ProfileController(BaseController):
             return HTTPNotFound()
         return {'user': user}
 
+    def _get_form(self):
+        schema = self.request.registry.getUtility(IProfileSchema)
+        self.schema = schema().bind(request=self.request)
+
+        form = self.request.registry.getUtility(IProfileForm)
+        return form(self.schema)
+
     def edit_profile(self):
-        user = self.request.context
-        if not user:
-            return HTTPNotFound()
+        user = self.request.user
+        # if not user:  # substitute with effective_principals=Authenticated
+        #     return HTTPNotFound()
+
+        form = self._get_form()
 
         if self.request.method == 'GET':
             appstruct = {'email': user.email or ''}
             if hasattr(user, 'username'):
                 appstruct['username'] = user.username
-            return render_form(self.request, self.form, appstruct)
+            return render_form(self.request, form, appstruct)
 
         elif self.request.method == 'POST':
             controls = self.request.POST.items()
 
             try:
-                captured = validate_form(controls, self.form)
+                captured = validate_form(controls, form)
             except FormValidationFailure as e:
                 if hasattr(user, 'username'):
                     # We pre-populate username
@@ -520,6 +519,6 @@ views = {  # route_name: view_kwargs
     'profile': {'view': ProfileController, 'attr': 'profile',
                 'renderer': 'pluserable:templates/profile.mako'},
     'edit_profile': {'view': ProfileController, 'attr': 'edit_profile',
-                     'permission': 'access_user',
+                     'effective_principals': Authenticated,
                      'renderer': 'pluserable:templates/edit_profile.mako'},
     }

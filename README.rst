@@ -9,8 +9,6 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-**The current release of pluserable has a security issue inherited from horus.
-Do not use it in production.  The next release will fix this situation.**
 
 Minimal integration
 ===================
@@ -91,6 +89,7 @@ Minimal integration
 
 - If you are using pyramid_tm or the ZopeTransactionManager, your minimal
   integration is done. (The pages are ugly, but working. Keep reading...)
+
 
 Need to session.commit()?
 =========================
@@ -262,6 +261,8 @@ The differences are:
 - *pluserable* does not have horus' admin views -- they were rarely used.
 - *pluserable* allows you to pick a subset of the views for your project;
   *horus* always registers all of the routes and views.
+- *horus* had a "/profile/{user_id}/edit" URL; but since a user can only
+  edit her OWN email and password, we have a simpler URL: "/edit_profile".
 - *pluserable* does not include an outdated version of *bootstrap*.
 - *pluserable* does not have a scaffolding script.
 - *pluserable* uses pyramid.compat rather than the *six* library.
