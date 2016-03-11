@@ -55,8 +55,8 @@ setup(
     description='Generic user registration for the Pyramid web framework',
     long_description=content_of('README.rst'),
     classifiers=[  # http://pypi.python.org/pypi?:action=list_classifiers
-        "Development Status :: 3 - Alpha",
-        # "Development Status :: 4 - Beta",
+        # "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         # "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         'License :: OSI Approved :: BSD License',
@@ -74,7 +74,8 @@ setup(
     author='Nando Florestan',
     author_email='nandoflorestan@gmail.com',
     url='https://github.com/nandoflorestan/pluserable',
-    keywords=['pyramid', 'authentication', 'user registration'],
+    keywords=[
+        'authentication', 'horus', 'pyramid', 'user', 'registration'],
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
