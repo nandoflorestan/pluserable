@@ -22,6 +22,8 @@ class UIStringsBase(object):  # TODO Continue building
     login_button = _('Log in')
     logout = _('You have logged out.')
 
+    edit_profile_email_present = _(
+        'That email address ({email}) belongs to another user.')
     edit_profile_done = _('Your profile has been updated.')
 
     registration_email_exists = _("Sorry, an account with the email {} "

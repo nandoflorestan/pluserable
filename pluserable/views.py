@@ -480,9 +480,12 @@ class ProfileController(BaseController):
             if email:
                 email_user = self.User.get_by_email(self.request, email)
                 if email_user and email_user.id != user.id:
-                    FlashMessage(self.request,
-                                 _('That e-mail is already used.'),
-                                 kind='error')
+                    # TODO This should be a validation error, not FlashMessage
+                    FlashMessage(
+                        self.request,
+                        self.Str.edit_profile_email_present.format(
+                            email=email),
+                        kind='error')
                     return HTTPFound(location=self.request.url)
                 if email != user.email:
                     user.email = email
