@@ -14,6 +14,7 @@ def pytest_sessionstart():
     if not hasattr(config, 'slaveinput'):
         from pyramid.config import Configurator
         from pluserable.tests.models import Base
+        from pluserable.settings import get_default_pluserable_settings
         from paste.deploy.loadwsgi import appconfig
         from sqlalchemy import engine_from_config
 
@@ -22,6 +23,6 @@ def pytest_sessionstart():
         engine = engine_from_config(settings, prefix='sqlalchemy.')
         print('Creating the tables on the test database %s' % engine)
         config = Configurator(settings=settings)
-        config.scan('pluserable.models')
+        # config.scan('pluserable.models')  # but above we import Base
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)

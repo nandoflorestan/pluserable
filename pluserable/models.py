@@ -9,7 +9,7 @@ except ImportError:
 
 from pyramid.compat import text_type as unicode
 from pyramid.i18n import TranslationStringFactory
-from pyramid.security import Allow
+# from pyramid.security import Allow
 from datetime import datetime, timedelta, date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property

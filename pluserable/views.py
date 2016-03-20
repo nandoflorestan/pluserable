@@ -32,8 +32,11 @@ LOG = logging.getLogger(__name__)
 
 
 def includeme(config):
-    from pluserable.routes import routes
-    for route_name, kw in views.items():
+    settings = config.registry.settings['pluserable']
+    routes = settings['routes']
+    for name, kw in routes.items():
+        config.add_route(name, **kw)
+    for route_name, kw in settings['views'].items():
         if route_name in routes:
             config.add_view(route_name=route_name, **kw)
     if 'login' in routes:
@@ -505,23 +508,24 @@ class ProfileController(BaseController):
             return HTTPFound(location=self.request.url)
 
 
-views = {  # route_name: view_kwargs
-    'register': {'view': RegisterController, 'attr': 'register',
-                 'renderer': 'pluserable:templates/register.mako'},
-    'activate': {'view': RegisterController, 'attr': 'activate'},
-    'login': {'view': AuthController, 'attr': 'login',
-              'renderer': 'pluserable:templates/login.mako'},
-    'logout': {'permission': 'view',
-               'view': AuthController, 'attr': 'logout'},
-    'forgot_password': {
-        'view': ForgotPasswordController, 'attr': 'forgot_password',
-        'renderer': 'pluserable:templates/forgot_password.mako'},
-    'reset_password': {
-        'view': ForgotPasswordController, 'attr': 'reset_password',
-        'renderer': 'pluserable:templates/reset_password.mako'},
-    'profile': {'view': ProfileController, 'attr': 'profile',
-                'renderer': 'pluserable:templates/profile.mako'},
-    'edit_profile': {'view': ProfileController, 'attr': 'edit_profile',
-                     'effective_principals': Authenticated,
-                     'renderer': 'pluserable:templates/edit_profile.mako'},
-    }
+def get_pyramid_views_config():
+    return {  # route_name: view_kwargs
+        'register': {'view': RegisterController, 'attr': 'register',
+                     'renderer': 'pluserable:templates/register.mako'},
+        'activate': {'view': RegisterController, 'attr': 'activate'},
+        'login': {'view': AuthController, 'attr': 'login',
+                  'renderer': 'pluserable:templates/login.mako'},
+        'logout': {'permission': 'view',
+                   'view': AuthController, 'attr': 'logout'},
+        'forgot_password': {
+            'view': ForgotPasswordController, 'attr': 'forgot_password',
+            'renderer': 'pluserable:templates/forgot_password.mako'},
+        'reset_password': {
+            'view': ForgotPasswordController, 'attr': 'reset_password',
+            'renderer': 'pluserable:templates/reset_password.mako'},
+        'profile': {'view': ProfileController, 'attr': 'profile',
+                    'renderer': 'pluserable:templates/profile.mako'},
+        'edit_profile': {'view': ProfileController, 'attr': 'edit_profile',
+                         'effective_principals': Authenticated,
+                         'renderer': 'pluserable:templates/edit_profile.mako'},
+        }

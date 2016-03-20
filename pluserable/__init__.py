@@ -3,6 +3,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import inspect
+from bag import resolve
 from bag.web.pyramid.flash_msg import render_flash_messages_from_queues
 from hem.config import get_class_from_config
 from pyramid.events import BeforeRender
@@ -94,6 +95,15 @@ def includeme(config):
 
     config.add_directive('scan_pluserable', scan)
 
+    # User code may create a setting "pluserable_configurator" that points
+    # to a callable that we call here:
+    configurator = config.registry.settings.get(
+        'pluserable_configurator',
+        'pluserable.settings:get_default_pluserable_settings')
+    if not callable(configurator):
+        configurator = resolve(configurator)
+    config.registry.settings['pluserable'] = configurator(config)
+
     if not config.registry.queryUtility(IUserClass):
         try:
             user_class = get_class_from_config(
@@ -135,5 +145,4 @@ def includeme(config):
 
     config.add_subscriber(on_before_render, BeforeRender)
 
-    config.include('pluserable.routes')
     config.include('pluserable.views')

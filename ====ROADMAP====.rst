@@ -3,6 +3,7 @@ pluserable roadmap
 ==================
 
 - Add civilized way of selecting which routes/views I want for my project
+- Rename *Controller to *View
 - Models should not see the request object; pass the session explicitly
 - Refactor views: Create an action layer (also known as service layer)
 - Refactor persistence with the strategy pattern

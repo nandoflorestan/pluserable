@@ -38,6 +38,10 @@ Minimal integration
     registry = config.registry
     registry.registerUtility(my_sqlalchemy_scoped_session, IDBSession)
 
+    # You may write a function that returns a pluserable configuration,
+    # and then inform pluserable about it like this:
+    registry.settings['pluserable_configurator'] = 'my.package:some_function'
+
     config.include('pluserable')
     config.scan_pluserable(auth_models_package_or_module)
 
@@ -57,6 +61,16 @@ Minimal integration
     registry.registerUtility(Activation, IActivationClass)
 
     config.include('pluserable')
+
+- Your ``pluserable_configurator`` function would look more or less like this::
+
+    from pluserable.settings import get_default_pluserable_settings
+
+    def my_pluserable(config):
+        """This function is called by pluserable during app startup."""
+        adict = get_default_pluserable_settings()
+        # Manipulate adict to customize pluserable for your application, then
+        return adict
 
 - Configure ``pluserable.login_redirect`` and ``pluserable.logout_redirect``
   (in your .ini configuration file) to set the redirection routes.
