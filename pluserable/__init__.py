@@ -4,9 +4,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import inspect
 from bag import resolve
-from bag.web.pyramid.flash_msg import render_flash_messages_from_queues
 from hem.config import get_class_from_config
-from pyramid.events import BeforeRender
 from pyramid.path import DottedNameResolver
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
@@ -139,10 +137,5 @@ def includeme(config):
             'Invalid config value for pluserable.handle: {}'.format(
                 handle_config))
 
-    def on_before_render(event):
-        fn = render_flash_messages_from_queues
-        event['render_flash_messages'] = lambda: fn(event['request'])
-
-    config.add_subscriber(on_before_render, BeforeRender)
-
+    config.include('bag.web.pyramid.flash_msg')
     config.include('pluserable.views')
