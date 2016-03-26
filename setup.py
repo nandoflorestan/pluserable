@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 
 
 requires = [
-    'bag',
+    'bag > 0.8.0',
     'sqlalchemy',
     'zope.sqlalchemy',
     'transaction',

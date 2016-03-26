@@ -3,7 +3,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
-from bag.web.pyramid.flash_msg import FlashMessage
+from bag.web.pyramid.flash_msg import add_flash
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -64,7 +64,7 @@ def authenticated(request, userid):
 
     if not autologin:
         Str = request.registry.getUtility(IUIStrings)
-        FlashMessage(request, Str.authenticated, kind='success')
+        add_flash(request, plain=Str.authenticated, kind='success')
 
     location = request.params.get('next') or get_config_route(
         request, 'pluserable.login_redirect')
@@ -228,7 +228,7 @@ class AuthController(BaseController):
             try:
                 user = self.check_credentials(handle, password)
             except AuthenticationFailure as e:
-                FlashMessage(self.request, str(e), kind='error')
+                add_flash(self.request, plain=str(e), kind='error')
                 return render_form(self.request, self.form, captured,
                                    errors=[e])
 
@@ -241,7 +241,7 @@ class AuthController(BaseController):
         """
         self.request.session.invalidate()
         headers = forget(self.request)
-        FlashMessage(self.request, self.Str.logout, kind='success')
+        add_flash(self.request, plain=self.Str.logout, kind='success')
         return HTTPFound(location=self.logout_redirect_view, headers=headers)
 
 
@@ -282,7 +282,7 @@ class ForgotPasswordController(BaseController):
         activation = self.Activation()
         self.db.add(activation)
         user.activation = activation
-        self.db.flush() # initialize activation.code
+        self.db.flush()  # initialize activation.code
 
         Str = self.Str
 
@@ -298,8 +298,8 @@ class ForgotPasswordController(BaseController):
         message = Message(subject=subject, recipients=[user.email], body=body)
         mailer.send(message)
 
-        FlashMessage(self.request, Str.reset_password_email_sent,
-                     kind='success')
+        add_flash(self.request, plain=Str.reset_password_email_sent,
+                  kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
@@ -335,8 +335,8 @@ class ForgotPasswordController(BaseController):
                 self.db.add(user)
                 self.db.delete(activation)
 
-                FlashMessage(self.request, self.Str.reset_password_done,
-                             kind='success')
+                add_flash(self.request, plain=self.Str.reset_password_done,
+                          kind='success')
                 self.request.registry.notify(PasswordResetEvent(
                     self.request, user, password))
                 location = self.reset_password_redirect_view
@@ -392,11 +392,11 @@ class RegisterController(BaseController):
         if self.require_activation:
             # SEND EMAIL ACTIVATION
             create_activation(self.request, user)
-            FlashMessage(self.request, self.Str.activation_check_email,
-                         kind='success')
+            add_flash(self.request, plain=self.Str.activation_check_email,
+                      kind='success')
         elif not autologin:
-            FlashMessage(self.request, self.Str.registration_done,
-                         kind='success')
+            add_flash(self.request, plain=self.Str.registration_done,
+                      kind='success')
 
         self.request.registry.notify(NewRegistrationEvent(
             self.request, user, None, controls))
@@ -430,8 +430,8 @@ class RegisterController(BaseController):
             return HTTPNotFound()
 
         self.db.delete(activation)
-        FlashMessage(self.request, self.Str.activation_email_verified,
-                     kind='success')
+        add_flash(self.request, plain=self.Str.activation_email_verified,
+                  kind='success')
         self.request.registry.notify(
             RegistrationActivatedEvent(self.request, user, activation))
         # If an exception is raised in an event subscriber, this never runs:
@@ -483,10 +483,10 @@ class ProfileController(BaseController):
             if email:
                 email_user = self.User.get_by_email(self.request, email)
                 if email_user and email_user.id != user.id:
-                    # TODO This should be a validation error, not FlashMessage
-                    FlashMessage(
+                    # TODO This should be a validation error, not add_flash
+                    add_flash(
                         self.request,
-                        self.Str.edit_profile_email_present.format(
+                        plain=self.Str.edit_profile_email_present.format(
                             email=email),
                         kind='error')
                     return HTTPFound(location=self.request.url)
@@ -500,8 +500,8 @@ class ProfileController(BaseController):
                 changed = True
 
             if changed:
-                FlashMessage(self.request, self.Str.edit_profile_done,
-                             kind='success')
+                add_flash(self.request, plain=self.Str.edit_profile_done,
+                          kind='success')
                 self.request.registry.notify(
                     ProfileUpdatedEvent(self.request, user, captured)
                 )

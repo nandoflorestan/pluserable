@@ -154,10 +154,10 @@ class TestAuthController(UnitTestBase):
             }, request_method='POST')
 
         view = AuthController(request)
-        with patch('pluserable.views.FlashMessage') as FlashMessage:
+        with patch('pluserable.views.add_flash') as add_flash:
             view.login()
-            FlashMessage.assert_called_with(request,
-                "Invalid username or password.", kind="error")
+            add_flash.assert_called_with(
+                request, plain="Invalid username or password.", kind="error")
 
     def test_login_succeeds(self):
         """Make sure we can log in."""
@@ -169,7 +169,7 @@ class TestAuthController(UnitTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        admin = User(username='sontek', email='sontek@gmail.com')
+        admin = User(username='sontek', email='noam@chomsky.org')
         admin.password = 'min4'
 
         self.session.add(admin)
@@ -197,7 +197,7 @@ class TestAuthController(UnitTestBase):
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
         self.session.add(user)
@@ -216,11 +216,11 @@ class TestAuthController(UnitTestBase):
             }, request_method='POST')
 
         view = AuthController(request)
-        with patch('pluserable.views.FlashMessage') as FlashMessage:
+        with patch('pluserable.views.add_flash') as add_flash:
             view.login()
-            FlashMessage.assert_called_with(
+            add_flash.assert_called_with(
                 request,
-                'Your account is not active, please check your e-mail.',
+                plain='Your account is not active, please check your e-mail.',
                 kind='error')
 
     def test_logout(self):
@@ -244,10 +244,10 @@ class TestAuthController(UnitTestBase):
         view = AuthController(request)
         with patch('pluserable.views.forget') as forget:
             with patch('pluserable.views.HTTPFound') as HTTPFound:
-                with patch('pluserable.views.FlashMessage') as FlashMessage:
+                with patch('pluserable.views.add_flash') as add_flash:
                     view.logout()
-                    FlashMessage.assert_called_with(request,
-                        Str.logout, kind="success")
+                    add_flash.assert_called_with(
+                        request, plain=Str.logout, kind="success")
 
                 forget.assert_called_with(request)
                 assert invalidate.called
@@ -395,7 +395,7 @@ class TestRegisterController(UnitTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'sontek@gmail.com'
+            'email': 'noam@chomsky.org'
         }, request_method='POST')
         request.user = Mock()
         controller = RegisterController(request)
@@ -448,7 +448,7 @@ class TestRegisterController(UnitTestBase):
 
         self.config.add_route('index', '/')
 
-        admin = User(username='sontek', email='sontek@gmail.com')
+        admin = User(username='sontek', email='noam@chomsky.org')
         admin.password = 'test123'
         self.session.add(admin)
         self.session.flush()
@@ -459,7 +459,7 @@ class TestRegisterController(UnitTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'sontek@gmail.com'
+            'email': 'noam@chomsky.org'
         }, request_method='POST')
 
         view = RegisterController(request)
@@ -500,16 +500,16 @@ class TestRegisterController(UnitTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'sontek@gmail.com'
+            'email': 'noam@chomsky.org'
         }, request_method='POST')
 
         request.user = Mock()
 
         view = RegisterController(request)
-        with patch('pluserable.views.FlashMessage') as FlashMessage:
+        with patch('pluserable.views.add_flash') as add_flash:
             response = view.register()
-            FlashMessage.assert_called_with(request,
-                view.Str.registration_done, kind="success")
+            add_flash.assert_called_with(
+                request, plain=view.Str.registration_done, kind="success")
         assert response.status_int == 302
         user = User.get_by_username(request, 'admin')
         assert user.is_activated == True
@@ -542,7 +542,7 @@ class TestRegisterController(UnitTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'sontek@gmail.com'
+            'email': 'noam@chomsky.org'
         }, request_method='POST')
 
         request.user = Mock()
@@ -607,7 +607,7 @@ class TestRegisterController(UnitTestBase):
 
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.activation = Activation()
         user.password = 'min4'
         user1 = User(username='sontek1', email='sontek+2@gmail.com')
@@ -655,7 +655,7 @@ class TestRegisterController(UnitTestBase):
 
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
         user.activation = Activation()
 
@@ -693,7 +693,7 @@ class TestRegisterController(UnitTestBase):
 
         bad_act = Activation()
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.activation = Activation()
         user.password = 'min4'
 
@@ -775,24 +775,25 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+            email='noam@chomsky.org')
         user.password = 'min4'
 
         self.session.add(user)
         self.session.flush()
 
         request = self.get_csrf_request(post={
-            'email': 'sontek@gmail.com'
+            'email': 'noam@chomsky.org'
         }, request_method='POST')
 
         request.user = None
 
         view = ForgotPasswordController(request)
 
-        with patch('pluserable.views.FlashMessage') as FlashMessage:
+        with patch('pluserable.views.add_flash') as add_flash:
             response = view.forgot_password()
-            FlashMessage.assert_called_with(request,
-                view.Str.reset_password_email_sent, kind="success")
+            add_flash.assert_called_with(
+                request, plain=view.Str.reset_password_email_sent,
+                kind="success")
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
@@ -809,7 +810,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+                    email='noam@chomsky.org')
         user.password = 'min4'
 
         self.session.add(user)
@@ -843,7 +844,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+                    email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
 
@@ -884,7 +885,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
 
@@ -935,7 +936,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+                    email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
 
@@ -978,7 +979,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+                    email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
 
@@ -1017,7 +1018,7 @@ class TestForgotPasswordController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='sontek@gmail.com')
+                    email='noam@chomsky.org')
         user.password = 'min4'
         user.activation = Activation()
 
@@ -1053,7 +1054,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.flush()
@@ -1085,7 +1086,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
 
         self.session.add(user)
@@ -1119,7 +1120,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.flush()
@@ -1150,7 +1151,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.flush()
@@ -1163,7 +1164,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_csrf_request(post={
-            'email': 'sontek@gmail.com',
+            'email': 'noam@chomsky.org',
         }, request_method='POST')
 
         request.user = user
@@ -1178,7 +1179,7 @@ class TestProfileController(UnitTestBase):
 
         # Assertions
         new_user = User.get_by_id(request, user.id)
-        assert new_user.email == 'sontek@gmail.com'
+        assert new_user.email == 'noam@chomsky.org'
         assert crypt.check(user.password, 'temp' + user.salt)
 
     def test_profile_update_password(self):  # Happy
@@ -1195,7 +1196,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sontek', email='noam@chomsky.org')
         user.password = 'temp'
 
         self.session.add(user)
@@ -1209,7 +1210,7 @@ class TestProfileController(UnitTestBase):
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_csrf_request(post={
-            'email': 'sontek@gmail.com',
+            'email': 'noam@chomsky.org',
             'password': {
                 'password': 'test123',
                 'password-confirm': 'test123',
@@ -1227,5 +1228,5 @@ class TestProfileController(UnitTestBase):
 
         # Assertions
         new_user = User.get_by_id(request, user.id)
-        assert new_user.email == 'sontek@gmail.com'
+        assert new_user.email == 'noam@chomsky.org'
         assert not crypt.check(user.password, 'temp' + user.salt)
