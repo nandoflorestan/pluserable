@@ -259,7 +259,8 @@ The tests can also be run in parallel::
 
     py.test -n4
 
-We are going to use this build server: http://travis-ci.org/#!/nandoflorestan/pluserable
+We are going to use this build server:
+http://travis-ci.org/#!/nandoflorestan/pluserable
 
 
 Origin of the project
