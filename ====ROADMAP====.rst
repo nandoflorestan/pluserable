@@ -3,7 +3,6 @@ pluserable roadmap
 ==================
 
 - Add civilized way of selecting which routes/views I want for my project
-- Rename *Controller* to *View*
 - Models should not see the request object; move all I/O to a Repository layer
 - Refactor views: Create an action layer (also known as service layer)
 - Refactor sending emails with the strategy pattern

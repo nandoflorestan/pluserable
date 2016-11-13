@@ -19,25 +19,26 @@ def clean_byte_string(string):
 
 
 class TestViews(IntegrationTestBase):
+
     def test_index(self):
-        """ Call the index view, make sure routes are working """
+        """Call the index view, make sure routes are working."""
         res = self.app.get('/')
         assert res.status_int == 200
 
     def test_get_register(self):
-        """ Call the register view, make sure routes are working """
+        """Call the register view, make sure routes are working."""
         res = self.app.get('/register')
         assert res.status_int == 200
 
     def test_get_login(self):
-        """ Call the login view, make sure routes are working """
+        """Call the login view, make sure routes are working."""
         res = self.app.get('/login')
         self.assertEqual(res.status_int, 200)
 
     def test_login_redirects_if_logged_in(self):
         request = testing.DummyRequest()
-        from pluserable.views import AuthController
-        with patch.object(AuthController, 'request', request) as request:
+        from pluserable.views import AuthView
+        with patch.object(AuthView, 'request', request) as request:
             request.user = Mock()
             res = self.app.get('/login').follow()
             # TODO: Patch index request as well so that it redirects to the
@@ -45,7 +46,7 @@ class TestViews(IntegrationTestBase):
             assert b'index' in res.body
 
     def test_empty_login(self):
-        """ Empty login fails """
+        """Empty login fails."""
         res = self.app.post(str('/login'), {'submit': True})
 
         assert b"There was a problem with your submission" in res.body
@@ -53,7 +54,7 @@ class TestViews(IntegrationTestBase):
         assert res.status_int == 200
 
     def test_valid_login(self):
-        """ Call the login view, make sure routes are working """
+        """Call the login view, make sure routes are working."""
         from pluserable.tests.models import User
         admin = User(username='sontek', email='sontek@gmail.com')
         admin.password = 'temp'

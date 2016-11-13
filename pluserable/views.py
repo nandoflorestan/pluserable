@@ -42,7 +42,7 @@ def includeme(config):
     if 'login' in routes:
         config.add_view(
             route_name='login', xhr=True, accept="application/json",
-            renderer='json', view=AuthController, attr='login_ajax')
+            renderer='json', view=AuthView, attr='login_ajax')
 
 
 def get_config_route(request, config_key):
@@ -125,7 +125,7 @@ def validate_form(controls, form):
     return captured
 
 
-class BaseController(object):
+class BaseView(object):
     @property
     def request(self):
         # we defined this so that we can override the request in tests easily
@@ -141,9 +141,9 @@ class BaseController(object):
         self.db = get_session(request)
 
 
-class AuthController(BaseController):
+class AuthView(BaseView):
     def __init__(self, request):
-        super(AuthController, self).__init__(request)
+        super(AuthView, self).__init__(request)
 
         schema = request.registry.getUtility(ILoginSchema)
         self.schema = schema().bind(request=self.request)
@@ -245,9 +245,9 @@ class AuthController(BaseController):
         return HTTPFound(location=self.logout_redirect_view, headers=headers)
 
 
-class ForgotPasswordController(BaseController):
+class ForgotPasswordView(BaseView):
     def __init__(self, request):
-        super(ForgotPasswordController, self).__init__(request)
+        super(ForgotPasswordView, self).__init__(request)
 
         self.forgot_password_redirect_view = route_url(
             self.settings.get('pluserable.forgot_password_redirect', 'index'),
@@ -343,9 +343,9 @@ class ForgotPasswordController(BaseController):
                 return HTTPFound(location=location)
 
 
-class RegisterController(BaseController):
+class RegisterView(BaseView):
     def __init__(self, request):
-        super(RegisterController, self).__init__(request)
+        super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
         self.schema = schema().bind(request=self.request)
 
@@ -438,7 +438,7 @@ class RegisterController(BaseController):
         return HTTPFound(location=self.after_activate_url)
 
 
-class ProfileController(BaseController):
+class ProfileView(BaseView):
     def profile(self):
         user_id = self.request.matchdict.get('user_id', None)
         user = self.User.get_by_id(self.request, user_id)
@@ -510,22 +510,22 @@ class ProfileController(BaseController):
 
 def get_pyramid_views_config():
     return {  # route_name: view_kwargs
-        'register': {'view': RegisterController, 'attr': 'register',
+        'register': {'view': RegisterView, 'attr': 'register',
                      'renderer': 'pluserable:templates/register.mako'},
-        'activate': {'view': RegisterController, 'attr': 'activate'},
-        'login': {'view': AuthController, 'attr': 'login',
+        'activate': {'view': RegisterView, 'attr': 'activate'},
+        'login': {'view': AuthView, 'attr': 'login',
                   'renderer': 'pluserable:templates/login.mako'},
         'logout': {'permission': 'view',
-                   'view': AuthController, 'attr': 'logout'},
+                   'view': AuthView, 'attr': 'logout'},
         'forgot_password': {
-            'view': ForgotPasswordController, 'attr': 'forgot_password',
+            'view': ForgotPasswordView, 'attr': 'forgot_password',
             'renderer': 'pluserable:templates/forgot_password.mako'},
         'reset_password': {
-            'view': ForgotPasswordController, 'attr': 'reset_password',
+            'view': ForgotPasswordView, 'attr': 'reset_password',
             'renderer': 'pluserable:templates/reset_password.mako'},
-        'profile': {'view': ProfileController, 'attr': 'profile',
+        'profile': {'view': ProfileView, 'attr': 'profile',
                     'renderer': 'pluserable:templates/profile.mako'},
-        'edit_profile': {'view': ProfileController, 'attr': 'edit_profile',
+        'edit_profile': {'view': ProfileView, 'attr': 'edit_profile',
                          'effective_principals': Authenticated,
                          'renderer': 'pluserable:templates/edit_profile.mako'},
         }

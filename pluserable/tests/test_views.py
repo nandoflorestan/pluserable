@@ -7,9 +7,9 @@ from mock import Mock, patch
 from . import UnitTestBase
 
 
-class TestAuthController(UnitTestBase):
+class TestAuthView(UnitTestBase):
     def test_auth_controller_extensions(self):
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import (
             IUserClass, ILoginSchema, ILoginForm, IActivationClass, IUIStrings)
         from ..strings import UIStringsBase
@@ -34,13 +34,13 @@ class TestAuthController(UnitTestBase):
         self.config.registry.registerUtility(schema, ILoginSchema)
         self.config.registry.registerUtility(form, ILoginForm)
 
-        AuthController(request)
+        AuthView(request)
 
         assert schema.called
         assert form.called
 
     def test_login_loads(self):
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -53,13 +53,13 @@ class TestAuthController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = None
-        view = AuthController(request)
+        view = AuthView(request)
         response = view.login()
 
         assert response.get('form', None)
 
     def test_login_redirects_if_logged_in(self):
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -72,14 +72,14 @@ class TestAuthController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = Mock()
-        view = AuthController(request)
+        view = AuthView(request)
 
         response = view.login()
         assert response.status_int == 302
 
     def test_login_fails_empty(self):
         """Make sure we can't log in with empty credentials."""
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -94,7 +94,7 @@ class TestAuthController(UnitTestBase):
             'submit': True,
         }, request_method='POST')
 
-        view = AuthController(request)
+        view = AuthView(request)
         response = view.login()
         errors = response['errors']
 
@@ -107,7 +107,7 @@ class TestAuthController(UnitTestBase):
 
     def test_csrf_invalid_fails(self):
         """ Make sure we can't login with a bad csrf """
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -125,7 +125,7 @@ class TestAuthController(UnitTestBase):
                     'csrf_token': 'abc2'
                 }, request_method='POST')
 
-        view = AuthController(request)
+        view = AuthView(request)
 
         response = view.login()
 
@@ -136,7 +136,7 @@ class TestAuthController(UnitTestBase):
 
     def test_login_fails_bad_credentials(self):
         """ Make sure we can't login with bad credentials"""
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -153,7 +153,7 @@ class TestAuthController(UnitTestBase):
                 'password': 'test123',
             }, request_method='POST')
 
-        view = AuthController(request)
+        view = AuthView(request)
         with patch('pluserable.views.add_flash') as add_flash:
             view.login()
             add_flash.assert_called_with(
@@ -175,7 +175,7 @@ class TestAuthController(UnitTestBase):
         self.session.add(admin)
         self.session.flush()
 
-        from pluserable.views import AuthController
+        from pluserable.views import AuthView
         self.config.add_route('index', '/')
 
         self.config.include('pluserable')
@@ -186,7 +186,7 @@ class TestAuthController(UnitTestBase):
                 'password': 'min4',
             }, request_method='POST')
 
-        view = AuthController(request)
+        view = AuthView(request)
         response = view.login()
 
         assert response.status_int == 302
@@ -203,7 +203,7 @@ class TestAuthController(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        from pluserable.views import AuthController
+        from pluserable.views import AuthView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
@@ -215,7 +215,7 @@ class TestAuthController(UnitTestBase):
             'password': 'min4',
             }, request_method='POST')
 
-        view = AuthController(request)
+        view = AuthView(request)
         with patch('pluserable.views.add_flash') as add_flash:
             view.login()
             add_flash.assert_called_with(
@@ -225,7 +225,7 @@ class TestAuthController(UnitTestBase):
 
     def test_logout(self):
         from ..strings import UIStringsBase as Str
-        from ..views import AuthController
+        from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -241,7 +241,7 @@ class TestAuthController(UnitTestBase):
         request.session = Mock()
         request.session.invalidate = invalidate
 
-        view = AuthController(request)
+        view = AuthView(request)
         with patch('pluserable.views.forget') as forget:
             with patch('pluserable.views.HTTPFound') as HTTPFound:
                 with patch('pluserable.views.add_flash') as add_flash:
@@ -254,11 +254,11 @@ class TestAuthController(UnitTestBase):
                 assert HTTPFound.called
 
 
-class TestRegisterController(UnitTestBase):
+class TestRegisterView(UnitTestBase):
     def test_register_controller_extensions_with_mail(self):
         from pyramid_mailer.mailer      import DummyMailer
         from pyramid_mailer.interfaces  import IMailer
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pluserable.interfaces           import IRegisterSchema
         from pluserable.interfaces           import IRegisterForm
         from pluserable.interfaces           import IUserClass
@@ -286,14 +286,14 @@ class TestRegisterController(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         with patch('pluserable.views.get_mailer') as get_mailer:
-            RegisterController(request)
+            RegisterView(request)
             assert get_mailer.called
 
         assert schema.called
         assert form.called
 
     def test_register_controller_extensions_without_mail(self):
-        from pluserable.views        import RegisterController
+        from pluserable.views        import RegisterView
         from pluserable.interfaces   import IRegisterSchema
         from pluserable.interfaces   import IRegisterForm
         from pluserable.interfaces   import IUserClass
@@ -321,14 +321,14 @@ class TestRegisterController(UnitTestBase):
         self.config.registry.registerUtility(form, IRegisterForm)
 
         with patch('pluserable.views.get_mailer') as get_mailer:
-            RegisterController(request)
+            RegisterView(request)
             assert not get_mailer.called
 
         schema.assert_called_once_with()
         assert form.called
 
     def test_register_loads_not_logged_in(self):
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pyramid_mailer.mailer      import DummyMailer
         from pyramid_mailer.interfaces  import IMailer
         from pluserable.interfaces           import IUserClass
@@ -346,13 +346,13 @@ class TestRegisterController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = None
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.register()
 
         assert response.get('form', None)
 
     def test_register_redirects_if_logged_in(self):
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pyramid_mailer.mailer      import DummyMailer
         from pyramid_mailer.interfaces  import IMailer
         from pluserable.interfaces           import IUserClass
@@ -372,7 +372,7 @@ class TestRegisterController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = Mock()
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.register()
 
         assert response.status_int == 302
@@ -380,7 +380,7 @@ class TestRegisterController(UnitTestBase):
     def test_register_creates_user(self):
         from pyramid_mailer.mailer import DummyMailer
         from pyramid_mailer.interfaces import IMailer
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pluserable.interfaces import IActivationClass, IUserClass
         from pluserable.tests.models import Activation, User
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -398,7 +398,7 @@ class TestRegisterController(UnitTestBase):
             'email': 'noam@chomsky.org'
         }, request_method='POST')
         request.user = Mock()
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.register()
 
         assert response.status_int == 302
@@ -406,7 +406,7 @@ class TestRegisterController(UnitTestBase):
         assert user is not None
 
     def test_register_validation(self):
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pyramid_mailer.mailer      import DummyMailer
         from pyramid_mailer.interfaces  import IMailer
         from pluserable.interfaces           import IUserClass
@@ -425,14 +425,14 @@ class TestRegisterController(UnitTestBase):
         request = self.get_csrf_request(request_method='POST')
 
         request.user = Mock()
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.register()
 
         assert len(response['errors']) == 3
         assert 'There was a problem with your submission' in response['form']
 
     def test_register_existing_user(self):
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pyramid_mailer.mailer      import DummyMailer
         from pyramid_mailer.interfaces  import IMailer
         from pluserable.interfaces           import IUserClass
@@ -462,13 +462,13 @@ class TestRegisterController(UnitTestBase):
             'email': 'noam@chomsky.org'
         }, request_method='POST')
 
-        view = RegisterController(request)
+        view = RegisterView(request)
         adict = view.register()
         assert isinstance(adict, dict)
         assert adict['errors']
 
     def test_register_no_email_validation(self):
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pyramid_mailer.mailer import DummyMailer
         from pyramid_mailer.interfaces import IMailer
         from hem.interfaces import IDBSession
@@ -505,7 +505,7 @@ class TestRegisterController(UnitTestBase):
 
         request.user = Mock()
 
-        view = RegisterController(request)
+        view = RegisterView(request)
         with patch('pluserable.views.add_flash') as add_flash:
             response = view.register()
             add_flash.assert_called_with(
@@ -515,7 +515,7 @@ class TestRegisterController(UnitTestBase):
         assert user.is_activated == True
 
     def test_registration_craps_out(self):
-        from pluserable.views                import RegisterController
+        from pluserable.views                import RegisterView
         from pyramid_mailer.interfaces  import IMailer
         from pluserable.interfaces           import IUserClass
         from pluserable.tests.models         import User
@@ -546,12 +546,12 @@ class TestRegisterController(UnitTestBase):
         }, request_method='POST')
 
         request.user = Mock()
-        controller = RegisterController(request)
+        controller = RegisterView(request)
 
         self.assertRaises(Exception, controller.register)
 
     def test_activate(self):
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces import IUserClass
@@ -584,7 +584,7 @@ class TestRegisterController(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.activate()
         user = User.get_by_username(request, 'sontek')
 
@@ -592,7 +592,7 @@ class TestRegisterController(UnitTestBase):
         assert response.status_int == 302
 
     def test_activate_multiple_users(self):
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -629,7 +629,7 @@ class TestRegisterController(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.activate()
         user = User.get_by_username(request, 'sontek1')
 
@@ -640,7 +640,7 @@ class TestRegisterController(UnitTestBase):
         assert response.status_int == 302
 
     def test_activate_invalid(self):
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -668,7 +668,7 @@ class TestRegisterController(UnitTestBase):
         get.return_value = 'invalid'
         request.matchdict.get = get
 
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.activate()
         user = User.get_by_username(request, 'sontek')
 
@@ -676,7 +676,7 @@ class TestRegisterController(UnitTestBase):
         assert response.status_int == 404
 
     def test_activate_invalid_user(self):
-        from pluserable.views import RegisterController
+        from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -716,7 +716,7 @@ class TestRegisterController(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterController(request)
+        controller = RegisterView(request)
         response = controller.activate()
         new_user1 = User.get_by_username(request, 'sontek')
         new_user2 = User.get_by_username(request, 'jessie')
@@ -726,9 +726,9 @@ class TestRegisterController(UnitTestBase):
         assert response.status_int == 404
 
 
-class TestForgotPasswordController(UnitTestBase):
+class TestForgotPasswordView(UnitTestBase):
     def test_forgot_password_loads(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pluserable.interfaces           import IUserClass
         from pluserable.tests.models         import User
         from pluserable.interfaces           import IActivationClass
@@ -741,13 +741,13 @@ class TestForgotPasswordController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = None
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.forgot_password()
 
         assert response.get('form', None)
 
     def test_forgot_password_logged_in_redirects(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pluserable.interfaces           import IUserClass
         from pluserable.tests.models         import User
 
@@ -757,13 +757,13 @@ class TestForgotPasswordController(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = Mock()
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.forgot_password()
 
         assert response.status_int == 302
 
     def test_forgot_password_valid_user(self):
-        from pluserable.views                import ForgotPasswordController
+        from pluserable.views                import ForgotPasswordView
         from pyramid_mailer.interfaces  import IMailer
         from pyramid_mailer.mailer      import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -787,7 +787,7 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
 
         with patch('pluserable.views.add_flash') as add_flash:
             response = view.forgot_password()
@@ -797,7 +797,7 @@ class TestForgotPasswordController(UnitTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -822,13 +822,13 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.forgot_password()
 
         assert len(response['errors']) == 1
 
     def test_reset_password_loads(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -860,14 +860,14 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.reset_password()
 
         assert response.get('form', None)
         assert 'sontek' in response['form']
 
     def test_reset_password_valid_user(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from hem.interfaces import IDBSession
         from pluserable.events import PasswordResetEvent
         from pyramid_mailer.interfaces import IMailer
@@ -913,14 +913,14 @@ class TestForgotPasswordController(UnitTestBase):
 
         self.config.add_subscriber(handle_password_reset, PasswordResetEvent)
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.reset_password()
 
         assert not crypt.check(user.password, 'temp' + user.salt)
         assert response.status_int == 302
 
     def test_reset_password_invalid_password(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -957,13 +957,13 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.reset_password()
 
         assert len(response['errors']) == 1
 
     def test_reset_password_empty_password(self):
-        from pluserable.views import ForgotPasswordController
+        from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -995,14 +995,14 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
 
         response = view.reset_password()
 
         assert len(response['errors']) == 1
 
     def test_invalid_reset_gets_404(self):
-        from pluserable.views                import ForgotPasswordController
+        from pluserable.views                import ForgotPasswordView
         from pyramid_mailer.interfaces  import IMailer
         from pyramid_mailer.mailer      import DummyMailer
         from pluserable.interfaces           import IUserClass
@@ -1034,15 +1034,15 @@ class TestForgotPasswordController(UnitTestBase):
 
         request.user = None
 
-        view = ForgotPasswordController(request)
+        view = ForgotPasswordView(request)
         response = view.reset_password()
 
         assert response.status_int == 404
 
 
-class TestProfileController(UnitTestBase):
+class TestProfileView(UnitTestBase):
     def test_profile_loads(self):
-        from pluserable.views import ProfileController
+        from pluserable.views import ProfileView
         from pluserable.interfaces           import IUserClass
         from pluserable.interfaces           import IActivationClass
         from pluserable.tests.models         import User
@@ -1067,14 +1067,14 @@ class TestProfileController(UnitTestBase):
         get.return_value = user.id
         request.matchdict.get = get
 
-        view = ProfileController(request)
+        view = ProfileView(request)
 
         response = view.profile()
 
         assert response.get('user', None) == user
 
     def test_profile_bad_id(self):
-        from pluserable.views import ProfileController
+        from pluserable.views import ProfileView
         from pluserable.interfaces           import IUserClass
         from pluserable.interfaces           import IActivationClass
         from pluserable.tests.models         import User
@@ -1100,14 +1100,14 @@ class TestProfileController(UnitTestBase):
         get.return_value = 99
         request.matchdict.get = get
 
-        view = ProfileController(request)
+        view = ProfileView(request)
 
         response = view.profile()
 
         assert response.status_int == 404
 
     def test_profile_update_profile_invalid(self):
-        from pluserable.views import ProfileController
+        from pluserable.views import ProfileView
         from pluserable.interfaces import (
             IUserClass, IActivationClass, IProfileSchema)
         from pluserable.tests.models import User, Activation
@@ -1134,12 +1134,12 @@ class TestProfileController(UnitTestBase):
         request.matchdict.get = get
 
         # The code being tested
-        response = ProfileController(request).edit_profile()
+        response = ProfileView(request).edit_profile()
 
         assert len(response['errors']) == 3
 
     def test_profile_update_profile(self):
-        from pluserable.views import ProfileController
+        from pluserable.views import ProfileView
         from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
         from pluserable.interfaces import IUserClass, IActivationClass
@@ -1175,7 +1175,7 @@ class TestProfileController(UnitTestBase):
         request.matchdict.get = get
 
         # The code being tested
-        ProfileController(request).profile()
+        ProfileView(request).profile()
 
         # Assertions
         new_user = User.get_by_id(request, user.id)
@@ -1183,7 +1183,7 @@ class TestProfileController(UnitTestBase):
         assert crypt.check(user.password, 'temp' + user.salt)
 
     def test_profile_update_password(self):  # Happy
-        from pluserable.views import ProfileController
+        from pluserable.views import ProfileView
         from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
         from pluserable.interfaces import IUserClass, IActivationClass
@@ -1224,7 +1224,7 @@ class TestProfileController(UnitTestBase):
         request.matchdict.get = get
 
         # The code being tested
-        ProfileController(request).edit_profile()
+        ProfileView(request).edit_profile()
 
         # Assertions
         new_user = User.get_by_id(request, user.id)
