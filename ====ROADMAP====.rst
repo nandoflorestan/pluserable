@@ -2,9 +2,9 @@
 pluserable roadmap
 ==================
 
-- Respect PEP8
-- Fix import indentation
+- Remove deprecated names
 - import colander as c
+- import deform as d
 - Use double quotes in docstrings, not single quotes.
 - Use base model from bag library.
 - Lose hem

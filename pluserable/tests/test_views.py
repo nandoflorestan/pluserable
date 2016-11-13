@@ -1,3 +1,5 @@
+"""Tests for the views."""
+
 from pyramid import testing
 from mock import Mock, patch
 from . import UnitTestBase
@@ -252,17 +254,14 @@ class TestAuthView(UnitTestBase):
 
 class TestRegisterView(UnitTestBase):
     def test_register_controller_extensions_with_mail(self):
-        from pyramid_mailer.mailer      import DummyMailer
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.views                import RegisterView
-        from pluserable.interfaces           import IRegisterSchema
-        from pluserable.interfaces           import IRegisterForm
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces   import IUIStrings
-        from pluserable.strings      import UIStringsBase
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pyramid_mailer.mailer import DummyMailer
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.views import RegisterView
+        from pluserable.interfaces import (
+            IRegisterSchema, IRegisterForm, IUserClass, IUIStrings,
+            IActivationClass)
+        from pluserable.strings import UIStringsBase
+        from pluserable.tests.models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(UIStringsBase, IUIStrings)
@@ -289,15 +288,13 @@ class TestRegisterView(UnitTestBase):
         assert form.called
 
     def test_register_controller_extensions_without_mail(self):
-        from pluserable.views        import RegisterView
-        from pluserable.interfaces   import IRegisterSchema
-        from pluserable.interfaces   import IRegisterForm
-        from pluserable.interfaces   import IUserClass
-        from pluserable.interfaces   import IUIStrings
-        from pluserable.strings      import UIStringsBase
-        from pluserable.tests.models import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.views import RegisterView
+        from pluserable.interfaces import (
+            IRegisterSchema, IRegisterForm, IUserClass, IUIStrings,
+            IActivationClass)
+        from pluserable.strings import UIStringsBase
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(UIStringsBase, IUIStrings)
@@ -324,13 +321,12 @@ class TestRegisterView(UnitTestBase):
         assert form.called
 
     def test_register_loads_not_logged_in(self):
-        from pluserable.views                import RegisterView
-        from pyramid_mailer.mailer      import DummyMailer
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.views import RegisterView
+        from pyramid_mailer.mailer import DummyMailer
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -348,13 +344,12 @@ class TestRegisterView(UnitTestBase):
         assert response.get('form', None)
 
     def test_register_redirects_if_logged_in(self):
-        from pluserable.views                import RegisterView
-        from pyramid_mailer.mailer      import DummyMailer
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.views import RegisterView
+        from pyramid_mailer.mailer import DummyMailer
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -379,6 +374,7 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pluserable.interfaces import IActivationClass, IUserClass
         from pluserable.tests.models import Activation, User
+
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
         self.config.include('pluserable')
@@ -402,13 +398,12 @@ class TestRegisterView(UnitTestBase):
         assert user is not None
 
     def test_register_validation(self):
-        from pluserable.views                import RegisterView
-        from pyramid_mailer.mailer      import DummyMailer
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.views import RegisterView
+        from pyramid_mailer.mailer import DummyMailer
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -428,13 +423,12 @@ class TestRegisterView(UnitTestBase):
         assert 'There was a problem with your submission' in response['form']
 
     def test_register_existing_user(self):
-        from pluserable.views                import RegisterView
-        from pyramid_mailer.mailer      import DummyMailer
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.views import RegisterView
+        from pyramid_mailer.mailer import DummyMailer
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -469,10 +463,8 @@ class TestRegisterView(UnitTestBase):
         from pyramid_mailer.interfaces import IMailer
         from hem.interfaces import IDBSession
         from pluserable.events import NewRegistrationEvent
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -508,15 +500,14 @@ class TestRegisterView(UnitTestBase):
                 request, plain=view.Str.registration_done, kind="success")
         assert response.status_int == 302
         user = User.get_by_username(request, 'admin')
-        assert user.is_activated == True
+        assert user.is_activated is True
 
     def test_registration_craps_out(self):
-        from pluserable.views                import RegisterView
-        from pyramid_mailer.interfaces  import IMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.views import RegisterView
+        from pyramid_mailer.interfaces import IMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -550,10 +541,9 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces   import IActivationClass
-        from pluserable.tests.models import Activation
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
+
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -591,10 +581,10 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -639,10 +629,10 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -675,10 +665,10 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -725,10 +715,10 @@ class TestRegisterView(UnitTestBase):
 class TestForgotPasswordView(UnitTestBase):
     def test_forgot_password_loads(self):
         from pluserable.views import ForgotPasswordView
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -744,8 +734,8 @@ class TestForgotPasswordView(UnitTestBase):
 
     def test_forgot_password_logged_in_redirects(self):
         from pluserable.views import ForgotPasswordView
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.add_route('index', '/')
@@ -759,11 +749,11 @@ class TestForgotPasswordView(UnitTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_valid_user(self):
-        from pluserable.views                import ForgotPasswordView
-        from pyramid_mailer.interfaces  import IMailer
-        from pyramid_mailer.mailer      import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
+        from pluserable.views import ForgotPasswordView
+        from pyramid_mailer.interfaces import IMailer
+        from pyramid_mailer.mailer import DummyMailer
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
         self.config.registry.registerUtility(User, IUserClass)
 
         self.config.add_route('index', '/')
@@ -771,7 +761,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         user = User(username='sontek', password='temp',
-            email='noam@chomsky.org')
+                    email='noam@chomsky.org')
         user.password = 'min4'
 
         self.session.add(user)
@@ -796,8 +786,8 @@ class TestForgotPasswordView(UnitTestBase):
         from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
 
         self.config.registry.registerUtility(User, IUserClass)
 
@@ -827,10 +817,10 @@ class TestForgotPasswordView(UnitTestBase):
         from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
-        from pluserable.interfaces           import IActivationClass
+        from pluserable.interfaces import IUserClass
+        from pluserable.tests.models import User
+        from pluserable.tests.models import Activation
+        from pluserable.interfaces import IActivationClass
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -869,10 +859,10 @@ class TestForgotPasswordView(UnitTestBase):
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
         from pluserable.models import crypt
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import User
+        from pluserable.tests.models import Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -919,10 +909,10 @@ class TestForgotPasswordView(UnitTestBase):
         from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import User
+        from pluserable.tests.models import Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -962,10 +952,10 @@ class TestForgotPasswordView(UnitTestBase):
         from pluserable.views import ForgotPasswordView
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass
+        from pluserable.interfaces import IActivationClass
+        from pluserable.tests.models import User
+        from pluserable.tests.models import Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -998,13 +988,11 @@ class TestForgotPasswordView(UnitTestBase):
         assert len(response['errors']) == 1
 
     def test_invalid_reset_gets_404(self):
-        from pluserable.views                import ForgotPasswordView
-        from pyramid_mailer.interfaces  import IMailer
-        from pyramid_mailer.mailer      import DummyMailer
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.views import ForgotPasswordView
+        from pyramid_mailer.interfaces import IMailer
+        from pyramid_mailer.mailer import DummyMailer
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -1039,10 +1027,8 @@ class TestForgotPasswordView(UnitTestBase):
 class TestProfileView(UnitTestBase):
     def test_profile_loads(self):
         from pluserable.views import ProfileView
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)
@@ -1071,10 +1057,8 @@ class TestProfileView(UnitTestBase):
 
     def test_profile_bad_id(self):
         from pluserable.views import ProfileView
-        from pluserable.interfaces           import IUserClass
-        from pluserable.interfaces           import IActivationClass
-        from pluserable.tests.models         import User
-        from pluserable.tests.models         import Activation
+        from pluserable.interfaces import IUserClass, IActivationClass
+        from pluserable.tests.models import User, Activation
 
         self.config.registry.registerUtility(User, IUserClass)
         self.config.registry.registerUtility(Activation, IActivationClass)

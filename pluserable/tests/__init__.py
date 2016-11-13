@@ -1,27 +1,23 @@
 import unittest
-from webtest                import TestApp
-from sqlalchemy             import engine_from_config
-from pyramid                import testing
+from webtest import TestApp
+from sqlalchemy import engine_from_config
+from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
-from pyramid.authorization  import ACLAuthorizationPolicy
-from pyramid_beaker         import session_factory_from_settings
-from pyramid.response       import Response
-from paste.deploy.loadwsgi  import appconfig
-from sqlalchemy.orm         import scoped_session
-from sqlalchemy.orm         import sessionmaker
-from zope.sqlalchemy        import ZopeTransactionExtension
-from mock                   import Mock
-from pluserable.tests.models     import Base
-from pluserable.tests.models     import User
-from pluserable.tests.models     import Activation
-from pluserable.interfaces       import IUserClass
-from pluserable.interfaces       import IActivationClass
-from pkg_resources          import resource_filename
-from hem.interfaces         import IDBSession
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid_beaker import session_factory_from_settings
+from pyramid.response import Response
+from paste.deploy.loadwsgi import appconfig
+from sqlalchemy.orm import scoped_session, sessionmaker
+from zope.sqlalchemy import ZopeTransactionExtension
+from mock import Mock
+from pluserable.tests.models import Activation, Base, User
+from pluserable.interfaces import IUserClass, IActivationClass
+from pkg_resources import resource_filename
+from hem.interfaces import IDBSession
 import os
 
 here = os.path.dirname(__file__)
-#settings = appconfig('config:' + os.path.join(here, 'test.ini'))
+# settings = appconfig('config:' + os.path.join(here, 'test.ini'))
 settings = appconfig('config:' + resource_filename(__name__, 'test.ini'))
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -67,10 +63,8 @@ class UnitTestBase(BaseTestCase):
         if not post:
             post = {}
 
-        if not 'csrf_token' in post.keys():
-            post.update({
-                'csrf_token': csrf
-            })
+        if 'csrf_token' not in post.keys():
+            post['csrf_token'] = csrf
 
         request = testing.DummyRequest(post)
 

@@ -63,6 +63,7 @@ def username_does_not_contain_at(node, value):
 # These functions reduce duplication in the schemas defined below,
 # while ensuring some constant values are consistent among those schemas.
 
+
 def get_username_creation_node(
         title=_('User name'), description=_("Name with which you will log in"),
         validator=None):

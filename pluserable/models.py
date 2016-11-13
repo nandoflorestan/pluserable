@@ -65,7 +65,7 @@ class BaseModel(object):
             if not key.startswith('__') and not key.startswith('_sa_'):
                 obj = getattr(self, key)
                 if (isinstance(obj, datetime) or isinstance(obj, date)) \
-                    and convert_date:
+                        and convert_date:
                     obj = obj.isoformat()
                 props[key] = obj
         return props
@@ -160,22 +160,22 @@ class NoUsernameMixin(BaseModel):
 
     @declared_attr
     def last_login_date(self):
-        """ Date of user's last login """
+        """Date of user's last login."""
         return sa.Column(
-            sa.TIMESTAMP(timezone=False)
-            , default=sa.func.now()
-            , server_default=sa.func.now()
-            , nullable=False
+            sa.TIMESTAMP(timezone=False),
+            default=sa.func.now(),
+            server_default=sa.func.now(),
+            nullable=False,
         )
 
     @declared_attr
     def registered_date(self):
-        """ Date of user's registration """
+        """Date of user's registration."""
         return sa.Column(
-            sa.TIMESTAMP(timezone=False)
-            , default=sa.sql.func.now()
-            , server_default=sa.func.now()
-            , nullable=False
+            sa.TIMESTAMP(timezone=False),
+            default=sa.sql.func.now(),
+            server_default=sa.func.now(),
+            nullable=False,
         )
 
     @declared_attr
