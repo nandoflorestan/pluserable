@@ -96,7 +96,6 @@ def get_checked_password_node(description=_(
 class UsernameLoginSchema(CSRFSchema):
     handle = c.SchemaNode(c.String(), title=_('User name'))
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
-LoginSchema = UsernameLoginSchema  # The name "LoginSchema" is deprecated.
 
 
 class EmailLoginSchema(CSRFSchema):
@@ -109,7 +108,6 @@ class UsernameRegisterSchema(CSRFSchema):
     username = get_username_creation_node()
     email = get_email_node()
     password = get_checked_password_node()
-RegisterSchema = UsernameRegisterSchema  # name "RegisterSchema" is deprecated.
 
 
 class EmailRegisterSchema(CSRFSchema):
@@ -128,7 +126,6 @@ class UsernameResetPasswordSchema(CSRFSchema):
         c.String(), title=_('User name'), missing=c.null,
         widget=deform.widget.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
-ResetPasswordSchema = UsernameResetPasswordSchema  # deprecated name
 
 
 class EmailResetPasswordSchema(CSRFSchema):
@@ -145,7 +142,6 @@ class UsernameProfileSchema(CSRFSchema):
         missing=c.null)
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
-ProfileSchema = UsernameProfileSchema  # The name "ProfileSchema" is obsolete.
 
 
 class EmailProfileSchema(CSRFSchema):

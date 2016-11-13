@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- Remove deprecated names
 - import colander as c
 - import deform as d
 - Use double quotes in docstrings, not single quotes.
