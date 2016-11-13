@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Tests for our schemas."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from pluserable.tests import UnitTestBase
 from pluserable.schemas import UsernameLoginSchema, UsernameRegisterSchema
 from colander import Invalid
@@ -12,7 +10,7 @@ class TestSchemas(UnitTestBase):
         request = self.get_csrf_request(post={
             'handle': 'sontek',
             'password': 'password',
-            })
+        })
         schema = UsernameLoginSchema().bind(request=request)
 
         result = schema.deserialize(request.POST)

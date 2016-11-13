@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Strings for easy internationalization."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from zope.interface import implementer
 from .interfaces import IUIStrings
 from .models import _

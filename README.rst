@@ -9,6 +9,8 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
+The last version of pluserable that supported Python 2 was 0.2.0.
+
 
 Minimal integration
 ===================

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Deform forms."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import deform
 
 
@@ -37,7 +35,7 @@ class BootstrapForm(BaseForm):
 
 
 class PluserableForm(BootstrapForm):
-    """This is the standard form we should use throughout our code, that way
-    if we decide to swap our rendering later, we only have to do it in 1 place.
+    """The standard form we should use throughout our code.
+    If we decide to swap our rendering later, we only have to do it in 1 place.
     """
     pass

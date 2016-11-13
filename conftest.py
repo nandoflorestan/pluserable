@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
+'''Function that runs when pluserable tests start.'''
 
-'''Tests'''
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from pkg_resources import resource_filename
 
 
@@ -14,7 +10,6 @@ def pytest_sessionstart():
     if not hasattr(config, 'slaveinput'):
         from pyramid.config import Configurator
         from pluserable.tests.models import Base
-        from pluserable.settings import get_default_pluserable_settings
         from paste.deploy.loadwsgi import appconfig
         from sqlalchemy import engine_from_config
 

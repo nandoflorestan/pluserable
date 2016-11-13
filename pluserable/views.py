@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import logging
 from bag.web.pyramid.flash_msg import add_flash
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -206,8 +202,7 @@ class AuthView(BaseView):
         # on the user
         user_json = user.__json__(self.request)
 
-        return {'status': 'okay',
-                'user': user_json}
+        return {'status': 'okay', 'user': user_json}
 
     def login(self):
         if self.request.method == 'GET':
@@ -528,4 +523,4 @@ def get_pyramid_views_config():
         'edit_profile': {'view': ProfileView, 'attr': 'edit_profile',
                          'effective_principals': Authenticated,
                          'renderer': 'pluserable:templates/edit_profile.mako'},
-        }
+    }

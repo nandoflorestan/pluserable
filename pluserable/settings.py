@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from .resources import UserFactory
 from .views import get_pyramid_views_config
 
 
 def get_default_pluserable_settings(config):
-    '''In order to customize Pluserable to its purpose, user code calls this
-        and manipulates the returned dictionary.  Here we return defaults
-        that user code can change.
-        '''
+    """Return default pluserable setings.
+
+    In order to customize Pluserable to its purpose, user code calls this
+    and manipulates the returned dictionary.  Here we return defaults
+    that user code can change.
+    """
     return {
         # Pyramid routes
         'routes': {  # route_name: route_kwargs
@@ -25,7 +23,7 @@ def get_default_pluserable_settings(config):
             'profile': {'pattern': '/profile/{user_id}',
                         'factory': UserFactory, 'traverse': "/{user_id}"},
             'edit_profile': {'pattern': '/edit_profile'},
-            },
+        },
         # Pyramid views
         'views': get_pyramid_views_config(),
     }

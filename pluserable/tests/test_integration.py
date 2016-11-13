@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from pluserable.tests import IntegrationTestBase
 from pyramid import testing
 from pyramid.compat import PY3

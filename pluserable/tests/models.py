@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
+"""Models for tests."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from sqlalchemy.ext.declarative import declarative_base
 from pluserable.models import (ActivationMixin, BaseModel, GroupMixin,
-                          UsernameMixin, UserGroupMixin)
+                               UsernameMixin, UserGroupMixin)
 
 Base = declarative_base(cls=BaseModel)
 

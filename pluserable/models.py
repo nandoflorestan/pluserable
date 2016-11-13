@@ -1,11 +1,6 @@
-# -*- coding: utf-8 -*-
+"""Base models for apps that use SQLAlchemy and pluserable."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-try:
-    from urllib.parse import urlencode  # Python 3
-except ImportError:
-    from urllib import urlencode  # Python 2
+from urllib.parse import urlencode
 
 from pyramid.compat import text_type as unicode
 from pyramid.i18n import TranslationStringFactory

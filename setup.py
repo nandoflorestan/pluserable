@@ -1,20 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+"""Installer for pluserable."""
+
 import os
 import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
-def content_of(*files):
-    import codecs
+def content_of(*files, encoding='utf-8'):
+    """Return the content of ``files`` (which should be paths)."""
     here = os.path.abspath(os.path.dirname(__file__))
     content = []
     for f in files:
-        with codecs.open(os.path.join(here, f), encoding='utf-8') as stream:
+        with open(os.path.join(here, f), encoding=encoding) as stream:
             content.append(stream.read())
     return '\n'.join(content)
 
@@ -62,15 +61,12 @@ setup(
         'License :: OSI Approved :: BSD License',
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
-        ],
+    ],
     author='Nando Florestan',
     author_email='nandoflorestan@gmail.com',
     url='https://github.com/nandoflorestan/pluserable',
@@ -84,4 +80,4 @@ setup(
     tests_require=requires + ['pytest', 'mock', 'webtest'],
     cmdclass={'test': PyTest},
     test_suite='pluserable/tests',
-    )
+)

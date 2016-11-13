@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+"""Pluserable is a user registration and login library."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 import inspect
 from bag import resolve
 from hem.config import get_class_from_config
@@ -86,9 +84,7 @@ class EmailStrategy(BaseStrategy):
 
 def includeme(config):
     settings = config.registry.settings
-    # str('user') returns a bytestring under Python 2 and a
-    # unicode string under Python 3, which is what we need:
-    config.add_request_method(get_user, str('user'), reify=True)
+    config.add_request_method(get_user, 'user', reify=True)
     config.set_root_factory(RootFactory)
 
     config.add_directive('scan_pluserable', scan)

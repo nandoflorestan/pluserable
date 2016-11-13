@@ -2,8 +2,14 @@
 pluserable roadmap
 ==================
 
-- Remove Python 2 support
+- Move events/__init__.py to events.py
+- Respect PEP8
+- Fix import indentation
+- import colander as c
+- Use double quotes in docstrings, not single quotes.
+- Use base model from bag library.
 - Lose hem
+- Lose CSRFSchema in favor of Pyramid 1.7 updated CSRF protection.
 - Add civilized way of selecting which routes/views I want for my project
 - Models should not see the request object; move all I/O to a Repository layer
 - Refactor views: Create an action layer (also known as service layer)

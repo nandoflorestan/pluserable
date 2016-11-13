@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from pyramid import testing
 from mock import Mock, patch
 from . import UnitTestBase
@@ -135,7 +131,7 @@ class TestAuthView(UnitTestBase):
         assert errors[0].msg == 'Invalid cross-site scripting token'
 
     def test_login_fails_bad_credentials(self):
-        """ Make sure we can't login with bad credentials"""
+        """Make sure we can't log in with bad credentials."""
         from ..views import AuthView
         from ..interfaces import IUserClass, IActivationClass
         from .models import User, Activation
@@ -148,10 +144,10 @@ class TestAuthView(UnitTestBase):
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
         request = self.get_csrf_request(post={
-                'submit': True,
-                'handle': 'admin',
-                'password': 'test123',
-            }, request_method='POST')
+            'submit': True,
+            'handle': 'admin',
+            'password': 'test123',
+        }, request_method='POST')
 
         view = AuthView(request)
         with patch('pluserable.views.add_flash') as add_flash:
