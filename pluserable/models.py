@@ -10,7 +10,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func, or_
 
-from hem.text import generate_random_string, pluralize
+from bag.text.hash import random_hash
+from hem.text import pluralize
 from hem.db import get_session
 
 import cryptacular.bcrypt
@@ -113,7 +114,7 @@ class ActivationMixin(BaseModel):
         """A random hash that is valid only once."""
         return sa.Column(sa.Unicode(30), nullable=False,
                          unique=True,
-                         default=generate_random_string)
+                         default=random_hash)
 
     @declared_attr
     def valid_until(self):
@@ -134,7 +135,7 @@ class ActivationMixin(BaseModel):
 
 
 def default_security_code():
-    return generate_random_string(12)
+    return random_hash(12)
 
 
 class NoUsernameMixin(BaseModel):
@@ -218,7 +219,7 @@ class NoUsernameMixin(BaseModel):
 
     def _hash_password(self, password):
         if not self.salt:
-            self.salt = generate_random_string(24)
+            self.salt = random_hash(24)
 
         return unicode(crypt.encode(password + self.salt))
 
@@ -233,7 +234,7 @@ class NoUsernameMixin(BaseModel):
     @classmethod
     def generate_random_password(cls, chars=12):
         """ generates random string of fixed length"""
-        return generate_random_string(chars)
+        return random_hash(chars)
 
     @classmethod  # TODO REMOVE in favor of q_by_email()
     def get_by_email(cls, request, email):
