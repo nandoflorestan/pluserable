@@ -50,9 +50,11 @@ def get_config_route(request, config_key):
 
 
 def authenticated(request, userid):
-    """Sets the auth cookies and redirects either to the URL indicated in
-    the "next" parameter, or to the page defined in
-    pluserable.login_redirect, which defaults to a view named 'index'.
+    """Set the auth cookies and redirect.
+
+    ...either to the URL indicated in the "next" parameter,
+    or to the page defined in pluserable.login_redirect,
+    which defaults to a view named 'index'.
     """
     settings = request.registry.settings
     headers = remember(request, userid)
@@ -402,7 +404,7 @@ class RegisterView(BaseView):
             return HTTPFound(location=self.after_register_url)
 
     def persist_user(self, controls):
-        '''To change how the user is stored, override this method.'''
+        """To change how the user is stored, override this method."""
         # This generic method must work with any custom User class and any
         # custom registration form:
         user = self.User(**controls)

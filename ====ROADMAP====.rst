@@ -2,9 +2,9 @@
 pluserable roadmap
 ==================
 
+- UserMixin
 - import colander as c
 - import deform as d
-- Use double quotes in docstrings, not single quotes.
 - Use base model from bag library.
 - Lose hem
 - Lose CSRFSchema in favor of Pyramid 1.7 updated CSRF protection.

@@ -7,9 +7,11 @@ from .models import _
 
 @implementer(IUIStrings)
 class UIStringsBase(object):  # TODO Continue building
-    '''A class containing all GUI strings in the application, such that
-    user apps can simply subclass and change whatever text they want.
-    '''
+    """A class containing all GUI strings in the application.
+
+    User apps can simply subclass and change whatever text they want.
+    """
+
     activation_check_email = \
         _("Thank you for registering! Please check your e-mail now. You can "
           "continue by clicking the activation link we have sent you.")
@@ -35,7 +37,7 @@ class UIStringsBase(object):  # TODO Continue building
     reset_password_email_must_exist = _(
         'We have no user with the email "{}". '
         'Try correcting this address or trying another.')
-    reset_password_email_body = _('''\
+    reset_password_email_body = _("""\
 Hello, {username}!
 
 Someone requested resetting your password. If it was you, click here:
@@ -44,11 +46,9 @@ Someone requested resetting your password. If it was you, click here:
 If you don't want to change your password, please ignore this email message.
 
 Regards,
-{domain}\n''')
+{domain}\n""")
     reset_password_email_subject = _("Reset your password")
     # You don't want to say "E-mail not registered" or anything like that
     # because it gives spammers context:
     reset_password_email_sent = _("Please check your e-mail to finish "
                                   "resetting your password.")
-
-__doc__ = UIStringsBase.__doc__

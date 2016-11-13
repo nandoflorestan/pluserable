@@ -117,13 +117,13 @@ class ActivationMixin(BaseModel):
 
     @declared_attr
     def valid_until(self):
-        """How long will the activation key last"""
+        """How long will the activation key last."""
         return sa.Column(sa.DateTime, nullable=False,
                          default=three_days_from_now)
 
     @declared_attr
     def created_by(self):
-        """The system that generated the activation key"""
+        """The system that generated the activation key."""
         return sa.Column(sa.Unicode(30), nullable=False,
                          default='web')
 
@@ -223,7 +223,7 @@ class NoUsernameMixin(BaseModel):
         return unicode(crypt.encode(password + self.salt))
 
     def gravatar_url(self, default='mm', size=80, cacheable=True):
-        '''Returns a Gravatar image URL for this user.'''
+        """Return a Gravatar image URL for this user."""
         base = "http://www.gravatar.com/avatar/" if cacheable else \
             "https://secure.gravatar.com/avatar/"
         return base + \
@@ -266,14 +266,14 @@ class NoUsernameMixin(BaseModel):
 
     @classmethod
     def get_by_email_password(cls, request, handle, password):
-        '''Only returns the user object if the password is correct.'''
+        """Only return the user object if the password is correct."""
         user = cls.get_by_email(request, handle)
         return cls.validate_user(user, password)
     get_user = get_by_email_password  # get_user is overridden in UsernameMixin
 
     @classmethod
     def validate_user(cls, user, password):
-        '''Checks the password and returns the user object.'''
+        """Check the password and return the user object."""
         if not user:
             return None
         if user.password is None:
@@ -292,7 +292,7 @@ class NoUsernameMixin(BaseModel):
 
 
 class UsernameMixin(NoUsernameMixin):
-    '''Additional username column for sites that need it.'''
+    """Additional username column for sites that need it."""
     @declared_attr
     def username(self):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
@@ -316,15 +316,15 @@ class UsernameMixin(NoUsernameMixin):
 
     @classmethod
     def get_by_username_password(cls, request, username, password):
-        '''Only returns the user object if the password is correct.'''
+        """Only return the user object if the password is correct."""
         user = cls.get_by_username(request, username)
         return cls.validate_user(user, password)
 
     @classmethod
     def get_user(cls, request, handle, password):
-        '''We override this method because ``handle`` could be a
+        """We override this method because ``handle`` could be a
         username or an email.
-        '''
+        """
         if '@' in handle:
             return cls.get_by_email_password(request, handle, password)
         else:
@@ -393,6 +393,7 @@ class UserGroupMixin(BaseModel):
 
     def __repr__(self):
         return '<UserGroup: %s, %s>' % (self.group_name, self.user_id,)
+
 
 __all__ = [
     k for k, v in locals().items()

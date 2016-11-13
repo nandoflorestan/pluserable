@@ -11,7 +11,7 @@ from .models import _
 
 
 def email_exists(node, val):
-    '''Colander validator that ensures a User exists with the email.'''
+    """Colander validator that ensures a User exists with the email."""
     req = node.bindings['request']
     User = req.registry.getUtility(IUserClass)
     exists = get_session(req).query(User).filter(User.email.ilike(val)).count()
@@ -21,7 +21,7 @@ def email_exists(node, val):
 
 
 def unique_email(node, val):
-    '''Colander validator that ensures the email does not exist.'''
+    """Colander validator that ensures the email does not exist."""
     req = node.bindings['request']
     User = req.registry.getUtility(IUserClass)
     other = get_session(req).query(User).filter(User.email.ilike(val)).first()
@@ -31,7 +31,7 @@ def unique_email(node, val):
 
 
 def unique_username(node, value):
-    '''Colander validator that ensures the username does not exist.'''
+    """Colander validator that ensures the username does not exist."""
     req = node.bindings['request']
     User = req.registry.getUtility(IUserClass)
     if get_session(req).query(User).filter(User.username == value).count():
@@ -40,20 +40,22 @@ def unique_username(node, value):
 
 
 def unix_username(node, value):  # TODO This is currently not used
-    '''Colander validator that ensures the username is alphanumeric.'''
+    """Colander validator that ensures the username is alphanumeric."""
     if not ALPHANUM.match(value):
         raise c.Invalid(node, _("Contains unacceptable characters."))
+
+
 ALPHANUM = re.compile(r'^[a-zA-Z0-9_.-]+$')
 
 
 def username_does_not_contain_at(node, value):
-    '''Colander validator that ensures the username does not contain an
+    """Colander validator that ensures the username does not contain an
     ``@`` character.
 
     This is important because the system can be configured to accept
     an email or a username in the same field at login time, so the
     presence or absence of the @ tells us whether it is an email address.
-    '''
+    """
     if '@' in value:
         raise c.Invalid(node, _("May not contain this character: @"))
 
@@ -99,7 +101,7 @@ class UsernameLoginSchema(CSRFSchema):
 
 
 class EmailLoginSchema(CSRFSchema):
-    '''For login, some apps just use email and have no username column.'''
+    """For login, some apps just use email and have no username column."""
     handle = get_email_node(validator=c.Email())
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
 

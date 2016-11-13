@@ -1,4 +1,4 @@
-'''Demonstration.'''
+"""Demonstration."""
 
 from pyramid.config import Configurator
 
