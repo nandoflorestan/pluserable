@@ -330,11 +330,9 @@ class UsernameMixin(NoUsernameMixin):
         else:
             return cls.get_by_username_password(request, handle, password)
 
-UserMixin = UsernameMixin  # The "UserMixin" name is kept for backwards compat
-
 
 class GroupMixin(BaseModel):
-    """ base mixin for group object"""
+    """Mixin class for groups."""
 
     @declared_attr
     def name(self):
@@ -346,11 +344,11 @@ class GroupMixin(BaseModel):
 
     @declared_attr
     def users(self):
-        """Relationship for users belonging to this group"""
+        """Relationship for users belonging to this group."""
         return sa.orm.relationship(
             'User',
             secondary=UserGroupMixin.__tablename__,
-            # order_by='%s.user.username' % UserMixin.__tablename__,
+            # order_by='%s.user.username' % UsernameMixin.__tablename__,
             passive_deletes=True,
             passive_updates=True,
             backref=pluralize(GroupMixin.__tablename__),

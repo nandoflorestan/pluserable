@@ -36,7 +36,7 @@ def scan(config, module):
     module = inspect.getmodule(module)
 
     model_mappings = {
-        models.UserMixin: IUserClass,
+        models.UsernameMixin: IUserClass,
         models.ActivationMixin: IActivationClass,
     }
 

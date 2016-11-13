@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- UserMixin
 - import colander as c
 - import deform as d
 - Use base model from bag library.
