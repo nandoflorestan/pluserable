@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- Move events/__init__.py to events.py
 - Respect PEP8
 - Fix import indentation
 - import colander as c
