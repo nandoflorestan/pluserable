@@ -10,8 +10,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func, or_
 
+from bag.text import pluralize
 from bag.text.hash import random_hash
-from hem.text import pluralize
 from hem.db import get_session
 
 import cryptacular.bcrypt
