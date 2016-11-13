@@ -6,12 +6,12 @@ import inspect
 from bag import resolve
 from hem.config import get_class_from_config
 from pyramid.path import DottedNameResolver
+from pluserable.web.pyramid import get_user
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
     UsernameResetPasswordSchema, UsernameProfileSchema, EmailLoginSchema,
     EmailRegisterSchema, EmailResetPasswordSchema, EmailProfileSchema)
 from .forms import SubmitForm
-from .lib import get_user
 from .resources import RootFactory
 from .interfaces import (
     IUIStrings, IUserClass, IActivationClass, ILoginForm, ILoginSchema,
