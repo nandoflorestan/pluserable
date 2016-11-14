@@ -36,10 +36,10 @@ Minimal integration
 
 - Include pluserable inside your ``main()`` function like this::
 
-    # Tell pluserable which SQLAlchemy scoped session to use:
-    from hem.interfaces import IDBSession
+    # Tell pluserable which SQLAlchemy session to use:
+    from pluserable.interfaces import IDBSession
     registry = config.registry
-    registry.registerUtility(my_sqlalchemy_scoped_session, IDBSession)
+    registry.registerUtility(my_sqlalchemy_session, IDBSession)
 
     # Tell pluserable which models to use:
     from pluserable.interfaces import IUserClass, IActivationClass

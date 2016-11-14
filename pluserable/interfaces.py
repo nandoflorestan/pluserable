@@ -1,16 +1,22 @@
+"""Interfaces for the user app to register utilities for pluserable."""
+
 from zope.interface import Interface
 
 
+class IDBSession(Interface):
+    """Marker interface for registering a SQLAlchemy session."""
+
+
 class IUIStrings(Interface):
-    pass
+    """Marker interface for a class containing translation strings."""
 
 
 class IUserClass(Interface):
-    pass
+    """Interface for a user model class."""
 
 
 class IActivationClass(Interface):
-    pass
+    """Interface for a user activation model class."""
 
 
 class ILoginSchema(Interface):

@@ -12,7 +12,7 @@ from sqlalchemy import func, or_
 
 from bag.text import pluralize
 from bag.text.hash import random_hash
-from hem.db import get_session
+from pluserable.db.sqlalchemy.session import get_session
 
 import cryptacular.bcrypt
 import re

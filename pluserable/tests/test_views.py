@@ -3,6 +3,7 @@
 from pyramid import testing
 from mock import Mock, patch
 from . import UnitTestBase
+from pluserable.interfaces import IDBSession
 
 
 class TestAuthView(UnitTestBase):
@@ -430,7 +431,6 @@ class TestRegisterView(UnitTestBase):
         from pluserable.views import RegisterView
         from pyramid_mailer.mailer import DummyMailer
         from pyramid_mailer.interfaces import IMailer
-        from hem.interfaces import IDBSession
         from pluserable.events import NewRegistrationEvent
         from pluserable.interfaces import IUserClass, IActivationClass
         from pluserable.tests.models import User, Activation
@@ -823,7 +823,6 @@ class TestForgotPasswordView(UnitTestBase):
 
     def test_reset_password_valid_user(self):
         from pluserable.views import ForgotPasswordView
-        from hem.interfaces import IDBSession
         from pluserable.events import PasswordResetEvent
         from pyramid_mailer.interfaces import IMailer
         from pyramid_mailer.mailer import DummyMailer
@@ -1089,7 +1088,6 @@ class TestProfileView(UnitTestBase):
 
     def test_profile_update_profile(self):
         from pluserable.views import ProfileView
-        from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
         from pluserable.interfaces import IUserClass, IActivationClass
         from pluserable.models import crypt
@@ -1133,7 +1131,6 @@ class TestProfileView(UnitTestBase):
 
     def test_profile_update_password(self):  # Happy
         from pluserable.views import ProfileView
-        from hem.interfaces import IDBSession
         from pluserable.events import ProfileUpdatedEvent
         from pluserable.interfaces import IUserClass, IActivationClass
         from pluserable.models import crypt

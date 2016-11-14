@@ -13,7 +13,7 @@ from mock import Mock
 from pluserable.tests.models import Activation, Base, User
 from pluserable.interfaces import IUserClass, IActivationClass
 from pkg_resources import resource_filename
-from hem.interfaces import IDBSession
+from pluserable.interfaces import IDBSession
 import os
 
 here = os.path.dirname(__file__)

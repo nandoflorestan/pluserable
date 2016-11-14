@@ -3,7 +3,7 @@
 import re
 import colander as c
 import deform.widget as w
-from hem.db import get_session
+from pluserable.db.sqlalchemy.session import get_session
 from .interfaces import IUserClass, IUIStrings
 from .models import _
 

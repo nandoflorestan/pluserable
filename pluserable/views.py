@@ -8,7 +8,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from hem.db import get_session
+from pluserable.db.sqlalchemy.session import get_session
 from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
