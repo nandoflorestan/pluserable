@@ -1,9 +1,6 @@
 """Pluserable is a user registration and login library."""
 
-import inspect
 from bag import resolve
-from hem.config import get_class_from_config
-from pyramid.path import DottedNameResolver
 from pluserable.web.pyramid import get_user
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
@@ -15,7 +12,6 @@ from .interfaces import (
     IUIStrings, IUserClass, IActivationClass, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from . import models
 from .strings import UIStringsBase
 
 
@@ -28,27 +24,6 @@ def groupfinder(userid, request):
             groups.append('group:%s' % group.name)
         groups.append('user:%s' % user.id_value)
     return groups
-
-
-def scan(config, module):
-    r = DottedNameResolver()
-    module = r.maybe_resolve(module)
-    module = inspect.getmodule(module)
-
-    model_mappings = {
-        models.UsernameMixin: IUserClass,
-        models.ActivationMixin: IActivationClass,
-    }
-
-    for name, obj in inspect.getmembers(module):
-        if inspect.isclass(obj):
-            # don't register the pluserable mixins
-            if obj.__module__ == 'pluserable.models':
-                continue
-
-            for mixin, interface in model_mappings.items():
-                if isinstance(obj, type) and issubclass(obj, mixin):
-                    config.registry.registerUtility(obj, interface)
 
 
 class BaseStrategy(object):
@@ -83,11 +58,10 @@ class EmailStrategy(BaseStrategy):
 
 
 def includeme(config):
+    """Integrate pluserable into a Pyramid web app."""
     settings = config.registry.settings
     config.add_request_method(get_user, 'user', reify=True)
     config.set_root_factory(RootFactory)
-
-    config.add_directive('scan_pluserable', scan)
 
     # User code may create a setting "pluserable_configurator" that points
     # to a callable that we call here:
@@ -96,25 +70,7 @@ def includeme(config):
         'pluserable.settings:get_default_pluserable_settings')
     if not callable(configurator):
         configurator = resolve(configurator)
-    config.registry.settings['pluserable'] = configurator(config)
-
-    if not config.registry.queryUtility(IUserClass):
-        try:
-            user_class = get_class_from_config(
-                settings, 'pluserable.user_class')
-            config.registry.registerUtility(user_class, IUserClass)
-        except:
-            # maybe they are using scan?
-            pass
-
-    if not config.registry.queryUtility(IActivationClass):
-        try:
-            activation_class = get_class_from_config(
-                settings, 'pluserable.activation_class')
-            config.registry.registerUtility(activation_class, IActivationClass)
-        except:
-            # maybe they are using scan?
-            pass
+    settings['pluserable'] = configurator(config)
 
     # SubmitForm is the default for all our forms
     for form in (ILoginForm, IRegisterForm, IForgotPasswordForm,

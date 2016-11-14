@@ -9,7 +9,8 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-The last version of pluserable that supported Python 2 was 0.2.0.
+*pluserable* now requires Python >= 3.4.
+The last version of *pluserable* that supported Python 2 was 0.2.0.
 
 
 Minimal integration
@@ -44,24 +45,12 @@ Minimal integration
     # and then inform pluserable about it like this:
     registry.settings['pluserable_configurator'] = 'my.package:some_function'
 
-    config.include('pluserable')
-    config.scan_pluserable(auth_models_package_or_module)
-
-  With the above ``config.scan_pluserable()`` call, you need to edit your .ini
-  configuration file and tell pluserable which model classes to use like this::
-
-      pluserable.user_class = my_app.models:User
-      pluserable.activation_class = my_app.models:Activation
-
-  As an alternative to ``config.scan_pluserable()`` plus that configuration,
-  you can register the classes explicitly if you so prefer. This must be
-  done above ``config.include('pluserable')``::
-
     # Tell pluserable which models to use:
     from pluserable.interfaces import IUserClass, IActivationClass
     registry.registerUtility(User, IUserClass)
     registry.registerUtility(Activation, IActivationClass)
 
+    # Finally pluserable can be initialized:
     config.include('pluserable')
 
 - Your ``pluserable_configurator`` function would look more or less like this::
