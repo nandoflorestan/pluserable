@@ -1,4 +1,4 @@
-'''Function that runs when pluserable tests start.'''
+"""Function that runs when pluserable tests start."""
 
 from pkg_resources import resource_filename
 

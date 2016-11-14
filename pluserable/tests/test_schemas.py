@@ -7,7 +7,7 @@ from colander import Invalid
 
 class TestSchemas(UnitTestBase):
     def test_valid_login_schema(self):
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'handle': 'sontek',
             'password': 'password',
         })
@@ -17,18 +17,17 @@ class TestSchemas(UnitTestBase):
 
         assert result['handle'] == 'sontek'
         assert result['password'] == 'password'
-        assert result['csrf_token'] is not None
 
     def test_invalid_login_schema(self):
-        request = self.get_csrf_request()
+        request = self.get_request()
         schema = UsernameLoginSchema().bind(request=request)
 
         def deserialize_empty():
             try:
                 schema.deserialize({})
             except Invalid as exc:
-                assert len(exc.children) == 3
-                errors = ['csrf_token', 'handle', 'password']
+                assert len(exc.children) == 2
+                errors = ['handle', 'password']
                 for child in exc.children:
                     assert child.node.name in errors
                     assert child.msg == 'Required'
@@ -37,7 +36,7 @@ class TestSchemas(UnitTestBase):
 
     def test_usernames_may_not_contain_at(self):
         POST = dict(username='bru@haha', email='bru@haha.com', password='pass')
-        request = self.get_csrf_request(post=POST)
+        request = self.get_request(post=POST)
         schema = UsernameRegisterSchema().bind(request=request)
 
         def run():

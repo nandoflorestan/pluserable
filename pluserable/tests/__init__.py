@@ -57,24 +57,12 @@ class BaseTestCase(unittest.TestCase):
 
 
 class UnitTestBase(BaseTestCase):
-    def get_csrf_request(self, post=None, request_method='GET'):
-        csrf = 'abc'
-
+    def get_request(self, post=None, request_method='GET'):
         if not post:
             post = {}
-
-        if 'csrf_token' not in post.keys():
-            post['csrf_token'] = csrf
-
         request = testing.DummyRequest(post)
-
         request.session = Mock()
-        csrf_token = Mock()
-        csrf_token.return_value = csrf
-
-        request.session.get_csrf_token = csrf_token
         request.method = request_method
-
         return request
 
 

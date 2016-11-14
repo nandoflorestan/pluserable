@@ -5,7 +5,6 @@ import colander as c
 import deform
 import deform.widget as w
 from hem.db import get_session
-from hem.schemas import CSRFSchema
 from .interfaces import IUserClass, IUIStrings
 from .models import _
 
@@ -95,49 +94,49 @@ def get_checked_password_node(description=_(
 # Schemas
 # -------
 
-class UsernameLoginSchema(CSRFSchema):
+class UsernameLoginSchema(c.Schema):
     handle = c.SchemaNode(c.String(), title=_('User name'))
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
 
 
-class EmailLoginSchema(CSRFSchema):
+class EmailLoginSchema(c.Schema):
     """For login, some apps just use email and have no username column."""
     handle = get_email_node(validator=c.Email())
     password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
 
 
-class UsernameRegisterSchema(CSRFSchema):
+class UsernameRegisterSchema(c.Schema):
     username = get_username_creation_node()
     email = get_email_node()
     password = get_checked_password_node()
 
 
-class EmailRegisterSchema(CSRFSchema):
+class EmailRegisterSchema(c.Schema):
     email = get_email_node()
     password = get_checked_password_node()
 
 
-class ForgotPasswordSchema(CSRFSchema):
+class ForgotPasswordSchema(c.Schema):
     email = get_email_node(
         validator=c.All(c.Email(), email_exists),
         description=_("The email address under which you have your account."))
 
 
-class UsernameResetPasswordSchema(CSRFSchema):
+class UsernameResetPasswordSchema(c.Schema):
     username = c.SchemaNode(
         c.String(), title=_('User name'), missing=c.null,
         widget=deform.widget.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
 
-class EmailResetPasswordSchema(CSRFSchema):
+class EmailResetPasswordSchema(c.Schema):
     email = c.SchemaNode(
         c.String(), title=_('Email'), missing=c.null,
         widget=deform.widget.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
 
-class UsernameProfileSchema(CSRFSchema):
+class UsernameProfileSchema(c.Schema):
     username = c.SchemaNode(
         c.String(),
         widget=deform.widget.TextInputWidget(template='readonly/textinput'),
@@ -146,6 +145,6 @@ class UsernameProfileSchema(CSRFSchema):
     password = get_checked_password_node(missing=c.null)
 
 
-class EmailProfileSchema(CSRFSchema):
+class EmailProfileSchema(c.Schema):
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)

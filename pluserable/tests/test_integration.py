@@ -6,14 +6,6 @@ from mock import Mock
 import re
 
 
-def clean_byte_string(string):
-    regex = "^b'(.+)'$"
-    match = re.search(regex, string)
-    if match:
-        return match.group(1)
-    return string
-
-
 class TestViews(IntegrationTestBase):
 
     def test_index(self):
@@ -59,18 +51,12 @@ class TestViews(IntegrationTestBase):
 
         res = self.app.get('/login')
 
-        csrf = res.form.fields['csrf_token'][0].value
-
-        if PY3:
-            csrf = clean_byte_string(csrf)
-
         res = self.app.post(
             str('/login'),
             {
                 'submit': True,
                 'handle': 'sontek',
                 'password': 'temp',
-                'csrf_token': csrf
             }
         )
         assert res.status_int == 302
@@ -87,18 +73,12 @@ class TestViews(IntegrationTestBase):
 
         res = self.app.get('/login')
 
-        csrf = res.form.fields['csrf_token'][0].value
-
-        if PY3:
-            csrf = clean_byte_string(csrf)
-
         res = self.app.post(
             str('/login'),
             {
                 'submit': True,
                 'handle': 'sontek',
                 'password': 'temp',
-                'csrf_token': csrf
             }
         )
 

@@ -96,41 +96,10 @@ class TestAuthView(UnitTestBase):
         response = view.login()
         errors = response['errors']
 
-        assert errors[0].node.name == 'csrf_token'
+        assert errors[0].node.name == 'handle'
         assert errors[0].msg == 'Required'
-        assert errors[1].node.name == 'handle'
+        assert errors[1].node.name == 'password'
         assert errors[1].msg == 'Required'
-        assert errors[2].node.name == 'password'
-        assert errors[2].msg == 'Required'
-
-    def test_csrf_invalid_fails(self):
-        """ Make sure we can't login with a bad csrf """
-        from ..views import AuthView
-        from ..interfaces import IUserClass, IActivationClass
-        from .models import User, Activation
-        self.config.registry.registerUtility(Activation, IActivationClass)
-
-        self.config.registry.registerUtility(User, IUserClass)
-        self.config.add_route('index', '/')
-        self.config.include('pluserable')
-        self.config.registry.settings['pluserable.login_redirect'] = 'index'
-        self.config.registry.settings['pluserable.logout_redirect'] = 'index'
-
-        request = self.get_csrf_request(post={
-                    'submit': True,
-                    'login': 'admin',
-                    'password': 'test123',
-                    'csrf_token': 'abc2'
-                }, request_method='POST')
-
-        view = AuthView(request)
-
-        response = view.login()
-
-        errors = response['errors']
-
-        assert errors[0].node.name == 'csrf_token'
-        assert errors[0].msg == 'Invalid cross-site scripting token'
 
     def test_login_fails_bad_credentials(self):
         """Make sure we can't log in with bad credentials."""
@@ -145,7 +114,7 @@ class TestAuthView(UnitTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'submit': True,
             'handle': 'admin',
             'password': 'test123',
@@ -178,7 +147,7 @@ class TestAuthView(UnitTestBase):
 
         self.config.include('pluserable')
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
                 'submit': True,
                 'handle': 'sontek',
                 'password': 'min4',
@@ -207,7 +176,7 @@ class TestAuthView(UnitTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'submit': True,
             'handle': 'sontek',
             'password': 'min4',
@@ -381,7 +350,7 @@ class TestRegisterView(UnitTestBase):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'username': 'admin',
             'password': {
                 'password': 'test123',
@@ -413,7 +382,7 @@ class TestRegisterView(UnitTestBase):
 
         self.config.add_route('index', '/')
 
-        request = self.get_csrf_request(request_method='POST')
+        request = self.get_request(request_method='POST')
 
         request.user = Mock()
         controller = RegisterView(request)
@@ -443,7 +412,7 @@ class TestRegisterView(UnitTestBase):
         self.session.add(admin)
         self.session.flush()
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'username': 'sontek',
             'password': {
                 'password': 'test123',
@@ -482,7 +451,7 @@ class TestRegisterView(UnitTestBase):
 
         self.config.add_subscriber(handle_registration, NewRegistrationEvent)
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'username': 'admin',
             'password': {
                 'password': 'test123',
@@ -523,7 +492,7 @@ class TestRegisterView(UnitTestBase):
 
         self.config.add_route('index', '/')
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'username': 'admin',
             'password': {
                 'password': 'test123',
@@ -767,7 +736,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'email': 'noam@chomsky.org'
         }, request_method='POST')
 
@@ -802,7 +771,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'email': 'sontek'
         }, request_method='POST')
 
@@ -878,7 +847,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'password': {
                 'password': 'test123',
                 'password-confirm': 'test123',
@@ -929,7 +898,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'Password': {
                 'Password': 't',
                 'Password-confirm': 't',
@@ -972,7 +941,7 @@ class TestForgotPasswordView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(request_method='POST')
+        request = self.get_request(request_method='POST')
 
         request.matchdict = Mock()
         get = Mock()
@@ -1105,7 +1074,7 @@ class TestProfileView(UnitTestBase):
         self.session.add(user)
         self.session.flush()
 
-        request = self.get_csrf_request(request_method='POST')
+        request = self.get_request(request_method='POST')
         request.user = user
 
         request.matchdict = Mock()
@@ -1143,7 +1112,7 @@ class TestProfileView(UnitTestBase):
 
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'email': 'noam@chomsky.org',
         }, request_method='POST')
 
@@ -1189,7 +1158,7 @@ class TestProfileView(UnitTestBase):
 
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
-        request = self.get_csrf_request(post={
+        request = self.get_request(post={
             'email': 'noam@chomsky.org',
             'password': {
                 'password': 'test123',

@@ -7,7 +7,6 @@ pluserable roadmap
 - Use base model from bag library.
 - Lose hem
 - Remove FormValidationFailure exception
-- Lose CSRFSchema in favor of Pyramid 1.7 updated CSRF protection.
 - Add civilized way of selecting which routes/views I want for my project
 - Models should not see the request object; move all I/O to a Repository layer
 - Refactor views: Create an action layer (also known as service layer)

@@ -381,7 +381,6 @@ class RegisterView(BaseView):
             return e.result(self.request)
 
         # With the form validated, we know email and username are unique.
-        del captured['csrf_token']
         user = self.persist_user(captured)
 
         autologin = asbool(self.settings.get('pluserable.autologin', False))

@@ -1,9 +1,9 @@
 import colander
 import deform
-from hem.schemas import CSRFSchema
 
 
-class ProfileSchema(CSRFSchema):
+class ProfileSchema(colander.Schema):
+
     username = colander.SchemaNode(
         colander.String(),
         widget=deform.widget.TextInputWidget(template='readonly/textinput'),
