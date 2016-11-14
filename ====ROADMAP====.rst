@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- import colander as c
 - import deform as d
 - Use base model from bag library.
 - Lose hem

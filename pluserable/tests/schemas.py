@@ -1,20 +1,20 @@
-import colander
+import colander as c
 import deform
 
 
-class ProfileSchema(colander.Schema):
+class ProfileSchema(c.Schema):
 
-    username = colander.SchemaNode(
-        colander.String(),
+    username = c.SchemaNode(
+        c.String(),
         widget=deform.widget.TextInputWidget(template='readonly/textinput'),
-        missing=colander.null,
+        missing=c.null,
     )
-    email = colander.SchemaNode(colander.String(), validator=colander.Email())
-    first = colander.SchemaNode(colander.String())
-    last = colander.SchemaNode(colander.String())
-    password = colander.SchemaNode(
-        colander.String(),
-        validator=colander.Length(min=2),
+    email = c.SchemaNode(c.String(), validator=c.Email())
+    first = c.SchemaNode(c.String())
+    last = c.SchemaNode(c.String())
+    password = c.SchemaNode(
+        c.String(),
+        validator=c.Length(min=2),
         widget=deform.widget.CheckedPasswordWidget(),
-        missing=colander.null
+        missing=c.null
     )

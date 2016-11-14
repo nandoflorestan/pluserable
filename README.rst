@@ -41,14 +41,14 @@ Minimal integration
     registry = config.registry
     registry.registerUtility(my_sqlalchemy_scoped_session, IDBSession)
 
-    # You may write a function that returns a pluserable configuration,
-    # and then inform pluserable about it like this:
-    registry.settings['pluserable_configurator'] = 'my.package:some_function'
-
     # Tell pluserable which models to use:
     from pluserable.interfaces import IUserClass, IActivationClass
     registry.registerUtility(User, IUserClass)
     registry.registerUtility(Activation, IActivationClass)
+
+    # You may write a function that returns a pluserable configuration,
+    # and then inform pluserable about it like this:
+    registry.settings['pluserable_configurator'] = 'my.package:some_function'
 
     # Finally pluserable can be initialized:
     config.include('pluserable')
