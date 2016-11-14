@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- import deform as d
 - Use base model from bag library.
 - Lose hem
 - Remove FormValidationFailure exception

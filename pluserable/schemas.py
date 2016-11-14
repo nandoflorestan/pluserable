@@ -2,7 +2,6 @@
 
 import re
 import colander as c
-import deform
 import deform.widget as w
 from hem.db import get_session
 from .interfaces import IUserClass, IUIStrings
@@ -87,7 +86,7 @@ def get_checked_password_node(description=_(
         **kw):
     return c.SchemaNode(
         c.String(), title=_('Password'), validator=c.Length(min=4),
-        widget=deform.widget.CheckedPasswordWidget(),
+        widget=w.CheckedPasswordWidget(),
         description=description, **kw)
 
 
@@ -96,13 +95,13 @@ def get_checked_password_node(description=_(
 
 class UsernameLoginSchema(c.Schema):
     handle = c.SchemaNode(c.String(), title=_('User name'))
-    password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
+    password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
 class EmailLoginSchema(c.Schema):
     """For login, some apps just use email and have no username column."""
     handle = get_email_node(validator=c.Email())
-    password = c.SchemaNode(c.String(), widget=deform.widget.PasswordWidget())
+    password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
 class UsernameRegisterSchema(c.Schema):
@@ -125,21 +124,21 @@ class ForgotPasswordSchema(c.Schema):
 class UsernameResetPasswordSchema(c.Schema):
     username = c.SchemaNode(
         c.String(), title=_('User name'), missing=c.null,
-        widget=deform.widget.TextInputWidget(template='readonly/textinput'))
+        widget=w.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
 
 class EmailResetPasswordSchema(c.Schema):
     email = c.SchemaNode(
         c.String(), title=_('Email'), missing=c.null,
-        widget=deform.widget.TextInputWidget(template='readonly/textinput'))
+        widget=w.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
 
 class UsernameProfileSchema(c.Schema):
     username = c.SchemaNode(
         c.String(),
-        widget=deform.widget.TextInputWidget(template='readonly/textinput'),
+        widget=w.TextInputWidget(template='readonly/textinput'),
         missing=c.null)
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
