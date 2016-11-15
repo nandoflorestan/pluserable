@@ -12,7 +12,7 @@ from sqlalchemy import func, or_
 
 from bag.text import pluralize
 from bag.text.hash import random_hash
-from pluserable.db.sqlalchemy.session import get_session
+from pluserable.db.sqlalchemy import Repository
 
 import cryptacular.bcrypt
 import re
@@ -25,7 +25,7 @@ crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 
 
 class BaseModel(object):
-    """Base class which auto-generates tablename and surrogate
+    """Base class which auto-generates table name and surrogate
     primary key column.
     """
     _idAttribute = 'id'

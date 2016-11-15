@@ -27,6 +27,18 @@ Minimal integration
 
 - Create your SQLAlchemy declarative initialization.
 
+- Create a function that returns a SQLAlchemy session and register it as
+  a utility using the IDBSession interface so *pluserable* will be able to
+  find the database session and use it::
+
+    def db_session_factory(registry):
+        """Let *pluserable* know which session to use."""
+        return my_scoped_session
+
+    from pluserable.interfaces import IDBSession
+    registry = config.registry
+    registry.registerUtility(db_session_factory, IDBSession)
+
 - Create models inheriting from pluserable' abstract models.
   Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
@@ -34,12 +46,7 @@ Minimal integration
   Then all you need to do is tell the class where to find your declarative
   base you and are good to go!
 
-- Include pluserable inside your ``main()`` function like this::
-
-    # Tell pluserable which SQLAlchemy session to use:
-    from pluserable.interfaces import IDBSession
-    registry = config.registry
-    registry.registerUtility(my_sqlalchemy_session, IDBSession)
+- Include *pluserable* like this::
 
     # Tell pluserable which models to use:
     from pluserable.interfaces import IUserClass, IActivationClass

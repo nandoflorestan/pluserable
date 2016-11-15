@@ -3,7 +3,7 @@
 import re
 import colander as c
 import deform.widget as w
-from pluserable.db.sqlalchemy.session import get_session
+from pluserable.db.sqlalchemy import Repository
 from .interfaces import IUserClass, IUIStrings
 from .models import _
 
@@ -11,9 +11,9 @@ from .models import _
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
     req = node.bindings['request']
-    User = req.registry.getUtility(IUserClass)
-    exists = get_session(req).query(User).filter(User.email.ilike(val)).count()
-    if not exists:
+    repo = Repository(req.registry)
+    user = repo.q_user_by_email(val)
+    if not user:
         Str = req.registry.getUtility(IUIStrings)
         raise c.Invalid(node, Str.reset_password_email_must_exist.format(val))
 
@@ -21,18 +21,19 @@ def email_exists(node, val):
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
     req = node.bindings['request']
-    User = req.registry.getUtility(IUserClass)
-    other = get_session(req).query(User).filter(User.email.ilike(val)).first()
+    repo = Repository(req.registry)
+    other = repo.q_user_by_email(val)
     if other:
         S = req.registry.getUtility(IUIStrings)
         raise c.Invalid(node, S.registration_email_exists.format(other.email))
 
 
-def unique_username(node, value):
+def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
     req = node.bindings['request']
-    User = req.registry.getUtility(IUserClass)
-    if get_session(req).query(User).filter(User.username == value).count():
+    repo = Repository(req.registry)
+    user = repo.q_user_by_username(val)
+    if user is not None:
         Str = req.registry.getUtility(IUIStrings)
         raise c.Invalid(node, Str.registration_username_exists)
 
