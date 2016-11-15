@@ -122,6 +122,7 @@ def validate_form(controls, form):
 
 
 class BaseView(object):
+
     @property
     def request(self):
         # we defined this so that we can override the request in tests easily
@@ -134,7 +135,6 @@ class BaseView(object):
         self.User = getUtility(IUserClass)
         self.Activation = getUtility(IActivationClass)
         self.Str = getUtility(IUIStrings)
-        self.db = get_session(request)
 
 
 class AuthView(BaseView):
@@ -275,9 +275,9 @@ class ForgotPasswordView(BaseView):
 
         user = self.User.get_by_email(req, captured['email'])
         activation = self.Activation()
-        self.db.add(activation)
+        dbsession.add(activation)
         user.activation = activation
-        self.db.flush()  # initialize activation.code
+        dbsession.flush()  # initialize activation.code
 
         Str = self.Str
 
@@ -327,8 +327,8 @@ class ForgotPasswordView(BaseView):
                 password = captured['password']
 
                 user.password = password
-                self.db.add(user)
-                self.db.delete(activation)
+                dbsession.add(user)
+                dbsession.delete(activation)
 
                 add_flash(self.request, plain=self.Str.reset_password_done,
                           kind='success')
@@ -396,7 +396,7 @@ class RegisterView(BaseView):
         self.request.registry.notify(NewRegistrationEvent(
             self.request, user, None, controls))
         if autologin:
-            self.db.flush()  # in order to get the id
+            dbsession.flush()  # in order to get the id
             return authenticated(self.request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)
@@ -406,7 +406,7 @@ class RegisterView(BaseView):
         # This generic method must work with any custom User class and any
         # custom registration form:
         user = self.User(**controls)
-        self.db.add(user)
+        dbsession.add(user)
         return user
 
     def activate(self):
@@ -424,7 +424,7 @@ class RegisterView(BaseView):
         if user.activation is not activation:
             return HTTPNotFound()
 
-        self.db.delete(activation)
+        dbsession.delete(activation)
         add_flash(self.request, plain=self.Str.activation_email_verified,
                   kind='success')
         self.request.registry.notify(
