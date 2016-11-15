@@ -294,16 +294,6 @@ class UsernameMixin(NoUsernameMixin):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
 
     @classmethod
-    def get_by_username_or_email(cls, request, username, email):
-        session = get_session(request)
-        return session.query(cls).filter(
-            or_(
-                func.lower(cls.username) == username.lower(),
-                cls.email == email
-            )
-        ).first()
-
-    @classmethod
     def get_by_username_password(cls, request, username, password):
         """Only return the user object if the password is correct."""
         user = cls.get_by_username(request, username)
@@ -311,9 +301,7 @@ class UsernameMixin(NoUsernameMixin):
 
     @classmethod
     def get_user(cls, request, handle, password):
-        """We override this method because ``handle`` could be a
-        username or an email.
-        """
+        """``handle`` can be a username or an email."""
         if '@' in handle:
             return cls.get_by_email_password(request, handle, password)
         else:
