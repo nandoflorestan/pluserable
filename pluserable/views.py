@@ -1,4 +1,7 @@
 import logging
+import colander
+import deform
+import pystache
 from bag.web.pyramid.flash_msg import add_flash
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
@@ -8,7 +11,6 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from pluserable.db.sqlalchemy.session import get_session
 from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
@@ -18,10 +20,6 @@ from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
 from .models import _
 from .exceptions import AuthenticationFailure, FormValidationFailure
 from .httpexceptions import HTTPBadRequest
-
-import colander
-import deform
-import pystache
 
 
 LOG = logging.getLogger(__name__)
@@ -341,6 +339,7 @@ class ForgotPasswordView(BaseView):
 
 
 class RegisterView(BaseView):
+
     def __init__(self, request):
         super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
@@ -435,6 +434,7 @@ class RegisterView(BaseView):
 
 
 class ProfileView(BaseView):
+
     def profile(self):
         user_id = self.request.matchdict.get('user_id', None)
         user = self.User.get_by_id(self.request, user_id)
@@ -505,6 +505,7 @@ class ProfileView(BaseView):
 
 
 def get_pyramid_views_config():
+    """A dictionary for registering Pyramid views."""
     return {  # route_name: view_kwargs
         'register': {'view': RegisterView, 'attr': 'register',
                      'renderer': 'pluserable:templates/register.mako'},
