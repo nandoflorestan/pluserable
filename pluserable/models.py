@@ -2,7 +2,6 @@
 
 from urllib.parse import urlencode
 
-from pyramid.compat import text_type as unicode
 from pyramid.i18n import TranslationStringFactory
 # from pyramid.security import Allow
 from datetime import datetime, timedelta, date
@@ -219,8 +218,7 @@ class NoUsernameMixin(BaseModel):
     def _hash_password(self, password):
         if not self.salt:
             self.salt = random_hash(24)
-
-        return unicode(crypt.encode(password + self.salt))
+        return str(crypt.encode(password + self.salt))
 
     def gravatar_url(self, default='mm', size=80, cacheable=True):
         """Return a Gravatar image URL for this user."""
@@ -232,7 +230,7 @@ class NoUsernameMixin(BaseModel):
 
     @classmethod
     def generate_random_password(cls, chars=12):
-        """ generates random string of fixed length"""
+        """Generate random string of fixed length."""
         return random_hash(chars)
 
     @classmethod  # TODO REMOVE in favor of q_by_email()
