@@ -268,18 +268,14 @@ class NoUsernameMixin(BaseModel):
     def get_by_email_password(cls, request, handle, password):
         """Only return the user object if the password is correct."""
         user = cls.get_by_email(request, handle)
-        return cls.validate_user(user, password)
+        return user if user.check_password(password) else None
     get_user = get_by_email_password  # get_user is overridden in UsernameMixin
 
-    @classmethod
-    def validate_user(cls, user, password):
-        """Check the password and return the user object."""
-        if not user:
-            return None
-        if user.password is None:
+    def check_password(self, password):
+        """Check the ``password`` and return a boolean."""
+        if not password:
             return False
-        if crypt.check(user.password, password + user.salt):
-            return user
+        return crypt.check(self.password, password + self.salt)
 
     def __repr__(self):
         return '<User: %s>' % self.email
@@ -311,7 +307,7 @@ class UsernameMixin(NoUsernameMixin):
     def get_by_username_password(cls, request, username, password):
         """Only return the user object if the password is correct."""
         user = cls.get_by_username(request, username)
-        return cls.validate_user(user, password)
+        return user if user.check_password(password) else None
 
     @classmethod
     def get_user(cls, request, handle, password):
