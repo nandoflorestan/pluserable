@@ -1,9 +1,9 @@
 from pyramid import testing
 from mock import Mock
-from . import UnitTestBase
+from . import IntegrationTestBase
 
 
-class TestInitCase(UnitTestBase):
+class TestInitCase(IntegrationTestBase):
     def test_root_factory(self):
         from pluserable import RootFactory
         from pyramid.security import Authenticated

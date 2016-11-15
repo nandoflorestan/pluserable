@@ -1,8 +1,8 @@
 from pyramid import testing
-from pluserable.tests import UnitTestBase
+from . import IntegrationTestBase
 
 
-class TestResources(UnitTestBase):
+class TestResources(IntegrationTestBase):
     def test_user_factory(self):
         from pluserable.resources import UserFactory
         from pluserable.tests.models import User

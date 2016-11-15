@@ -1,3 +1,5 @@
+"""Schemas for tests."""
+
 import colander as c
 import deform
 

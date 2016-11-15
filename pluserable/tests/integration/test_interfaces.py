@@ -1,7 +1,8 @@
-from . import UnitTestBase
+from . import IntegrationTestBase
 
 
-class TestInterfaces(UnitTestBase):
+class TestInterfaces(IntegrationTestBase):
+
     def test_suloginschema(self):
         """Shouldn't be able to instantiate the interface."""
         from pluserable.interfaces import ILoginSchema

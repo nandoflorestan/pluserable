@@ -1,17 +1,19 @@
 from datetime import datetime
 from pyramid import testing
-from sqlalchemy.types import DateTime
 from sqlalchemy import Column
+from sqlalchemy.types import DateTime
 from pluserable.db.sqlalchemy import Repository
-from pluserable.tests import UnitTestBase
 from pluserable.tests.models import Base
+from . import IntegrationTestBase
 
 
 class TestModel(Base):
+
     start_date = Column(DateTime)
 
 
-class TestModels(UnitTestBase):
+class TestModels(IntegrationTestBase):
+
     def test_tablename(self):
         model = TestModel()
         assert model.__tablename__ == 'test_model'
@@ -25,7 +27,8 @@ class TestModels(UnitTestBase):
         assert model.__json__(testing.DummyRequest()) == data
 
 
-class TestActivation(UnitTestBase):
+class TestActivation(IntegrationTestBase):
+
     def test_create_activation_with_valid_until(self):
         from pluserable.tests.models import Activation
 
@@ -73,7 +76,8 @@ class TestActivation(UnitTestBase):
         assert new_user.activation == new_activation
 
 
-class TestUser(UnitTestBase):
+class TestUser(IntegrationTestBase):
+
     def test_password_hashing(self):
         from pluserable.tests.models import User
         user1 = User(username='sontek', email='sontek@gmail.com')
@@ -246,7 +250,8 @@ class TestUser(UnitTestBase):
         assert new_user is user2
 
 
-class TestGroup(UnitTestBase):
+class TestGroup(IntegrationTestBase):
+
     def test_init(self):
         from pluserable.tests.models import Group
         group = Group(name='foo', description='bar')

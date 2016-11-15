@@ -1,9 +1,11 @@
+"""Tests for the SQLAlchemy repository."""
+
 from pluserable.db.sqlalchemy import Repository
-from pluserable.tests import UnitTestBase
 from pluserable.tests.models import User, Group
+from . import IntegrationTestBase
 
 
-class TestRepository(UnitTestBase):
+class TestRepository(IntegrationTestBase):
     """Tests for the SQLAlchemy repository."""
 
     def test_q_groups(self):

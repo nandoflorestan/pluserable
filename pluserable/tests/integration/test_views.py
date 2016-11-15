@@ -1,12 +1,12 @@
 """Tests for the views."""
 
-from pyramid import testing
 from mock import Mock, patch
-from . import UnitTestBase
+from pyramid import testing
 from pluserable.interfaces import IDBSession
+from . import IntegrationTestBase
 
 
-class TestAuthView(UnitTestBase):
+class TestAuthView(IntegrationTestBase):
     def test_auth_view_extensions(self):
         from ..views import AuthView
         from ..interfaces import (
@@ -222,7 +222,7 @@ class TestAuthView(UnitTestBase):
                 assert HTTPFound.called
 
 
-class TestRegisterView(UnitTestBase):
+class TestRegisterView(IntegrationTestBase):
     def test_register_view_extensions_with_mail(self):
         from pyramid_mailer.mailer import DummyMailer
         from pyramid_mailer.interfaces import IMailer
@@ -681,7 +681,7 @@ class TestRegisterView(UnitTestBase):
         assert response.status_int == 404
 
 
-class TestForgotPasswordView(UnitTestBase):
+class TestForgotPasswordView(IntegrationTestBase):
     def test_forgot_password_loads(self):
         from pluserable.views import ForgotPasswordView
         from pluserable.interfaces import IUserClass
@@ -992,7 +992,7 @@ class TestForgotPasswordView(UnitTestBase):
         assert response.status_int == 404
 
 
-class TestProfileView(UnitTestBase):
+class TestProfileView(IntegrationTestBase):
     def test_profile_loads(self):
         from pluserable.views import ProfileView
         from pluserable.interfaces import IUserClass, IActivationClass

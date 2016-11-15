@@ -1,11 +1,11 @@
 """Tests for our schemas."""
 
-from pluserable.tests import UnitTestBase
-from pluserable.schemas import UsernameLoginSchema, UsernameRegisterSchema
 from colander import Invalid
+from pluserable.schemas import UsernameLoginSchema, UsernameRegisterSchema
+from . import IntegrationTestBase
 
 
-class TestSchemas(UnitTestBase):
+class TestSchemas(IntegrationTestBase):
     def test_valid_login_schema(self):
         request = self.get_request(post={
             'handle': 'sontek',
