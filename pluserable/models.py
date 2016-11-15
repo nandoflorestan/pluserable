@@ -8,11 +8,10 @@ from pyramid.i18n import TranslationStringFactory
 from datetime import datetime, timedelta, date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 
 from bag.text import pluralize
 from bag.text.hash import random_hash
-from pluserable.db.sqlalchemy import Repository
 
 import cryptacular.bcrypt
 import re
@@ -297,13 +296,6 @@ class UsernameMixin(NoUsernameMixin):
     @declared_attr
     def username(self):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
-
-    @classmethod
-    def get_by_username(cls, request, username):
-        session = get_session(request)
-        return session.query(cls).filter(
-            func.lower(cls.username) == username.lower()
-        ).first()
 
     @classmethod
     def get_by_username_or_email(cls, request, username, email):

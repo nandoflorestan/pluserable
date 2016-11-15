@@ -1,6 +1,7 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from pyramid.decorator import reify
+from sqlalchemy import func
 from pluserable.interfaces import IDBSession, IUserClass, IGroupClass
 
 
@@ -36,9 +37,11 @@ class Repository(object):
             self.User.email.ilike(email)).first()
 
     def q_user_by_username(self, username):
-        """Return a user with ``username``, or None."""
+        """Return a user with ``username``, or None. Case-insensitive."""
         return self.sas.query(self.User).filter(
-            self.User.username == username).first()
+            # self.User.username == username
+            func.lower(self.User.username) == username.lower()
+        ).first()
 
     def q_groups(self):
         """Return an iterator on all groups."""
