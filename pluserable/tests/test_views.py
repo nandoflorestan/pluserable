@@ -7,7 +7,7 @@ from pluserable.interfaces import IDBSession
 
 
 class TestAuthView(UnitTestBase):
-    def test_auth_controller_extensions(self):
+    def test_auth_view_extensions(self):
         from ..views import AuthView
         from ..interfaces import (
             IUserClass, ILoginSchema, ILoginForm, IActivationClass, IUIStrings)
@@ -223,7 +223,7 @@ class TestAuthView(UnitTestBase):
 
 
 class TestRegisterView(UnitTestBase):
-    def test_register_controller_extensions_with_mail(self):
+    def test_register_view_extensions_with_mail(self):
         from pyramid_mailer.mailer import DummyMailer
         from pyramid_mailer.interfaces import IMailer
         from pluserable.views import RegisterView
@@ -257,7 +257,7 @@ class TestRegisterView(UnitTestBase):
         assert schema.called
         assert form.called
 
-    def test_register_controller_extensions_without_mail(self):
+    def test_register_view_extensions_without_mail(self):
         from pluserable.views import RegisterView
         from pluserable.interfaces import (
             IRegisterSchema, IRegisterForm, IUserClass, IUIStrings,
@@ -308,8 +308,8 @@ class TestRegisterView(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = None
-        controller = RegisterView(request)
-        response = controller.register()
+        view = RegisterView(request)
+        response = view.register()
 
         assert response.get('form', None)
 
@@ -333,8 +333,8 @@ class TestRegisterView(UnitTestBase):
 
         request = testing.DummyRequest()
         request.user = Mock()
-        controller = RegisterView(request)
-        response = controller.register()
+        view = RegisterView(request)
+        response = view.register()
 
         assert response.status_int == 302
 
@@ -360,8 +360,8 @@ class TestRegisterView(UnitTestBase):
             'email': 'noam@chomsky.org'
         }, request_method='POST')
         request.user = Mock()
-        controller = RegisterView(request)
-        response = controller.register()
+        view = RegisterView(request)
+        response = view.register()
 
         assert response.status_int == 302
         user = User.get_by_username(request, 'admin')
@@ -386,8 +386,8 @@ class TestRegisterView(UnitTestBase):
         request = self.get_request(request_method='POST')
 
         request.user = Mock()
-        controller = RegisterView(request)
-        response = controller.register()
+        view = RegisterView(request)
+        response = view.register()
 
         assert len(response['errors']) == 3
         assert 'There was a problem with your submission' in response['form']
@@ -502,9 +502,9 @@ class TestRegisterView(UnitTestBase):
         }, request_method='POST')
 
         request.user = Mock()
-        controller = RegisterView(request)
+        view = RegisterView(request)
 
-        self.assertRaises(Exception, controller.register)
+        self.assertRaises(Exception, view.register)
 
     def test_activate(self):
         from pluserable.views import RegisterView
@@ -539,8 +539,8 @@ class TestRegisterView(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterView(request)
-        response = controller.activate()
+        view = RegisterView(request)
+        response = view.activate()
         user = User.get_by_username(request, 'sontek')
 
         assert user.is_activated
@@ -584,8 +584,8 @@ class TestRegisterView(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterView(request)
-        response = controller.activate()
+        view = RegisterView(request)
+        response = view.activate()
         user = User.get_by_username(request, 'sontek1')
 
         activations = Activation.get_all(request)
@@ -623,8 +623,8 @@ class TestRegisterView(UnitTestBase):
         get.return_value = 'invalid'
         request.matchdict.get = get
 
-        controller = RegisterView(request)
-        response = controller.activate()
+        view = RegisterView(request)
+        response = view.activate()
         user = User.get_by_username(request, 'sontek')
 
         assert not user.is_activated
@@ -671,8 +671,8 @@ class TestRegisterView(UnitTestBase):
 
         request.matchdict.get = get
 
-        controller = RegisterView(request)
-        response = controller.activate()
+        view = RegisterView(request)
+        response = view.activate()
         new_user1 = User.get_by_username(request, 'sontek')
         new_user2 = User.get_by_username(request, 'jessie')
 
