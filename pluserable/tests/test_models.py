@@ -1,9 +1,10 @@
-from pluserable.tests import UnitTestBase
-from pluserable.tests.models import Base
+from datetime import datetime
 from pyramid import testing
 from sqlalchemy.types import DateTime
 from sqlalchemy import Column
-from datetime import datetime
+from pluserable.db.sqlalchemy import Repository
+from pluserable.tests import UnitTestBase
+from pluserable.tests.models import Base
 
 
 class TestModel(Base):
@@ -252,25 +253,6 @@ class TestGroup(UnitTestBase):
 
         assert group.name == 'foo'
         assert group.description == 'bar'
-
-    def test_get_all(self):
-        from pluserable.tests.models import Group
-        from pluserable.tests.models import User
-
-        user = User(username='sontek', email='sontek@gmail.com')
-        user.password = 'temp'
-        self.session.add(user)
-
-        group = Group(name='admin', description='group for admins')
-        group.users.append(user)
-        self.session.add(group)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-
-        groups = Group.get_all(request)
-
-        assert len(groups.all()) == 1
 
     def test_get_by_id(self):
         from pluserable.tests.models import Group

@@ -1,20 +1,20 @@
+import os
 import unittest
-from webtest import TestApp
-from sqlalchemy import engine_from_config
+from pkg_resources import resource_filename
+from mock import Mock
+from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_beaker import session_factory_from_settings
 from pyramid.response import Response
-from paste.deploy.loadwsgi import appconfig
+from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session, sessionmaker
+from webtest import TestApp
 from zope.sqlalchemy import ZopeTransactionExtension
-from mock import Mock
-from pluserable.tests.models import Activation, Base, User
-from pluserable.interfaces import IUserClass, IActivationClass
-from pkg_resources import resource_filename
-from pluserable.interfaces import IDBSession
-import os
+from pluserable.tests.models import Activation, Base, User, Group
+from pluserable.interfaces import (
+    IUserClass, IActivationClass, IGroupClass, IDBSession)
 
 here = os.path.dirname(__file__)
 # settings = appconfig('config:' + os.path.join(here, 'test.ini'))
@@ -24,6 +24,7 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 
 class BaseTestCase(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.engine = engine_from_config(settings, prefix='sqlalchemy.')
@@ -40,9 +41,13 @@ class BaseTestCase(unittest.TestCase):
         # bind an individual Session to the connection
         self.session = self.Session(bind=connection)
 
-        self.config.registry.registerUtility(self.session, IDBSession)
+        def factory(registry):
+            return self.session
+
+        self.config.registry.registerUtility(factory, IDBSession)
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
+        self.config.registry.registerUtility(Group, IGroupClass)
 
         Base.metadata.bind = connection
 

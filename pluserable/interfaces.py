@@ -15,6 +15,10 @@ class IUserClass(Interface):
     """Interface for a user model class."""
 
 
+class IGroupClass(Interface):
+    """Interface for a group model class."""
+
+
 class IActivationClass(Interface):
     """Interface for a user activation model class."""
 
