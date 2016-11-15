@@ -1,12 +1,10 @@
-from pluserable.tests import IntegrationTestBase
+from mock import Mock, patch
 from pyramid import testing
 from pyramid.compat import PY3
-from mock import patch
-from mock import Mock
-import re
+from pluserable.tests.functional import FunctionalTestBase
 
 
-class TestViews(IntegrationTestBase):
+class TestViews(FunctionalTestBase):
 
     def test_index(self):
         """Call the index view, make sure routes are working."""
