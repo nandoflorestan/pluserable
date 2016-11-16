@@ -3,6 +3,7 @@ import colander
 import deform
 import pystache
 from bag.web.pyramid.flash_msg import add_flash
+from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -11,6 +12,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
+from .actions import PluserableAction
 from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
@@ -123,6 +125,10 @@ def validate_form(controls, form):
 
 class BaseView(object):
 
+    @reify
+    def action(self):
+        return PluserableAction(self.request.registry)
+
     @property
     def request(self):
         # we defined this so that we can override the request in tests easily
@@ -155,25 +161,7 @@ class AuthView(BaseView):
             request,
             'pluserable.logout_redirect'
         )
-
-        self.require_activation = asbool(
-            self.settings.get('pluserable.require_activation', True)
-        )
-        self.allow_inactive_login = asbool(
-            self.settings.get('pluserable.allow_inactive_login', False)
-        )
         self.form = form(self.schema, buttons=(self.Str.login_button,))
-
-    def check_credentials(self, handle, password):
-        user = self.User.get_user(self.request, handle, password)
-        if not user:
-            raise AuthenticationFailure(_('Invalid username or password.'))
-
-        if not self.allow_inactive_login and self.require_activation \
-                and not user.is_activated:
-            raise AuthenticationFailure(
-                _('Your account is not active, please check your e-mail.'))
-        return user
 
     def login_ajax(self):
         try:
@@ -190,7 +178,7 @@ class AuthView(BaseView):
         password = captured['password']
 
         try:
-            user = self.check_credentials(handle, password)
+            user = self.action.check_credentials(handle, password)
         except AuthenticationFailure as e:
             raise HTTPBadRequest({
                 'status': 'failure',
@@ -221,7 +209,7 @@ class AuthView(BaseView):
             password = captured['password']
 
             try:
-                user = self.check_credentials(handle, password)
+                user = self.action.check_credentials(handle, password)
             except AuthenticationFailure as e:
                 add_flash(self.request, plain=str(e), kind='error')
                 return render_form(self.request, self.form, captured,

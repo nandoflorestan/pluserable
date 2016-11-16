@@ -297,14 +297,6 @@ class UsernameMixin(NoUsernameMixin):
         user = cls.get_by_username(request, username)
         return user if user.check_password(password) else None
 
-    @classmethod
-    def get_user(cls, request, handle, password):
-        """``handle`` can be a username or an email."""
-        if '@' in handle:
-            return cls.get_by_email_password(request, handle, password)
-        else:
-            return cls.get_by_username_password(request, handle, password)
-
 
 class GroupMixin(BaseModel):
     """Mixin class for groups."""

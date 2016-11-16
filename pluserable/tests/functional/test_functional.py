@@ -80,5 +80,5 @@ class TestViews(FunctionalTestBase):
             }
         )
 
-        assert b'Your account is not active, please check your e-mail.' \
+        assert b'Your account is not active; please check your e-mail.' \
             in res.body

@@ -4,6 +4,7 @@ pluserable roadmap
 
 - Refactor views: Create an action layer (also known as service layer)
 - Models should not see the request object; move all I/O to a Repository layer
+- Document the Repository.
 - Use base model from bag library.
 - Remove FormValidationFailure exception
 - Add civilized way of selecting which routes/views I want for my project

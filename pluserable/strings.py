@@ -1,8 +1,13 @@
 """Strings for easy internationalization."""
 
 from zope.interface import implementer
-from .interfaces import IUIStrings
-from .models import _
+from pluserable.interfaces import IUIStrings
+from pluserable.models import _
+
+
+def get_strings(registry):
+    """Return the configured Strings class."""
+    return registry.queryUtility(IUIStrings)
 
 
 @implementer(IUIStrings)
@@ -21,6 +26,11 @@ class UIStringsBase(object):  # TODO Continue building
     authenticated = _('You are now logged in.')
     login_button = _('Log in')
     logout = _('You have logged out.')
+
+    wrong_email = _('Wrong email or password.')
+    wrong_username = _('Wrong username or password.')
+    inactive_account = _(
+        'Your account is not active; please check your e-mail.')
 
     edit_profile_email_present = _(
         'That email address ({email}) belongs to another user.')
