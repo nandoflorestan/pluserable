@@ -1,6 +1,6 @@
 """Pluserable is a user registration and login library."""
 
-from bag import resolve
+from bag.settings import SettingsReader
 from pluserable.web.pyramid import get_user
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
@@ -9,7 +9,7 @@ from .schemas import (
 from .forms import SubmitForm
 from .resources import RootFactory
 from .interfaces import (
-    IUIStrings, IUserClass, IActivationClass, ILoginForm, ILoginSchema,
+    IUIStrings, IRepositoryClass, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from .strings import UIStringsBase
@@ -59,24 +59,29 @@ class EmailStrategy(BaseStrategy):
 
 def includeme(config):
     """Integrate pluserable into a Pyramid web app."""
-    settings = config.registry.settings
+    registry = config.registry
+    settings = registry.settings
     config.add_request_method(get_user, 'user', reify=True)
     config.set_root_factory(RootFactory)
+    settings_reader = SettingsReader(settings)
 
     # User code may create a setting "pluserable_configurator" that points
     # to a callable that we call here:
-    configurator = config.registry.settings.get(
-        'pluserable_configurator',
-        'pluserable.settings:get_default_pluserable_settings')
-    if not callable(configurator):
-        configurator = resolve(configurator)
+    configurator = settings_reader.resolve(
+        key='pluserable_configurator',
+        default='pluserable.settings:get_default_pluserable_settings')
     settings['pluserable'] = configurator(config)
+
+    # Persistence is done by a Repository class. The default uses SQLAlchemy:
+    repo_class = settings_reader.resolve(
+        'pluserable_repository', default='pluserable.repository.sqlalchemy:Repository')
+    registry.registerUtility(repo_class, IRepositoryClass)
 
     # SubmitForm is the default for all our forms
     for form in (ILoginForm, IRegisterForm, IForgotPasswordForm,
                  IResetPasswordForm, IProfileForm):
-        if not config.registry.queryUtility(form):
-            config.registry.registerUtility(SubmitForm, form)
+        if not registry.queryUtility(form):
+            registry.registerUtility(SubmitForm, form)
 
     # Default schemas depend on login handle configuration:
     handle_config = settings.get('pluserable.handle', 'username')

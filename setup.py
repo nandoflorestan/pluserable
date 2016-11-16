@@ -39,7 +39,6 @@ requires = [
     'cryptacular',
     'deform',
     'pystache',
-    'hem',
     'beaker',
     'pyramid',
     'pyramid_mailer',

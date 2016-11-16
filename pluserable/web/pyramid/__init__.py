@@ -1,13 +1,13 @@
 """Pluserable integration for the Pyramid web framework."""
 
 from pyramid.security import unauthenticated_userid
-from pluserable.interfaces import IUserClass
+from pluserable.repository import instantiate_repository
 
 
 def get_user(request):
-    """Return the current user object, or None."""
+    """Return the user making the current request, or None."""
     userid = unauthenticated_userid(request)
-    user_class = request.registry.queryUtility(IUserClass)
-    if userid is not None:
-        return user_class.get_by_id(request, userid)
-    return None
+    if userid is None:
+        return None
+    repo = instantiate_repository(request.registry)
+    return repo.get_by_id(request, userid)

@@ -2,7 +2,7 @@ from datetime import datetime
 from pyramid import testing
 from sqlalchemy import Column
 from sqlalchemy.types import DateTime
-from pluserable.db.sqlalchemy import Repository
+from pluserable.repository.sqlalchemy import Repository
 from pluserable.tests.models import Base
 from . import IntegrationTestBase
 

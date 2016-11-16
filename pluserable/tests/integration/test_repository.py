@@ -1,6 +1,7 @@
 """Tests for the SQLAlchemy repository."""
 
-from pluserable.db.sqlalchemy import Repository
+# from pluserable.repository.sqlalchemy import Repository
+from pluserable.repository import instantiate_repository
 from pluserable.tests.models import User, Group
 from . import IntegrationTestBase
 
@@ -18,7 +19,8 @@ class TestRepository(IntegrationTestBase):
         self.session.add(group)
         self.session.commit()
 
-        repo = Repository(self.config.registry)
+        # repo = Repository(self.config.registry)
+        repo = instantiate_repository(self.config.registry)
         groups = list(repo.q_groups())
 
         assert len(groups) == 1

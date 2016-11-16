@@ -3,15 +3,15 @@
 import re
 import colander as c
 import deform.widget as w
-from pluserable.db.sqlalchemy import Repository
-from .interfaces import IUserClass, IUIStrings
+from pluserable.repository import instantiate_repository
+from .interfaces import IUIStrings
 from .models import _
 
 
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
     req = node.bindings['request']
-    repo = Repository(req.registry)
+    repo = instantiate_repository(req.registry)
     user = repo.q_user_by_email(val)
     if not user:
         Str = req.registry.getUtility(IUIStrings)
@@ -21,7 +21,7 @@ def email_exists(node, val):
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
     req = node.bindings['request']
-    repo = Repository(req.registry)
+    repo = instantiate_repository(req.registry)
     other = repo.q_user_by_email(val)
     if other:
         S = req.registry.getUtility(IUIStrings)
@@ -31,7 +31,7 @@ def unique_email(node, val):
 def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
     req = node.bindings['request']
-    repo = Repository(req.registry)
+    repo = instantiate_repository(req.registry)
     user = repo.q_user_by_username(val)
     if user is not None:
         Str = req.registry.getUtility(IUIStrings)

@@ -11,6 +11,10 @@ class IUIStrings(Interface):
     """Marker interface for a class containing translation strings."""
 
 
+class IRepositoryClass(Interface):
+    """Marker interface for registering a Repository class."""
+
+
 class IUserClass(Interface):
     """Interface for a user model class."""
 
