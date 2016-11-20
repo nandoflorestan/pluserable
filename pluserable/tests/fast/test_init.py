@@ -1,7 +1,7 @@
-from pyramid import testing
-from pluserable.resources import RootFactory
-from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
 from unittest import TestCase
+from pyramid import testing
+from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
+from pluserable.resources import RootFactory
 
 
 class TestInitCase(TestCase):
