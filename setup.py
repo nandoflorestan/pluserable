@@ -33,16 +33,16 @@ class PyTest(TestCommand):
 
 requires = [
     'bag > 0.8.0',
-    'sqlalchemy',
-    'zope.sqlalchemy',
+    'mundi',
+    'sqlalchemy',       # TODO REMOVE when agnostic
+    'zope.sqlalchemy',  # TODO REMOVE when agnostic
     'transaction',
     'cryptacular',
     'deform',
-    'pystache',
-    'beaker',
-    'pyramid',
+    'pystache',         # TODO REMOVE, use mako
+    'pyramid',          # TODO REMOVE when agnostic
+    'beaker', 'pyramid_beaker',  # TODO Alternative for sessions?
     'pyramid_mailer',
-    'pyramid_beaker',
     'pyramid_deform',
     'pyramid_mako',
 ]

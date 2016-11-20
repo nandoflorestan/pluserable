@@ -17,7 +17,10 @@ Minimal integration
 ===================
 
 - Create a virtualenv and activate it. Install pyramid and create
-  your pyramid project.
+  your Pyramid project.
+
+- Ensure you have some SQLAlchemy declarative initialization. This is usually
+  created by the Pyramid scaffold.
 
 - Edit your *setup.py* to add "pluserable" to the dependencies in the
   *install_requires* list.
@@ -25,40 +28,30 @@ Minimal integration
 - Run ``python setup.py develop`` on your project to install all dependencies
   into your virtualenv.
 
-- Create your SQLAlchemy declarative initialization.
-
-- Create a function that returns a SQLAlchemy session and register it as
-  a utility using the IDBSession interface so *pluserable* will be able to
-  find the database session and use it::
-
-    def db_session_factory(registry):
-        """Let *pluserable* know which session to use."""
-        return my_scoped_session
-
-    from pluserable.interfaces import IDBSession
-    registry = config.registry
-    registry.registerUtility(db_session_factory, IDBSession)
-
 - Create models inheriting from pluserable' abstract models.
   Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
 
-  Then all you need to do is tell the class where to find your declarative
-  base you and are good to go!
+- In your Pyramid configuration file, create a section called "Mundi utilities"
+  like this::
 
-- Include *pluserable* like this::
+    [Mundi utilities]
+    # Let pluserable know where to find the SQLAlchemy scoped session:
+    sas = some.app.module:my_scoped_session_variable
 
-    # Tell pluserable which models to use:
+    # Let pluserable know which model classes to use:
+    User class = some.app.models:User
+
+- Tell pluserable which models to use::
+
     from pluserable.interfaces import IUserClass, IActivationClass
     registry.registerUtility(User, IUserClass)
     registry.registerUtility(Activation, IActivationClass)
 
-    # You may write a function that returns a pluserable configuration,
-    # and then inform pluserable about it like this:
-    registry.settings['pluserable_configurator'] = 'my.package:some_function'
+- You may write a function that returns a pluserable configuration,
+  and then inform pluserable about it like this::
 
-    # Finally pluserable can be initialized:
-    config.include('pluserable')
+    registry.settings['pluserable_configurator'] = 'my.package:some_function'
 
 - Your ``pluserable_configurator`` function would look more or less like this::
 
@@ -69,6 +62,10 @@ Minimal integration
         adict = get_default_pluserable_settings()
         # Manipulate adict to customize pluserable for your application, then
         return adict
+
+- Include pluserable in your Pyramid app::
+
+    config.include('pluserable')
 
 - Configure ``pluserable.login_redirect`` and ``pluserable.logout_redirect``
   (in your .ini configuration file) to set the redirection routes.

@@ -2,7 +2,8 @@
 
 from pyramid.decorator import reify
 from sqlalchemy import func
-from pluserable.interfaces import IDBSession, IUserClass, IGroupClass
+from pluserable import const
+from pluserable.interfaces import IUserClass, IGroupClass
 
 
 class Repository(object):
@@ -11,21 +12,15 @@ class Repository(object):
     In the future other strategies can be developed (e. g. ZODB).
     """
 
-    def __init__(self, registry):
-        self.registry = registry
-
-    @reify
-    def sas(self):
-        """The SQLAlchemy session to be used in this request."""
-        session = self.registry.getUtility(IDBSession)
-        if session is None:
-            raise RuntimeError(
-                'You must let pluserable know what SQLAlchemy session to use.')
-        return session
+    def __init__(self, mundi):
+        """Construct a SQLAlchemy repository for pluserable."""
+        self.mundi = mundi
+        # The SQLAlchemy session to be used in this request:
+        self.sas = mundi.get_utility(const.SAS)
 
     @reify
     def User(self):
-        return self.registry.getUtility(IUserClass)
+        return self.mundi.get_utility(const.USERCLASS)
 
     @reify
     def Group(self):

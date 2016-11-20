@@ -1,15 +1,14 @@
 from pyramid import testing
 from mock import Mock
+from pluserable.resources import RootFactory
+from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
+from pluserable import groupfinder
+from pluserable.tests.models import User, Group
 from . import IntegrationTestBase
 
 
 class TestInitCase(IntegrationTestBase):
     def test_root_factory(self):
-        from pluserable import RootFactory
-        from pyramid.security import Authenticated
-        from pyramid.security import Allow
-        from pyramid.security import ALL_PERMISSIONS
-
         root_factory = RootFactory(testing.DummyRequest())
 
         assert len(root_factory.__acl__) == 2
@@ -22,34 +21,30 @@ class TestInitCase(IntegrationTestBase):
             elif ace[1] == Authenticated:
                 assert ace[2] == 'view'
 
-#    def test_request_factory(self):
-#        from pluserable import SignUpRequestFactory
-#        from pluserable.tests.models import User
-#
-#        user1 = User(username='sontek', email='sontek@gmail.com')
-#        user1.password = 'foo'
-#        self.session.add(user1)
-#        self.session.flush()
-#
-#        with patch('pluserable.unauthenticated_userid') as unauth:
-#            unauth.return_value = 1
-#            request = SignUpRequestFactory({})
-#            request.registry = Mock()
-#
-#            getUtility = Mock()
-#            getUtility.return_value = self.session
-#
-#            request.registry.getUtility = getUtility
-#
-#            user = request.user
-#
-#            assert user == user1
+    '''def test_request_factory(self):
+       from pluserable import SignUpRequestFactory
+       from pluserable.tests.models import User
+
+       user1 = User(username='sontek', email='sontek@gmail.com')
+       user1.password = 'foo'
+       self.session.add(user1)
+       self.session.flush()
+
+       with patch('pluserable.unauthenticated_userid') as unauth:
+           unauth.return_value = 1
+           request = SignUpRequestFactory({})
+           request.registry = Mock()
+
+           getUtility = Mock()
+           getUtility.return_value = self.session
+
+           request.registry.getUtility = getUtility
+
+           user = request.user
+
+           assert user == user1'''
 
     def test_group_finder(self):
-        from pluserable import groupfinder
-        from pluserable.tests.models import User
-        from pluserable.tests.models import Group
-
         group = Group(name='foo', description='bar')
         user1 = User(username='sontek', email='sontek@gmail.com')
         user1.password = 'foo'
@@ -69,10 +64,6 @@ class TestInitCase(IntegrationTestBase):
         assert len(results) == 2
 
     def test_group_finder_no_groups(self):
-        from pluserable import groupfinder
-        from pluserable.tests.models import User
-        from pluserable.tests.models import Group
-
         group = Group(name='foo', description='bar')
         user1 = User(username='sontek', email='sontek@gmail.com')
         user2 = User(username='sontek2', email='sontek2@gmail.com')

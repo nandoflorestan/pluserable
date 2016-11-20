@@ -7,7 +7,6 @@ from pyramid.i18n import TranslationStringFactory
 from datetime import datetime, timedelta, date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import or_
 
 from bag.text import pluralize
 from bag.text.hash import random_hash

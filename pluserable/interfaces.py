@@ -11,8 +11,8 @@ class IUIStrings(Interface):
     """Marker interface for a class containing translation strings."""
 
 
-class IRepositoryClass(Interface):
-    """Marker interface for registering a Repository class."""
+class IMundi(Interface):
+    """Marker interface for registering our Mundi instance."""
 
 
 class IUserClass(Interface):

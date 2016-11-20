@@ -3,9 +3,11 @@
 Repositories are persistence strategies.
 """
 
-from pluserable.interfaces import IRepositoryClass
+from pluserable.const import REPOSITORY
+from pluserable.interfaces import IMundi
 
 
 def instantiate_repository(registry):
     """Return a new instance of the configured repository."""
-    return registry.queryUtility(IRepositoryClass)(registry)
+    mundi = registry.queryUtility(IMundi)
+    return mundi.get_utility(REPOSITORY)(mundi)

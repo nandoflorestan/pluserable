@@ -9,9 +9,8 @@ from pyramid.response import Response
 from sqlalchemy import engine_from_config
 from webtest import TestApp
 from pluserable.tests import DBSession, settings
-from pluserable.tests.models import Activation, Base, User, Group
-from pluserable.interfaces import (
-    IUserClass, IActivationClass, IGroupClass, IDBSession)
+from pluserable.tests.models import Activation, Base, User
+from pluserable.interfaces import IUserClass, IActivationClass, IDBSession
 
 
 class FunctionalTestBase(TestCase):
@@ -53,6 +52,7 @@ class FunctionalTestBase(TestCase):
         return app
 
     def setUp(self):
+        """Called before each functional test."""
         self.engine = engine_from_config(settings, prefix='sqlalchemy.')
         config = testing.setUp()
         app = self.main(config, **settings)
@@ -67,9 +67,7 @@ class FunctionalTestBase(TestCase):
         Base.metadata.bind = connection
 
     def tearDown(self):
-        # rollback - everything that happened with the
-        # Session above (including calls to commit())
-        # is rolled back.
-        testing.tearDown()
+        """Roll back the Session (including calls to commit())."""
+        testing.tearDown()  # Remove Pyramid settings, registry and request
         self.trans.rollback()
         self.session.close()
