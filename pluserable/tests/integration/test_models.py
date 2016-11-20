@@ -43,8 +43,8 @@ class TestUser(IntegrationTestBase):
         from pluserable.tests.models import User
         user1 = User(username='sagan', email='carlsagan@nasa.org')
         user1.password = 'password'
-        self.session.add(user1)
-        self.session.flush()
+        self.sas.add(user1)
+        self.sas.flush()
 
         assert user1.password != 'password'
         assert user1.salt is not None
@@ -53,8 +53,8 @@ class TestUser(IntegrationTestBase):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         new_user = User.get_user(request, 'sagan', 'temp')
@@ -64,30 +64,19 @@ class TestUser(IntegrationTestBase):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         new_user = User.get_by_security_code(request, user.security_code)
         assert user is new_user
 
-    def test_get_invalid_user(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-        new_user = User.get_user(request, 'sagan', 'temp')
-        assert new_user is None
-
     def test_get_user_by_id(self):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         new_user = User.get_by_id(request, user.id)
@@ -97,8 +86,8 @@ class TestUser(IntegrationTestBase):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         new_user = User.get_by_id(request, 2)
@@ -109,8 +98,8 @@ class TestUser(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
 
@@ -123,8 +112,8 @@ class TestUser(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
 
@@ -141,8 +130,8 @@ class TestUser(IntegrationTestBase):
         activation = Activation()
         user.activation = activation
 
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         new_user = User.get_by_activation(request, activation)
@@ -159,10 +148,10 @@ class TestUser(IntegrationTestBase):
         activation = Activation()
         user2.activation = activation
 
-        self.session.add(user1)
-        self.session.add(user2)
+        self.sas.add(user1)
+        self.sas.add(user2)
 
-        self.session.commit()
+        self.sas.commit()
 
         request = testing.DummyRequest()
 
@@ -187,10 +176,10 @@ class TestGroup(IntegrationTestBase):
         group = Group(name='admin', description='group for admins')
         group2 = Group(name='employees', description='group for employees')
 
-        self.session.add(group)
-        self.session.add(group2)
+        self.sas.add(group)
+        self.sas.add(group2)
 
-        self.session.commit()
+        self.sas.commit()
 
         request = testing.DummyRequest()
 

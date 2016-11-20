@@ -140,8 +140,8 @@ class TestAuthView(IntegrationTestBase):
         admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.password = 'min4'
 
-        self.session.add(admin)
-        self.session.flush()
+        self.sas.add(admin)
+        self.sas.flush()
 
         from pluserable.views import AuthView
         self.config.add_route('index', '/')
@@ -168,8 +168,8 @@ class TestAuthView(IntegrationTestBase):
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'min4'
         user.activation = Activation()
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         from pluserable.views import AuthView
         self.config.add_route('index', '/')
@@ -410,8 +410,8 @@ class TestRegisterView(IntegrationTestBase):
 
         admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.password = 'test123'
-        self.session.add(admin)
-        self.session.flush()
+        self.sas.add(admin)
+        self.sas.flush()
 
         request = self.get_request(post={
             'username': 'sagan',
@@ -525,8 +525,8 @@ class TestRegisterView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.matchdict = Mock()
@@ -569,9 +569,9 @@ class TestRegisterView(IntegrationTestBase):
         user1.activation = Activation()
         user1.password = 'more'
 
-        self.session.add(user)
-        self.session.add(user1)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.add(user1)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.matchdict = Mock()
@@ -614,8 +614,8 @@ class TestRegisterView(IntegrationTestBase):
         user.password = 'temp'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.matchdict = Mock()
@@ -656,9 +656,9 @@ class TestRegisterView(IntegrationTestBase):
         user2.activation = bad_act
         user2.password = 'more'
 
-        self.session.add(user)
-        self.session.add(user2)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.add(user2)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.matchdict = Mock()
@@ -733,8 +733,8 @@ class TestForgotPasswordView(IntegrationTestBase):
                     email='carlsagan@nasa.org')
         user.password = 'min4'
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(post={
             'email': 'carlsagan@nasa.org'
@@ -768,8 +768,8 @@ class TestForgotPasswordView(IntegrationTestBase):
                     email='carlsagan@nasa.org')
         user.password = 'min4'
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(post={
             'email': 'sagan'
@@ -803,8 +803,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
 
@@ -843,8 +843,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(post={
             'password': {
@@ -894,8 +894,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(post={
             'Password': {
@@ -937,8 +937,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(request_method='POST')
 
@@ -974,8 +974,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         user.password = 'min4'
         user.activation = Activation()
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
 
@@ -1006,8 +1006,8 @@ class TestProfileView(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.user = Mock()
@@ -1037,8 +1037,8 @@ class TestProfileView(IntegrationTestBase):
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = testing.DummyRequest()
         request.user = Mock()
@@ -1070,8 +1070,8 @@ class TestProfileView(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         request = self.get_request(request_method='POST')
         request.user = user
@@ -1100,8 +1100,8 @@ class TestProfileView(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         def handle_profile_updated(event):
             request = event.request
@@ -1145,8 +1145,8 @@ class TestProfileView(IntegrationTestBase):
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
 
-        self.session.add(user)
-        self.session.flush()
+        self.sas.add(user)
+        self.sas.flush()
 
         def handle_profile_updated(event):
             request = event.request

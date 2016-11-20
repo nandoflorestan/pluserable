@@ -7,11 +7,11 @@ from mock import Mock
 from pyramid import testing
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
-from pluserable.tests import PluserableTestCase
+from pluserable.tests import AppTestCase
 from pluserable.tests.models import Base
 
 
-class BaseTestCase(PluserableTestCase):
+class BaseTestCase(AppTestCase):
 
     @classmethod
     def setUpClass(cls):  # TODO MOVE TO ..
@@ -27,10 +27,10 @@ class BaseTestCase(PluserableTestCase):
         Base.metadata.bind = connection
 
         # bind an individual Session to the connection
-        self.session = self.Session(bind=connection)
+        self.sas = self.Session(bind=connection)
 
         def factory():
-            return self.session
+            return self.sas
 
         self.config = self._initialize_config(self.settings, factory)
         self.config.include('pluserable')
@@ -41,7 +41,7 @@ class BaseTestCase(PluserableTestCase):
         # is rolled back.
         testing.tearDown()
         self.trans.rollback()
-        self.session.close()
+        self.sas.close()
         self.connection.close()
 
 

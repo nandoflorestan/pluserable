@@ -10,7 +10,6 @@ be thin.  Business rules must be decoupled from the web framework.
 from bag.settings import SettingsReader
 from pyramid.decorator import reify
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.models import _
 from pluserable.repository import instantiate_repository
 from pluserable.strings import get_strings
 

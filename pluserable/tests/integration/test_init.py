@@ -15,8 +15,8 @@ class TestInitCase(IntegrationTestBase):
 
        user1 = User(username='sagan', email='carlsagan@nasa.org')
        user1.password = 'foo'
-       self.session.add(user1)
-       self.session.flush()
+       self.sas.add(user1)
+       self.sas.flush()
 
        with patch('pluserable.unauthenticated_userid') as unauth:
            unauth.return_value = 1
@@ -24,7 +24,7 @@ class TestInitCase(IntegrationTestBase):
            request.registry = Mock()
 
            getUtility = Mock()
-           getUtility.return_value = self.session
+           getUtility.return_value = self.sas
 
            request.registry.getUtility = getUtility
 
@@ -38,9 +38,9 @@ class TestInitCase(IntegrationTestBase):
         user1.password = 'foo'
         group.users.append(user1)
 
-        self.session.add(group)
-        self.session.add(user1)
-        self.session.flush()
+        self.sas.add(group)
+        self.sas.add(user1)
+        self.sas.flush()
 
         request = Mock()
         request.user = user1
@@ -59,10 +59,10 @@ class TestInitCase(IntegrationTestBase):
         user2.password = 'foo'
         group.users.append(user1)
 
-        self.session.add(group)
-        self.session.add(user1)
-        self.session.add(user2)
-        self.session.flush()
+        self.sas.add(group)
+        self.sas.add(user1)
+        self.sas.add(user2)
+        self.sas.flush()
 
         request = Mock()
         request.user = user2

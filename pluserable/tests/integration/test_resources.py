@@ -3,6 +3,7 @@ from . import IntegrationTestBase
 
 
 class TestResources(IntegrationTestBase):
+
     def test_user_factory(self):
         from pluserable.resources import UserFactory
         from pluserable.tests.models import User
@@ -11,8 +12,8 @@ class TestResources(IntegrationTestBase):
 
         user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'foo'
-        self.session.add(user)
-        self.session.commit()
+        self.sas.add(user)
+        self.sas.commit()
 
         request = testing.DummyRequest()
         factory = UserFactory(request)

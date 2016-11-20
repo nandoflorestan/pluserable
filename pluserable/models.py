@@ -249,13 +249,6 @@ class NoUsernameMixin(BaseModel):
             cls.security_code == security_code
         ).first()
 
-    @classmethod
-    def get_by_email_password(cls, request, handle, password):
-        """Only return the user object if the password is correct."""
-        user = cls.get_by_email(request, handle)
-        return user if user.check_password(password) else None
-    get_user = get_by_email_password  # get_user is overridden in UsernameMixin
-
     def check_password(self, password):
         """Check the ``password`` and return a boolean."""
         if not password:

@@ -44,8 +44,8 @@ class TestViews(FunctionalTestBase):
         from pluserable.tests.models import User
         admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.password = 'temp'
-        self.session.add(admin)
-        self.session.flush()
+        self.sas.add(admin)
+        self.sas.flush()
 
         res = self.app.get('/login')
 
@@ -66,8 +66,8 @@ class TestViews(FunctionalTestBase):
         admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.activation = Activation()
         admin.password = 'temp'
-        self.session.add(admin)
-        self.session.flush()
+        self.sas.add(admin)
+        self.sas.flush()
 
         res = self.app.get('/login')
 
