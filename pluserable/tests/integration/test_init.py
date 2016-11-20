@@ -25,7 +25,7 @@ class TestInitCase(IntegrationTestBase):
        from pluserable import SignUpRequestFactory
        from pluserable.tests.models import User
 
-       user1 = User(username='sontek', email='sontek@gmail.com')
+       user1 = User(username='sagan', email='carlsagan@nasa.org')
        user1.password = 'foo'
        self.session.add(user1)
        self.session.flush()
@@ -46,7 +46,7 @@ class TestInitCase(IntegrationTestBase):
 
     def test_group_finder(self):
         group = Group(name='foo', description='bar')
-        user1 = User(username='sontek', email='sontek@gmail.com')
+        user1 = User(username='sagan', email='carlsagan@nasa.org')
         user1.password = 'foo'
         group.users.append(user1)
 
@@ -65,8 +65,8 @@ class TestInitCase(IntegrationTestBase):
 
     def test_group_finder_no_groups(self):
         group = Group(name='foo', description='bar')
-        user1 = User(username='sontek', email='sontek@gmail.com')
-        user2 = User(username='sontek2', email='sontek2@gmail.com')
+        user1 = User(username='sagan', email='carlsagan@nasa.org')
+        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
         user1.password = 'foo'
         user2.password = 'foo'
         group.users.append(user1)

@@ -9,7 +9,7 @@ class TestResources(IntegrationTestBase):
         from pluserable.interfaces import IUserClass
         self.config.registry.registerUtility(User, IUserClass)
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'foo'
         self.session.add(user)
         self.session.commit()

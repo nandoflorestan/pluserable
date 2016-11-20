@@ -41,7 +41,7 @@ class TestUser(IntegrationTestBase):
 
     def test_password_hashing(self):
         from pluserable.tests.models import User
-        user1 = User(username='sontek', email='sontek@gmail.com')
+        user1 = User(username='sagan', email='carlsagan@nasa.org')
         user1.password = 'password'
         self.session.add(user1)
         self.session.flush()
@@ -51,18 +51,18 @@ class TestUser(IntegrationTestBase):
 
     def test_get_valid_user(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
 
         request = testing.DummyRequest()
-        new_user = User.get_user(request, 'sontek', 'temp')
+        new_user = User.get_user(request, 'sagan', 'temp')
         assert user is new_user
 
     def test_get_valid_user_by_security_code(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
@@ -73,9 +73,9 @@ class TestUser(IntegrationTestBase):
 
     def test_get_all_users(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
-        user2 = User(username='sontek2', email='sontek2@gmail.com')
+        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
         user2.password = 'temp'
         self.session.add(user)
         self.session.add(user2)
@@ -87,18 +87,18 @@ class TestUser(IntegrationTestBase):
 
     def test_get_invalid_user(self):
         from pluserable.tests.models import User
-        user = User(username='sontek1', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
 
         request = testing.DummyRequest()
-        new_user = User.get_user(request, 'sontek', 'temp')
+        new_user = User.get_user(request, 'sagan', 'temp')
         assert new_user is None
 
     def test_get_user_by_id(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
@@ -109,7 +109,7 @@ class TestUser(IntegrationTestBase):
 
     def test_get_user_by_invalid_id(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
@@ -121,35 +121,35 @@ class TestUser(IntegrationTestBase):
     def test_get_user_by_username(self):
         from pluserable.tests.models import User
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
 
         request = testing.DummyRequest()
 
-        new_user = User.get_by_username(request, 'sontek')
+        new_user = User.get_by_username(request, 'sagan')
 
         assert new_user is user
 
     def test_get_user_by_invalid_username(self):
         from pluserable.tests.models import User
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
         self.session.commit()
 
         request = testing.DummyRequest()
 
-        new_user = User.get_by_username(request, 'sontek1')
+        new_user = User.get_by_username(request, 'sagan')
 
         assert new_user is None
 
     def test_get_user_by_email(self):
         from pluserable.tests.models import User
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'password'
 
         self.session.add(user)
@@ -163,20 +163,20 @@ class TestUser(IntegrationTestBase):
 
     def test_get_user_by_invalid_email(self):
         from pluserable.tests.models import User
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'password'
         self.session.add(user)
         self.session.commit()
 
         request = testing.DummyRequest()
-        new_user = User.get_by_email(request, 'sontek1@gmail.com')
+        new_user = User.get_by_email(request, 'carlsagan@nasa.org')
         assert new_user is None
 
     def test_get_user_by_activation(self):
         from pluserable.tests.models import User
         from pluserable.tests.models import Activation
 
-        user = User(username='sontek', email='sontek@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'password'
         activation = Activation()
         user.activation = activation
@@ -192,8 +192,8 @@ class TestUser(IntegrationTestBase):
         from pluserable.tests.models import User
         from pluserable.tests.models import Activation
 
-        user1 = User(username='sontek1', email='sontek@gmail.com')
-        user2 = User(username='sontek2', email='sontek+2@gmail.com')
+        user1 = User(username='sagan', email='carlsagan@nasa.org')
+        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
         user1.password = 'password'
         user2.password = 'password2'
         activation = Activation()

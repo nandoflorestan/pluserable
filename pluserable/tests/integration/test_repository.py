@@ -9,7 +9,7 @@ class TestRepository(IntegrationTestBase):
     """Tests for the SQLAlchemy repository."""
 
     def test_q_groups(self):
-        user = User(username='sagan', email='sagan@gmail.com')
+        user = User(username='sagan', email='carlsagan@nasa.org')
         user.password = 'temp'
         self.session.add(user)
 
@@ -34,8 +34,8 @@ class TestRepository(IntegrationTestBase):
         assert activation is new_activation
 
     def test_get_user_activation(self):
-        user1 = User(username='sagan1', email='sagan@gmail.com')
-        user2 = User(username='sagan2', email='sagan+2@gmail.com')
+        user1 = User(username='sagan', email='carlsagan@nasa.org')
+        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
         user1.password = 'password'
         user2.password = 'password'
 
@@ -52,3 +52,17 @@ class TestRepository(IntegrationTestBase):
 
         assert activation is new_activation
         assert new_user.activation is new_activation
+
+    def test_get_all_users(self):
+        from pluserable.tests.models import User
+        user = User(username='sagan', email='carlsagan@nasa.org')
+        user.password = 'temp'
+        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
+        user2.password = 'temp'
+        self.session.add(user)
+        self.session.add(user2)
+        self.session.commit()
+
+        request = testing.DummyRequest()
+        users = User.get_all(request)
+        assert len(users.all()) == 2

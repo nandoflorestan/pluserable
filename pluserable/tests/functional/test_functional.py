@@ -42,7 +42,7 @@ class TestViews(FunctionalTestBase):
     def test_valid_login(self):
         """Call the login view, make sure routes are working."""
         from pluserable.tests.models import User
-        admin = User(username='sontek', email='sontek@gmail.com')
+        admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.password = 'temp'
         self.session.add(admin)
         self.session.flush()
@@ -53,7 +53,7 @@ class TestViews(FunctionalTestBase):
             str('/login'),
             {
                 'submit': True,
-                'handle': 'sontek',
+                'handle': 'sagan',
                 'password': 'temp',
             }
         )
@@ -63,7 +63,7 @@ class TestViews(FunctionalTestBase):
         """Make sure inactive users can't sign in."""
         from pluserable.tests.models import User
         from pluserable.tests.models import Activation
-        admin = User(username='sontek', email='sontek@gmail.com')
+        admin = User(username='sagan', email='carlsagan@nasa.org')
         admin.activation = Activation()
         admin.password = 'temp'
         self.session.add(admin)
@@ -75,7 +75,7 @@ class TestViews(FunctionalTestBase):
             str('/login'),
             {
                 'submit': True,
-                'handle': 'sontek',
+                'handle': 'sagan',
                 'password': 'temp',
             }
         )

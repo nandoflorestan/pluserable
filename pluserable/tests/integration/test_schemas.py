@@ -8,14 +8,14 @@ from . import IntegrationTestBase
 class TestSchemas(IntegrationTestBase):
     def test_valid_login_schema(self):
         request = self.get_request(post={
-            'handle': 'sontek',
+            'handle': 'sagan',
             'password': 'password',
         })
         schema = UsernameLoginSchema().bind(request=request)
 
         result = schema.deserialize(request.POST)
 
-        assert result['handle'] == 'sontek'
+        assert result['handle'] == 'sagan'
         assert result['password'] == 'password'
 
     def test_invalid_login_schema(self):
