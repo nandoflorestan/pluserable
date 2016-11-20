@@ -19,7 +19,7 @@ class PluserableTestCase(TestCase):
         return appconfig(
             'config:' + resource_filename(__name__, kind + 'test.ini'))
 
-    def make_test_app(self, settings, session_factory):
+    def _initialize_config(self, settings, session_factory):
         config = testing.setUp(settings=settings)
         registry = config.registry
         registry.registerUtility(session_factory, IDBSession)
@@ -27,3 +27,18 @@ class PluserableTestCase(TestCase):
         registry.registerUtility(User, IUserClass)
         registry.registerUtility(Group, IGroupClass)
         return config
+
+    def create_users(self, count=1):
+        """Return a user if count is 1, else a list of users."""
+        users = []
+        for index in range(0, count):
+            user = User(username='sagan{}'.format(index),
+                        email='carlsagan{}@nasa.org'.format(index),
+                        password='science')
+            # user.password = 'password'  # TODO Remove
+            users.append(user)
+        self.session.add_all(users)
+        if count == 1:
+            return users[0]
+        else:
+            return users

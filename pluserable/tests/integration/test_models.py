@@ -71,20 +71,6 @@ class TestUser(IntegrationTestBase):
         new_user = User.get_by_security_code(request, user.security_code)
         assert user is new_user
 
-    def test_get_all_users(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
-        user2.password = 'temp'
-        self.session.add(user)
-        self.session.add(user2)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-        users = User.get_all(request)
-        assert len(users.all()) == 2
-
     def test_get_invalid_user(self):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')

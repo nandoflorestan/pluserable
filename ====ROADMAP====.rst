@@ -2,6 +2,7 @@
 pluserable roadmap
 ==================
 
+- Do not create tables when running unit tests.
 - Move up subtransaction trick for tests.
 - Does Mundi need a request concept?
 - Refactor views: Create an action layer (also known as service layer)

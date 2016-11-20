@@ -32,7 +32,7 @@ class BaseTestCase(PluserableTestCase):
         def factory(registry):
             return self.session
 
-        config = self.make_test_app(self.settings, factory)
+        config = self._initialize_config(self.settings, factory)
         config.include('pluserable')
 
     def tearDown(self):

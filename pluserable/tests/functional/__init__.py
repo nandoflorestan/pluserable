@@ -1,4 +1,8 @@
-"""A functional test makes a fake request and verifies the response content."""
+"""A functional test makes a fake request and verifies the response content.
+
+It is the slowest kind of test. Not only does it hit the database,
+it also generates the content of a response. It passes through all layers.
+"""
 
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -50,7 +54,7 @@ class FunctionalTestBase(PluserableTestCase):
     def setUp(self):
         """Called before each functional test."""
         settings = self._read_pyramid_settings()
-        config = self.make_test_app(settings, DBSession)
+        config = self._initialize_config(settings, DBSession)
 
         self.engine = engine_from_config(config.registry.settings,
                                          prefix='sqlalchemy.')
