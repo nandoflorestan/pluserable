@@ -1,12 +1,11 @@
-from . import IntegrationTestBase
+from unittest import TestCase
+from pluserable.interfaces import ILoginSchema, ILoginForm
 
 
-class TestInterfaces(IntegrationTestBase):
+class TestInterfaces(TestCase):
 
     def test_suloginschema(self):
         """Shouldn't be able to instantiate the interface."""
-        from pluserable.interfaces import ILoginSchema
-
         def make_session():
             ILoginSchema('1')
 
@@ -14,8 +13,6 @@ class TestInterfaces(IntegrationTestBase):
 
     def test_suloginform(self):
         """Shouldn't be able to instantiate the interface."""
-        from pluserable.interfaces import ILoginForm
-
         def make_session():
             ILoginForm('1')
 
