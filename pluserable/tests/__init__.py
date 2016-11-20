@@ -30,7 +30,10 @@ class PluserableTestCase(TestCase):
 
 
 class AppTestCase(PluserableTestCase):
-    """Base class for tests that need a configured Pyramid app."""
+    """Base class providing a configured Pyramid app.
+
+    For integration tests and slow functional tests.
+    """
 
     @classmethod
     def _read_pyramid_settings(cls, kind=''):
