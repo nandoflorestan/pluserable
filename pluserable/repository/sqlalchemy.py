@@ -23,7 +23,7 @@ class Repository(BaseSQLAlchemyRepository):
 
     @reify
     def Group(self):
-        return self.registry.getUtility(IGroupClass)  # TODO
+        return self.mundi.get_utility(const.GROUP_CLASS)
 
     def q_user_by_email(self, email):
         """Return a user with ``email``, or None."""
@@ -37,7 +37,8 @@ class Repository(BaseSQLAlchemyRepository):
             func.lower(self.User.username) == username.lower()
         ).first()
 
-    def q_gen_users(self):
+    def q_users(self):
+        """Return an iterator on all users."""
         return self.sas.query(self.User)
 
     def q_groups(self):

@@ -9,18 +9,14 @@ class TestRepository(IntegrationTestBase):
     """Tests for the SQLAlchemy repository."""
 
     def test_q_groups(self):
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.session.add(user)
-
+        user = self.create_users(count=1)
         group = Group(name='admin', description='group for admins')
         group.users.append(user)
         self.session.add(group)
-        self.session.commit()
+        self.session.flush()
 
         repo = instantiate_repository(self.config.registry)
         groups = list(repo.q_groups())
-
         assert len(groups) == 1
 
     def test_q_activation_by_code(self):
@@ -51,5 +47,5 @@ class TestRepository(IntegrationTestBase):
         self.session.flush()
 
         repo = instantiate_repository(self.config.registry)
-        users = list(repo.q_gen_users())
+        users = list(repo.q_users())
         assert len(users) == 2

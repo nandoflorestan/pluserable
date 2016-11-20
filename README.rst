@@ -37,7 +37,9 @@ Minimal integration
 
     [Mundi utilities]
     # Let pluserable know which model classes to use:
-    User class = some.app.models:User
+    activation class = some.app.models:Activation
+    group class = some.app.models:Group
+    user class = some.app.models:User
 
 - Tell pluserable which models to use::
 
