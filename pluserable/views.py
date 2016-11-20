@@ -19,9 +19,10 @@ from .interfaces import (
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
                      PasswordResetEvent, ProfileUpdatedEvent)
-from .models import _
 from .exceptions import AuthenticationFailure, FormValidationFailure
 from .httpexceptions import HTTPBadRequest
+from .models import _
+from pluserable.repository import instantiate_repository
 
 
 LOG = logging.getLogger(__name__)
@@ -261,11 +262,12 @@ class ForgotPasswordView(BaseView):
         except FormValidationFailure as e:
             return e.result(req)
 
-        user = self.User.get_by_email(req, captured['email'])
+        repo = instantiate_repository(req.registry)
+        user = repo.q_user_by_email(captured['email'])
         activation = self.Activation()
-        dbsession.add(activation)
+        # dbsession.add(activation)  # seems unnecessary
         user.activation = activation
-        dbsession.flush()  # initialize activation.code
+        repo.flush()  # initialize activation.code
 
         Str = self.Str
 
@@ -275,7 +277,7 @@ class ForgotPasswordView(BaseView):
             getattr(user, 'full_name', '') or \
             getattr(user, 'username', '') or user.email
         body = Str.reset_password_email_body.format(
-            link=route_url('reset_password', req, code=user.activation.code),
+            link=route_url('reset_password', req, code=activation.code),
             username=username, domain=req.application_url)
         subject = Str.reset_password_email_subject
         message = Message(subject=subject, recipients=[user.email], body=body)
@@ -437,7 +439,7 @@ class ProfileView(BaseView):
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)
 
-    def edit_profile(self):
+    def edit_profile(self):  # TODO TEST OR REMOVE
         user = self.request.user
         # if not user:  # substitute with effective_principals=Authenticated
         #     return HTTPNotFound()

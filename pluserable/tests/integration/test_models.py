@@ -132,32 +132,6 @@ class TestUser(IntegrationTestBase):
 
         assert new_user is None
 
-    def test_get_user_by_email(self):
-        from pluserable.tests.models import User
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'password'
-
-        self.session.add(user)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-
-        new_user = User.get_by_email(request, user.email)
-
-        assert new_user is user
-
-    def test_get_user_by_invalid_email(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'password'
-        self.session.add(user)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-        new_user = User.get_by_email(request, 'carlsagan@nasa.org')
-        assert new_user is None
-
     def test_get_user_by_activation(self):
         from pluserable.tests.models import User
         from pluserable.tests.models import Activation

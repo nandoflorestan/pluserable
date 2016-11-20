@@ -227,13 +227,6 @@ class NoUsernameMixin(BaseModel):
         """Generate random string of fixed length."""
         return random_hash(chars)
 
-    @classmethod  # TODO REMOVE in favor of q_by_email()
-    def get_by_email(cls, request, email):
-        session = get_session(request)
-        return session.query(cls).filter(
-            func.lower(cls.email) == email.lower()
-        ).first()
-
     @classmethod
     def q_by_email(cls, sas, email, **filters):
         q = sas.query(cls).filter(

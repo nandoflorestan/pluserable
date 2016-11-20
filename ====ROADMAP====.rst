@@ -2,12 +2,13 @@
 pluserable roadmap
 ==================
 
+- Models should not see the request object; move all I/O to a Repository layer
+- Remove IUserClass, IActivationClass, IGroupClass, dbsession, get_by_code, get_by_email
+- Refactor views: Create an action layer (also known as service layer)
+- Test or remove the edit_profile() view.
 - Do not create tables when running unit tests.
 - Move up subtransaction trick for tests.
 - Does Mundi need a request concept?
-- Refactor views: Create an action layer (also known as service layer)
-- Models should not see the request object; move all I/O to a Repository layer
-- Remove IUserClass, IActivationClass, IGroupClass, get_by_code
 - Document the Repository.
 - Move certain modules into web/pyramid/
 - Use base model from bag library.
