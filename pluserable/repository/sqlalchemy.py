@@ -15,11 +15,15 @@ class Repository(BaseSQLAlchemyRepository):
 
     @reify
     def User(self):
-        return self.mundi.get_utility(const.USERCLASS)
+        return self.mundi.get_utility(const.USER_CLASS)
+
+    @reify
+    def Activation(self):
+        return self.mundi.get_utility(const.ACTIVATION_CLASS)
 
     @reify
     def Group(self):
-        return self.registry.getUtility(IGroupClass)
+        return self.registry.getUtility(IGroupClass)  # TODO
 
     def q_user_by_email(self, email):
         """Return a user with ``email``, or None."""

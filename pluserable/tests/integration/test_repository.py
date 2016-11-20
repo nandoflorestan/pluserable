@@ -34,17 +34,10 @@ class TestRepository(IntegrationTestBase):
         assert activation is new_activation
 
     def test_get_user_activation(self):
-        user1 = User(username='sagan', email='carlsagan@nasa.org')
-        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
-        user1.password = 'password'
-        user2.password = 'password'
-
+        user1, user2 = self.create_users(count=2)
         activation = Activation()
         user2.activation = activation
-
-        self.session.add(user1)
-        self.session.add(user2)
-        self.session.commit()
+        self.session.flush()
 
         repo = instantiate_repository(self.config.registry)
         new_user = repo.q_user_by_username('sagan2')
