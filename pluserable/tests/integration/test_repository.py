@@ -53,16 +53,10 @@ class TestRepository(IntegrationTestBase):
         assert activation is new_activation
         assert new_user.activation is new_activation
 
-    def test_get_all_users(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
-        user2.password = 'temp'
-        self.session.add(user)
-        self.session.add(user2)
-        self.session.commit()
+    def test_gen_users(self):
+        self.create_users(count=2)
+        self.session.flush()
 
-        request = testing.DummyRequest()
-        users = User.get_all(request)
-        assert len(users.all()) == 2
+        repo = instantiate_repository(self.config.registry)
+        users = list(repo.q_gen_users())
+        assert len(users) == 2

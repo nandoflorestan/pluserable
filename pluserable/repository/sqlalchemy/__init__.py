@@ -33,6 +33,9 @@ class Repository(BaseSQLAlchemyRepository):
             func.lower(self.User.username) == username.lower()
         ).first()
 
+    def q_gen_users(self):
+        return self.sas.query(self.User)
+
     def q_groups(self):
         """Return an iterator on all groups."""
         return self.sas.query(self.Group)

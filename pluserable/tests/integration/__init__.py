@@ -29,11 +29,11 @@ class BaseTestCase(PluserableTestCase):
         # bind an individual Session to the connection
         self.session = self.Session(bind=connection)
 
-        def factory(registry):
+        def factory():
             return self.session
 
-        config = self._initialize_config(self.settings, factory)
-        config.include('pluserable')
+        self.config = self._initialize_config(self.settings, factory)
+        self.config.include('pluserable')
 
     def tearDown(self):
         # rollback - everything that happened with the

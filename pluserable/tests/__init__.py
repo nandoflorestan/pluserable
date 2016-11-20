@@ -31,7 +31,7 @@ class PluserableTestCase(TestCase):
     def create_users(self, count=1):
         """Return a user if count is 1, else a list of users."""
         users = []
-        for index in range(0, count):
+        for index in range(1, count + 1):
             user = User(username='sagan{}'.format(index),
                         email='carlsagan{}@nasa.org'.format(index),
                         password='science')
