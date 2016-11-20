@@ -1,29 +1,25 @@
 """A functional test makes a fake request and verifies the response content."""
 
-from unittest import TestCase
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_beaker import session_factory_from_settings
 from pyramid.response import Response
 from sqlalchemy import engine_from_config
+from sqlalchemy.orm import scoped_session, sessionmaker
+from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
-from pluserable.tests import DBSession, settings
-from pluserable.tests.models import Activation, Base, User
-from pluserable.interfaces import IUserClass, IActivationClass, IDBSession
+from pluserable.tests import PluserableTestCase
+from pluserable.tests.models import Base
+from pluserable.interfaces import IDBSession
 
 
-class FunctionalTestBase(TestCase):
+DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
-    def main(self, global_config, **settings):
-        settings['su.using_tm'] = True
 
-        config = global_config
-        config.add_settings(settings)
+class FunctionalTestBase(PluserableTestCase):
 
-        config.registry.registerUtility(Activation, IActivationClass)
-        config.registry.registerUtility(User, IUserClass)
-
+    def main(self, config):
         def index(request):
             return Response('index!')
 
@@ -36,11 +32,11 @@ class FunctionalTestBase(TestCase):
         authn_policy = AuthTktAuthenticationPolicy('secret')
         config.set_authentication_policy(authn_policy)
 
+        settings = config.registry.settings
+
+        # Pyramid sessions
         session_factory = session_factory_from_settings(settings)
-
         config.set_session_factory(session_factory)
-
-        config.registry.registerUtility(DBSession, IDBSession)
 
         if settings.get('su.require_activation', True):
             config.include('pyramid_mailer')
@@ -53,10 +49,16 @@ class FunctionalTestBase(TestCase):
 
     def setUp(self):
         """Called before each functional test."""
-        self.engine = engine_from_config(settings, prefix='sqlalchemy.')
-        config = testing.setUp()
-        app = self.main(config, **settings)
+        settings = self._read_pyramid_settings()
+        config = self.make_test_app(settings, DBSession)
+
+        self.engine = engine_from_config(config.registry.settings,
+                                         prefix='sqlalchemy.')
+        app = self.main(config)
+
         self.app = TestApp(app)
+
+        # TODO Move up the subtransaction trick
         self.connection = connection = self.engine.connect()
 
         self.session = app.registry.getUtility(IDBSession)

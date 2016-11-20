@@ -5,7 +5,7 @@ from pyramid.security import unauthenticated_userid
 from pluserable import initialize_mundi, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
-    IUIStrings, IMundi, ILoginForm, ILoginSchema,
+    IDBSession, IUIStrings, IMundi, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.repository import instantiate_repository
@@ -53,6 +53,10 @@ def find_or_create_mundi(registry):
 def includeme(config):
     """Integrate pluserable into a Pyramid web app."""
     registry = config.registry
+    # Ensure, at startup, that a SQLAlchemy session factory was configured:
+    assert registry.queryUtility(IDBSession), 'No SQLAlchemy session ' \
+        'factory has been configured before including pluserable!'
+
     settings = registry.settings
     config.add_request_method(get_user, 'user', reify=True)  # request.user
     config.set_root_factory(RootFactory)

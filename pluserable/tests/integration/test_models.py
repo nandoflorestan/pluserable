@@ -36,44 +36,6 @@ class TestActivation(IntegrationTestBase):
         activation1.valid_until = dt
         assert activation1.valid_until == dt
 
-    def test_get_activation(self):
-        from pluserable.tests.models import Activation
-
-        activation = Activation()
-        self.session.add(activation)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-
-        new_activation = Activation.get_by_code(request, activation.code)
-
-        assert activation == new_activation
-
-    def test_get_user_activation(self):
-        from pluserable.tests.models import Activation
-        from pluserable.tests.models import User
-
-        user1 = User(username='sontek1', email='sontek@gmail.com')
-        user2 = User(username='sontek2', email='sontek+2@gmail.com')
-        user1.password = 'password'
-        user2.password = 'password'
-
-        activation = Activation()
-        user2.activation = activation
-
-        self.session.add(user1)
-        self.session.add(user2)
-        self.session.commit()
-
-        request = testing.DummyRequest()
-
-        new_user = User.get_by_username(request, 'sontek2')
-
-        new_activation = Activation.get_by_code(request, activation.code)
-
-        assert activation == new_activation
-        assert new_user.activation == new_activation
-
 
 class TestUser(IntegrationTestBase):
 

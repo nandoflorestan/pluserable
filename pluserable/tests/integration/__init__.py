@@ -3,30 +3,28 @@
 It accesses a database, so it is slower than a unit test.
 """
 
-from unittest import TestCase
 from mock import Mock
 from pyramid import testing
 from sqlalchemy import engine_from_config
-from pluserable.tests import settings, sessionmaker
-from pluserable.tests.models import Activation, Base, User, Group
-from pluserable.interfaces import (
-    IUserClass, IActivationClass, IGroupClass, IDBSession)
+from sqlalchemy.orm import sessionmaker
+from pluserable.tests import PluserableTestCase
+from pluserable.tests.models import Base
 
 
-class BaseTestCase(TestCase):
+class BaseTestCase(PluserableTestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls):  # TODO MOVE TO ..
+        cls.settings = settings = cls._read_pyramid_settings()
         cls.engine = engine_from_config(settings, prefix='sqlalchemy.')
         cls.Session = sessionmaker()
 
     def setUp(self):
-        self.config = testing.setUp()
-
         self.connection = connection = self.engine.connect()
 
         # begin a non-ORM transaction
         self.trans = connection.begin()
+        Base.metadata.bind = connection
 
         # bind an individual Session to the connection
         self.session = self.Session(bind=connection)
@@ -34,12 +32,8 @@ class BaseTestCase(TestCase):
         def factory(registry):
             return self.session
 
-        self.config.registry.registerUtility(factory, IDBSession)
-        self.config.registry.registerUtility(Activation, IActivationClass)
-        self.config.registry.registerUtility(User, IUserClass)
-        self.config.registry.registerUtility(Group, IGroupClass)
-
-        Base.metadata.bind = connection
+        config = self.make_test_app(self.settings, factory)
+        config.include('pluserable')
 
     def tearDown(self):
         # rollback - everything that happened with the

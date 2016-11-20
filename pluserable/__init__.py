@@ -59,9 +59,6 @@ def initialize_mundi(config_path, mundi=None):
     """Initialize the core system, below the web framework."""
     mundi = mundi or Mundi.from_ini(config_path)
 
-    # Ensure, at startup, that a SQLAlchemy session was configured:
-    mundi.ensure_utility(SAS, component='pluserable')
-
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     mundi.set_default_utility(REPOSITORY,
                               'pluserable.repository.sqlalchemy:Repository')

@@ -4,10 +4,14 @@ Repositories are persistence strategies.
 """
 
 from pluserable.const import REPOSITORY
-from pluserable.interfaces import IMundi
+from pluserable.interfaces import IDBSession, IMundi
 
 
 def instantiate_repository(registry):
-    """Return a new instance of the configured repository."""
+    """Return a new instance of the configured repository.
+
+    This must be called only once per request.
+    """
     mundi = registry.queryUtility(IMundi)
-    return mundi.get_utility(REPOSITORY)(mundi)
+    session_factory = registry.queryUtility(IDBSession)
+    return mundi.get_utility(REPOSITORY)(mundi, session_factory)

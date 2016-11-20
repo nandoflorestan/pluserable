@@ -36,9 +36,6 @@ Minimal integration
   like this::
 
     [Mundi utilities]
-    # Let pluserable know where to find the SQLAlchemy scoped session:
-    sas = some.app.module:my_scoped_session_variable
-
     # Let pluserable know which model classes to use:
     User class = some.app.models:User
 
@@ -47,6 +44,12 @@ Minimal integration
     from pluserable.interfaces import IUserClass, IActivationClass
     registry.registerUtility(User, IUserClass)
     registry.registerUtility(Activation, IActivationClass)
+
+- Let pluserable know where to find the SQLAlchemy session. This could be
+  a scoped session or a common session. Just write a function that returns
+  the session and then register it against the IDBSession interface::
+
+    config.registry.registerUtility(session_factory, IDBSession)
 
 - You may write a function that returns a pluserable configuration,
   and then inform pluserable about it like this::

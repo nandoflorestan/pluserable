@@ -1,22 +1,17 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
+from mundi.repository.sqlalchemy import BaseSQLAlchemyRepository
 from pyramid.decorator import reify
 from sqlalchemy import func
 from pluserable import const
-from pluserable.interfaces import IUserClass, IGroupClass
+from pluserable.interfaces import IGroupClass
 
 
-class Repository(object):
+class Repository(BaseSQLAlchemyRepository):
     """This repository uses SQLAlchemy for storage.
 
     In the future other strategies can be developed (e. g. ZODB).
     """
-
-    def __init__(self, mundi):
-        """Construct a SQLAlchemy repository for pluserable."""
-        self.mundi = mundi
-        # The SQLAlchemy session to be used in this request:
-        self.sas = mundi.get_utility(const.SAS)
 
     @reify
     def User(self):
@@ -41,3 +36,8 @@ class Repository(object):
     def q_groups(self):
         """Return an iterator on all groups."""
         return self.sas.query(self.Group)
+
+    def q_activation_by_code(self, code):
+        """Return the Activation with ``code``, or None."""
+        return self.sas.query(self.Activation).filter(
+            self.Activation.code == code).first()

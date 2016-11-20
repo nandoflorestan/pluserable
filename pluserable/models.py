@@ -125,11 +125,6 @@ class ActivationMixin(BaseModel):
         return sa.Column(sa.Unicode(30), nullable=False,
                          default='web')
 
-    @classmethod
-    def get_by_code(cls, request, code):
-        session = get_session(request)
-        return session.query(cls).filter(cls.code == code).first()
-
 
 def default_security_code():
     return random_hash(12)
