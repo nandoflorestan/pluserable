@@ -60,9 +60,8 @@ class TestRepository(IntegrationTestBase):
         self.sas.flush()
 
         repo = instantiate_repository(self.config.registry)
-        new_user = repo.q_user_by_email(user.email)
-
-        assert new_user is user
+        ret = repo.q_user_by_email(user.email)
+        assert ret is user
 
     def test_q_user_by_invalid_email(self):
         """q_user_by_email() called with invalid email returns None."""
@@ -73,3 +72,14 @@ class TestRepository(IntegrationTestBase):
         new_user = repo.q_user_by_email('someone@else.com')
 
         assert new_user is None
+
+    def test_get_user_by_activation(self):
+        """q_user_by_activation() returns the correct user."""
+        users = self.create_users(count=2)
+        activation = Activation()
+        users[1].activation = activation
+        self.sas.commit()
+
+        repo = instantiate_repository(self.config.registry)
+        ret = repo.q_user_by_activation(activation)
+        assert ret is users[1]

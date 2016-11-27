@@ -236,13 +236,6 @@ class NoUsernameMixin(BaseModel):
         return q
 
     @classmethod
-    def get_by_activation(cls, request, activation):
-        session = get_session(request)
-        return session.query(cls).filter(
-            cls.activation_id == activation.id_value
-        ).first()
-
-    @classmethod
     def get_by_security_code(cls, request, security_code):
         session = get_session(request)
         return session.query(cls).filter(

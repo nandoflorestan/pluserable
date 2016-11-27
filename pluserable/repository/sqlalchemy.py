@@ -34,8 +34,7 @@ class Repository(BaseSQLAlchemyRepository):
         """Return a user with ``username``, or None. Case-insensitive."""
         return self.sas.query(self.User).filter(
             # self.User.username == username
-            func.lower(self.User.username) == username.lower()
-        ).first()
+            func.lower(self.User.username) == username.lower()).first()
 
     def q_users(self):
         """Return an iterator on all users."""
@@ -49,3 +48,8 @@ class Repository(BaseSQLAlchemyRepository):
         """Return the Activation with ``code``, or None."""
         return self.sas.query(self.Activation).filter(
             self.Activation.code == code).first()
+
+    def q_user_by_activation(self, activation):
+        """Return the Activation with ``activation``, or None."""
+        return self.sas.query(self.User).filter(
+            self.User.activation_id == activation.id_value).first()

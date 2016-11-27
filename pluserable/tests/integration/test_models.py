@@ -121,44 +121,6 @@ class TestUser(IntegrationTestBase):
 
         assert new_user is None
 
-    def test_get_user_by_activation(self):
-        from pluserable.tests.models import User
-        from pluserable.tests.models import Activation
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'password'
-        activation = Activation()
-        user.activation = activation
-
-        self.sas.add(user)
-        self.sas.commit()
-
-        request = testing.DummyRequest()
-        new_user = User.get_by_activation(request, activation)
-        assert new_user is user
-
-    def test_get_user_by_activation_with_multiple_users(self):
-        from pluserable.tests.models import User
-        from pluserable.tests.models import Activation
-
-        user1 = User(username='sagan', email='carlsagan@nasa.org')
-        user2 = User(username='sagan2', email='carlsagan2@nasa.org')
-        user1.password = 'password'
-        user2.password = 'password2'
-        activation = Activation()
-        user2.activation = activation
-
-        self.sas.add(user1)
-        self.sas.add(user2)
-
-        self.sas.commit()
-
-        request = testing.DummyRequest()
-
-        new_user = User.get_by_activation(request, activation)
-
-        assert new_user is user2
-
 
 class TestGroup(IntegrationTestBase):
 
