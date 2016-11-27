@@ -18,7 +18,10 @@ class PluserableAction(object):
     """Business rules decoupled from the web framework and from persistence."""
 
     def __init__(self, registry):
-        """``registry`` is a zope.component registry or a Pyramid registry."""
+        """One instance of the action should be made per request.
+
+        ``registry``: a zope.component registry or a Pyramid registry.
+        """
         self.registry = registry
 
     @reify
