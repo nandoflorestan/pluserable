@@ -25,6 +25,10 @@ class Repository(BaseSQLAlchemyRepository):
     def Group(self):
         return self.mundi.get_utility(const.GROUP_CLASS)
 
+    def q_user_by_id(self, id):
+        """Return a user with ``id``, or None."""
+        return self.sas.query(self.User).get(id)
+
     def q_user_by_email(self, email):
         """Return a user with ``email``, or None."""
         return self.sas.query(self.User).filter(

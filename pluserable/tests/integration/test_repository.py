@@ -54,6 +54,14 @@ class TestRepository(IntegrationTestBase):
         users = list(repo.q_users())
         assert len(users) == 2
 
+    def test_q_user_by_id(self):
+        """q_user_by_id() called with valid id returns the user."""
+        users = self.create_users(count=2)
+        self.sas.flush()
+        repo = instantiate_repository(self.config.registry)
+        ret = repo.q_user_by_id(users[1].id)
+        assert ret is users[1]
+
     def test_q_user_by_email(self):
         """q_user_by_email() called with valid email returns the user."""
         user = self.create_users(count=1)

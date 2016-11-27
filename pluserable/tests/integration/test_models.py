@@ -71,17 +71,6 @@ class TestUser(IntegrationTestBase):
         new_user = User.get_by_security_code(request, user.security_code)
         assert user is new_user
 
-    def test_get_user_by_id(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.sas.add(user)
-        self.sas.commit()
-
-        request = testing.DummyRequest()
-        new_user = User.get_by_id(request, user.id)
-        assert new_user is user
-
     def test_get_user_by_invalid_id(self):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
