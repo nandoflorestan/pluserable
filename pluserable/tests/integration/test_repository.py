@@ -63,7 +63,7 @@ class TestRepository(IntegrationTestBase):
         ret = repo.q_user_by_id(users[1].id)
         assert ret is users[1]
 
-    def test_get_user_by_invalid_id(self):
+    def test_q_user_by_id_invalid(self):
         """q_user_by_id() called with invalid id returns None."""
         self.create_users(count=1)
         self.sas.flush()
@@ -81,7 +81,7 @@ class TestRepository(IntegrationTestBase):
         ret = repo.q_user_by_email(user.email)
         assert ret is user
 
-    def test_q_user_by_invalid_email(self):
+    def test_q_user_by_email_invalid(self):
         """q_user_by_email() called with invalid email returns None."""
         self.create_users(count=1)
         self.sas.flush()
@@ -90,6 +90,24 @@ class TestRepository(IntegrationTestBase):
         new_user = repo.q_user_by_email('someone@else.com')
 
         assert new_user is None
+
+    def test_get_user_by_username(self):
+        """q_user_by_username() called with valid username returns the user."""
+        user = self.create_users(count=1)
+        self.sas.flush()
+
+        repo = instantiate_repository(self.config.registry)
+        ret = repo.q_user_by_username(user.username)
+        assert ret is user
+
+    def test_get_user_by_username_invalid(self):
+        """q_user_by_username(), with invalid username, returns None."""
+        self.create_users(count=1)
+        self.sas.flush()
+
+        repo = instantiate_repository(self.config.registry)
+        ret = repo.q_user_by_username('wrong')
+        assert ret is None
 
     def test_get_user_by_activation(self):
         """q_user_by_activation() returns the correct user."""
