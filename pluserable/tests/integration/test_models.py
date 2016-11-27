@@ -49,17 +49,6 @@ class TestUser(IntegrationTestBase):
         assert user1.password != 'password'
         assert user1.salt is not None
 
-    def test_get_valid_user(self):
-        from pluserable.tests.models import User
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.sas.add(user)
-        self.sas.commit()
-
-        request = testing.DummyRequest()
-        new_user = User.get_user(request, 'sagan', 'temp')
-        assert user is new_user
-
     def test_get_valid_user_by_security_code(self):
         from pluserable.tests.models import User
         user = User(username='sagan', email='carlsagan@nasa.org')
