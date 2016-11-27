@@ -51,6 +51,7 @@ Minimal integration
   a scoped session or a common session. Just write a function that returns
   the session and then register it against the IDBSession interface::
 
+    from pluserable.interfaces import IDBSession
     config.registry.registerUtility(session_factory, IDBSession)
 
 - You may write a function that returns a pluserable configuration,

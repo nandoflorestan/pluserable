@@ -126,10 +126,6 @@ class ActivationMixin(BaseModel):
                          default='web')
 
 
-def default_security_code():
-    return random_hash(12)
-
-
 class NoUsernameMixin(BaseModel):
     @declared_attr
     def email(self):
@@ -140,16 +136,6 @@ class NoUsernameMixin(BaseModel):
     def status(self):
         """ Status of user """
         return sa.Column(sa.Integer())
-
-    @declared_attr
-    def security_code(self):
-        """Can be used for API calls or password reset."""
-        return sa.Column(
-            sa.Unicode(256),
-            nullable=True,
-            unique=True,
-            default=default_security_code
-        )
 
     @declared_attr
     def last_login_date(self):
@@ -234,13 +220,6 @@ class NoUsernameMixin(BaseModel):
         if filters:
             q = q.filter_by(**filters)
         return q
-
-    @classmethod
-    def get_by_security_code(cls, request, security_code):
-        session = get_session(request)
-        return session.query(cls).filter(
-            cls.security_code == security_code
-        ).first()
 
     def check_password(self, password):
         """Check the ``password`` and return a boolean."""
