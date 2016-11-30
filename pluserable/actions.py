@@ -9,29 +9,33 @@ be thin.  Business rules must be decoupled from the web framework.
 
 from bag.settings import SettingsReader
 from pyramid.decorator import reify
+from mundi.action import Action
 from pluserable.exceptions import AuthenticationFailure
+from pluserable.interfaces import IMundi
 from pluserable.strings import get_strings
 
 
-class PluserableAction(object):
+def instantiate_action(cls, request, payload: dict, agent=None):
+    """Convenience function to be used from pluserable views."""
+    return cls(
+        repo=request.replusitory,
+        mundi=request.registry.getUtility(IMundi),
+        registry=request.registry,
+        agent=agent or request.user,
+        payload=payload,
+    )
+
+
+class CheckCredentials(Action):
     """Business rules decoupled from the web framework and from persistence."""
-
-    def __init__(self, registry, repository):
-        """One instance of the action should be made per request.
-
-        ``registry``: a zope.component registry or a Pyramid registry.
-        ``repository``: a pluserable repository implementation.
-        """
-        self.registry = registry
-        self._repo = repository
 
     @reify
     def _strings(self):
-        return get_strings(self.registry)
+        return get_strings(self.registry)  # TODO NOT REGISTRY
 
     @reify
     def _settings_reader(self):
-        return SettingsReader(self.registry.settings)
+        return SettingsReader(self.registry.settings)  # TODO NOT REGISTRY
 
     @reify
     def _allow_inactive_login(self):
@@ -46,16 +50,17 @@ class PluserableAction(object):
     def q_user(self, handle):
         """``handle`` can be a username or an email."""
         if '@' in handle:
-            return self._repo.q_user_by_email(handle)
+            return self.repo.q_user_by_email(handle)
         else:
-            return self._repo.q_user_by_username(handle)
+            return self.repo.q_user_by_username(handle)
 
-    def check_credentials(self, handle, password):
-        """Return user object if credentials are valid."""
+    def do(self):
+        """Return user object if credentials are valid, else raise."""
+        handle = self.payload['handle']
         user = self.q_user(handle)
-        return self._check_credentials(user, handle, password)
+        return self._check_credentials(user, handle, self.payload['password'])
 
-    def _check_credentials(self, user, handle, password):  # TODO unit test
+    def _check_credentials(self, user, handle, password):
         if not user or not user.check_password(password):
             raise AuthenticationFailure(
                 self._strings.wrong_email if '@' in handle

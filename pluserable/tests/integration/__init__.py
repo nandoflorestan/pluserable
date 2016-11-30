@@ -7,6 +7,7 @@ from mock import Mock
 from pyramid import testing
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
+from pluserable.repository import instantiate_repository
 from pluserable.tests import AppTestCase
 from pluserable.tests.models import Base
 
@@ -53,4 +54,5 @@ class IntegrationTestBase(BaseTestCase):
         request = testing.DummyRequest(post)
         request.session = Mock()
         request.method = request_method
+        request.replusitory = instantiate_repository(request.registry)
         return request

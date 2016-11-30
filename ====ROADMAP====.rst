@@ -3,10 +3,10 @@ pluserable roadmap
 ==================
 
 - Actions must follow the Mundi Action pattern
-- Create Base for unit test classes
 - Models should not see the request object; move all I/O to a Repository layer
 - Rethink the base model in light of the repository.
-- Remove IUserClass, IActivationClass, IGroupClass, dbsession, get_by_code, get_by_email
+- Remove IUserClass, IActivationClass, IGroupClass, IUIStrings,
+  dbsession, get_by_code, get_by_email
 - Refactor views: Create an action layer (also known as service layer)
 - Test or remove the edit_profile() view.
 - Do not create tables when running unit tests.

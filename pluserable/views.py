@@ -12,7 +12,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from .actions import PluserableAction
+from .actions import instantiate_action, CheckCredentials
 from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
@@ -28,6 +28,7 @@ LOG = logging.getLogger(__name__)
 
 
 def includeme(config):
+    """Set up pluserable routes and views in Pyramid."""
     settings = config.registry.settings['pluserable']
     routes = settings['routes']
     for name, kw in routes.items():
@@ -125,17 +126,12 @@ def validate_form(controls, form):
 
 class BaseView(object):
 
-    @reify
-    def action(self):
-        return PluserableAction(
-            self.request.registry, self.request.replusitory)
-
     @property
     def request(self):
         # we defined this so that we can override the request in tests easily
         return self._request
 
-    def __init__(self, request):
+    def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
         self.settings = request.registry.settings
         getUtility = request.registry.getUtility
@@ -175,11 +171,13 @@ class AuthView(BaseView):
         except colander.Invalid as e:
             raise HTTPBadRequest({'invalid': e.asdict()})
 
-        handle = captured['handle']
-        password = captured['password']
-
         try:
-            user = self.action.check_credentials(handle, password)
+            check_credentials = instantiate_action(
+                CheckCredentials, self.request, payload={
+                    'handle': captured['handle'],
+                    'password': captured['password'],
+                })
+            user = check_credentials()
         except AuthenticationFailure as e:
             raise HTTPBadRequest({
                 'status': 'failure',
@@ -206,11 +204,13 @@ class AuthView(BaseView):
             except FormValidationFailure as e:
                 return e.result(self.request)
 
-            handle = captured['handle']
-            password = captured['password']
-
             try:
-                user = self.action.check_credentials(handle, password)
+                check_credentials = instantiate_action(
+                    CheckCredentials, self.request, payload={
+                        'handle': captured['handle'],
+                        'password': captured['password'],
+                    })
+                user = check_credentials()
             except AuthenticationFailure as e:
                 add_flash(self.request, plain=str(e), kind='error')
                 return render_form(self.request, self.form, captured,
