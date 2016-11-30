@@ -21,7 +21,7 @@ def instantiate_action(cls, request, payload: dict, agent=None):
         repo=request.replusitory,
         mundi=request.registry.getUtility(IMundi),
         registry=request.registry,
-        agent=agent or request.user,
+        agent=agent or getattr(request, 'user', None),
         payload=payload,
     )
 

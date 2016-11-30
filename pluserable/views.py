@@ -216,12 +216,14 @@ class AuthView(BaseView):
                 return render_form(self.request, self.form, captured,
                                    errors=[e])
 
-            self.request.user = user  # Please keep this line, my app needs it
+            self.request.user = user
             return authenticated(self.request, user.id_value)
 
     def logout(self):
-        """Removes the auth cookies and redirects to the view defined in
-        pluserable.logout_redirect, which defaults to a view named 'index'.
+        """Remove the auth cookies and redirect...
+
+        ...to the view defined in the ``pluserable.logout_redirect`` setting,
+        which defaults to a view named 'index'.
         """
         self.request.session.invalidate()
         headers = forget(self.request)
