@@ -3,38 +3,34 @@
 import re
 import colander as c
 import deform.widget as w
-from pluserable.repository import instantiate_repository
 from .interfaces import IUIStrings
 from .models import _
 
 
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
-    req = node.bindings['request']
-    repo = instantiate_repository(req.registry)
-    user = repo.q_user_by_email(val)
+    request = node.bindings['request']
+    user = request.replusitory.q_user_by_email(val)
     if not user:
-        Str = req.registry.getUtility(IUIStrings)
+        Str = request.registry.getUtility(IUIStrings)
         raise c.Invalid(node, Str.reset_password_email_must_exist.format(val))
 
 
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
-    req = node.bindings['request']
-    repo = instantiate_repository(req.registry)
-    other = repo.q_user_by_email(val)
+    request = node.bindings['request']
+    other = request.replusitory.q_user_by_email(val)
     if other:
-        S = req.registry.getUtility(IUIStrings)
+        S = request.registry.getUtility(IUIStrings)
         raise c.Invalid(node, S.registration_email_exists.format(other.email))
 
 
 def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
-    req = node.bindings['request']
-    repo = instantiate_repository(req.registry)
-    user = repo.q_user_by_username(val)
+    request = node.bindings['request']
+    user = request.replusitory.q_user_by_username(val)
     if user is not None:
-        Str = req.registry.getUtility(IUIStrings)
+        Str = request.registry.getUtility(IUIStrings)
         raise c.Invalid(node, Str.registration_username_exists)
 
 
@@ -95,34 +91,40 @@ def get_checked_password_node(description=_(
 # -------
 
 class UsernameLoginSchema(c.Schema):
+
     handle = c.SchemaNode(c.String(), title=_('User name'))
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
 class EmailLoginSchema(c.Schema):
     """For login, some apps just use email and have no username column."""
+
     handle = get_email_node(validator=c.Email())
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
 class UsernameRegisterSchema(c.Schema):
+
     username = get_username_creation_node()
     email = get_email_node()
     password = get_checked_password_node()
 
 
 class EmailRegisterSchema(c.Schema):
+
     email = get_email_node()
     password = get_checked_password_node()
 
 
 class ForgotPasswordSchema(c.Schema):
+
     email = get_email_node(
         validator=c.All(c.Email(), email_exists),
         description=_("The email address under which you have your account."))
 
 
 class UsernameResetPasswordSchema(c.Schema):
+
     username = c.SchemaNode(
         c.String(), title=_('User name'), missing=c.null,
         widget=w.TextInputWidget(template='readonly/textinput'))
@@ -130,6 +132,7 @@ class UsernameResetPasswordSchema(c.Schema):
 
 
 class EmailResetPasswordSchema(c.Schema):
+
     email = c.SchemaNode(
         c.String(), title=_('Email'), missing=c.null,
         widget=w.TextInputWidget(template='readonly/textinput'))
@@ -137,6 +140,7 @@ class EmailResetPasswordSchema(c.Schema):
 
 
 class UsernameProfileSchema(c.Schema):
+
     username = c.SchemaNode(
         c.String(),
         widget=w.TextInputWidget(template='readonly/textinput'),
@@ -146,5 +150,6 @@ class UsernameProfileSchema(c.Schema):
 
 
 class EmailProfileSchema(c.Schema):
+
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)

@@ -4,6 +4,7 @@ from unittest import TestCase
 from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
+from pluserable.web.pyramid import find_or_create_mundi
 from pluserable.tests.models import Activation, User, Group
 from pluserable.interfaces import (
     IDBSession, IUserClass, IActivationClass, IGroupClass)
@@ -45,8 +46,11 @@ class AppTestCase(PluserableTestCase):
     def _initialize_config(self, settings, session_factory):
         config = testing.setUp(settings=settings)
         registry = config.registry
+        find_or_create_mundi(registry)
         registry.registerUtility(session_factory, IDBSession)
-        registry.registerUtility(Activation, IActivationClass)
-        registry.registerUtility(User, IUserClass)
-        registry.registerUtility(Group, IGroupClass)
+
+        # TODO REMOVE:
+        # registry.registerUtility(Activation, IActivationClass)
+        # registry.registerUtility(User, IUserClass)
+        # registry.registerUtility(Group, IGroupClass)
         return config

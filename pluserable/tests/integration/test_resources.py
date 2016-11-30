@@ -1,24 +1,18 @@
 from pyramid import testing
+from pluserable.repository import instantiate_repository
+from pluserable.resources import UserFactory
 from . import IntegrationTestBase
 
 
 class TestResources(IntegrationTestBase):
 
     def test_user_factory(self):
-        from pluserable.resources import UserFactory
-        from pluserable.tests.models import User
-        from pluserable.interfaces import IUserClass
-        self.config.registry.registerUtility(User, IUserClass)
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'foo'
-        self.sas.add(user)
-        self.sas.commit()
-
+        user = self.create_users(count=1)
+        self.sas.flush()  # so the user has an id
         request = testing.DummyRequest()
+        request.replusitory = instantiate_repository(self.config.registry)
         factory = UserFactory(request)
-
         fact_user = factory[user.id]
 
-        assert factory.request == request
-        assert user == fact_user
+        assert factory.request is request
+        assert user is fact_user

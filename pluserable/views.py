@@ -22,7 +22,6 @@ from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
 from .exceptions import AuthenticationFailure, FormValidationFailure
 from .httpexceptions import HTTPBadRequest
 from .models import _
-from pluserable.repository import instantiate_repository
 
 
 LOG = logging.getLogger(__name__)
@@ -128,7 +127,8 @@ class BaseView(object):
 
     @reify
     def action(self):
-        return PluserableAction(self.request.registry)
+        return PluserableAction(
+            self.request.registry, self.request.replusitory)
 
     @property
     def request(self):
@@ -230,6 +230,7 @@ class AuthView(BaseView):
 
 
 class ForgotPasswordView(BaseView):
+
     def __init__(self, request):
         super(ForgotPasswordView, self).__init__(request)
 
@@ -241,28 +242,29 @@ class ForgotPasswordView(BaseView):
             request)
 
     def forgot_password(self):
-        req = self.request
-        schema = req.registry.getUtility(IForgotPasswordSchema)
-        schema = schema().bind(request=req)
+        """Show or process the "forgot password" form."""
+        request = self.request
+        schema = request.registry.getUtility(IForgotPasswordSchema)
+        schema = schema().bind(request=request)
 
-        form = req.registry.getUtility(IForgotPasswordForm)
+        form = request.registry.getUtility(IForgotPasswordForm)
         form = form(schema)
 
-        if req.method == 'GET':
-            if req.user:
+        if request.method == 'GET':
+            if request.user:
                 return HTTPFound(location=self.forgot_password_redirect_view)
             else:
-                return render_form(req, form)
+                return render_form(request, form)
 
         # From here on, we know it's a POST. Let's validate the form
-        controls = req.POST.items()
+        controls = request.POST.items()
 
         try:
             captured = validate_form(controls, form)
         except FormValidationFailure as e:
-            return e.result(req)
+            return e.result(request)
 
-        repo = instantiate_repository(req.registry)
+        repo = request.replusitory
         user = repo.q_user_by_email(captured['email'])
         activation = self.Activation()
         # dbsession.add(activation)  # seems unnecessary
@@ -272,13 +274,13 @@ class ForgotPasswordView(BaseView):
         Str = self.Str
 
         # TODO: Generate msg in a separate method so subclasses can override
-        mailer = get_mailer(req)
+        mailer = get_mailer(request)
         username = getattr(user, 'short_name', '') or \
             getattr(user, 'full_name', '') or \
             getattr(user, 'username', '') or user.email
         body = Str.reset_password_email_body.format(
-            link=route_url('reset_password', req, code=activation.code),
-            username=username, domain=req.application_url)
+            link=route_url('reset_password', request, code=activation.code),
+            username=username, domain=request.application_url)
         subject = Str.reset_password_email_subject
         message = Message(subject=subject, recipients=[user.email], body=body)
         mailer.send(message)

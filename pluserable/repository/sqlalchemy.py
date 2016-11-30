@@ -27,6 +27,7 @@ class Repository(BaseSQLAlchemyRepository):
 
     def q_user_by_id(self, id):
         """Return a user with ``id``, or None."""
+        # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 
     def q_user_by_email(self, email):

@@ -17,8 +17,7 @@ def get_user(request):
     userid = unauthenticated_userid(request)
     if userid is None:
         return None
-    repo = instantiate_repository(request.registry)
-    return repo.get_by_id(request, userid)
+    return request.replusitory.get_by_id(request, userid)
 
 
 ''' TODO REMOVE
@@ -61,6 +60,10 @@ def includeme(config):
     config.add_request_method(get_user, 'user', reify=True)  # request.user
     config.set_root_factory(RootFactory)
     settings_reader = SettingsReader(settings)
+
+    config.add_request_method(  # request.replusitory
+        lambda request: instantiate_repository(request.registry),
+        'replusitory', reify=True)
 
     # User code may create a setting "pluserable_configurator" that points
     # to a callable that we call here:

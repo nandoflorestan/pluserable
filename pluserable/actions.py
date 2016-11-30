@@ -10,23 +10,20 @@ be thin.  Business rules must be decoupled from the web framework.
 from bag.settings import SettingsReader
 from pyramid.decorator import reify
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.repository import instantiate_repository
 from pluserable.strings import get_strings
 
 
 class PluserableAction(object):
     """Business rules decoupled from the web framework and from persistence."""
 
-    def __init__(self, registry):
+    def __init__(self, registry, repository):
         """One instance of the action should be made per request.
 
         ``registry``: a zope.component registry or a Pyramid registry.
+        ``repository``: a pluserable repository implementation.
         """
         self.registry = registry
-
-    @reify
-    def _repo(self):
-        return instantiate_repository(self.registry)
+        self._repo = repository
 
     @reify
     def _strings(self):
