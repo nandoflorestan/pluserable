@@ -48,31 +48,3 @@ class TestUser(IntegrationTestBase):
 
         assert user1.password != 'password'
         assert user1.salt is not None
-
-
-class TestGroup(IntegrationTestBase):
-
-    def test_init(self):
-        from pluserable.tests.models import Group
-        group = Group(name='foo', description='bar')
-
-        assert group.name == 'foo'
-        assert group.description == 'bar'
-
-    def test_get_by_id(self):
-        from pluserable.tests.models import Group
-        from pluserable.tests.models import User
-
-        group = Group(name='admin', description='group for admins')
-        group2 = Group(name='employees', description='group for employees')
-
-        self.sas.add(group)
-        self.sas.add(group2)
-
-        self.sas.commit()
-
-        request = testing.DummyRequest()
-
-        group = Group.get_by_id(request, group2.id)
-
-        assert group.name == 'employees'
