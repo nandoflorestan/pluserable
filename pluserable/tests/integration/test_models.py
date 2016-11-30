@@ -26,17 +26,6 @@ class TestModels(IntegrationTestBase):
         assert model.__json__(testing.DummyRequest()) == data
 
 
-class TestActivation(IntegrationTestBase):
-
-    def test_create_activation_with_valid_until(self):
-        from pluserable.tests.models import Activation
-
-        dt = datetime.utcnow()
-        activation1 = Activation()
-        activation1.valid_until = dt
-        assert activation1.valid_until == dt
-
-
 class TestUser(IntegrationTestBase):
 
     def test_password_hashing(self):
