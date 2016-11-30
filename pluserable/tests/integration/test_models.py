@@ -13,10 +13,6 @@ class TestModel(Base):
 
 class TestModels(IntegrationTestBase):
 
-    def test_tablename(self):
-        model = TestModel()
-        assert model.__tablename__ == 'test_model'
-
     def test_json(self):
         model = TestModel()
         model.id = 1
