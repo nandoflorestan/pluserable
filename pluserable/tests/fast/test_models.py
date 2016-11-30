@@ -1,20 +1,19 @@
 """Unit tests for pure methods of models."""
 
 from datetime import datetime
-from pluserable.models import BaseModel
-from pluserable.tests.models import Activation, Group
+from pluserable.tests.models import Activation, Base, Group
 from . import FastTestCase
 
 
-class TestModel(BaseModel):
+class SomeModel(Base):
     pass
 
 
 class TestBaseModel(FastTestCase):
 
     def test_tablename(self):
-        model = TestModel()
-        assert model.__tablename__ == 'test_model'
+        model = SomeModel()
+        assert model.__tablename__ == 'some_model'
 
 
 class TestActivation(FastTestCase):
