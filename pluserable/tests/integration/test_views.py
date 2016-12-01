@@ -1,6 +1,7 @@
 """Tests for the views."""
 
 from mock import Mock, patch
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
@@ -570,14 +571,7 @@ class TestRegisterView(IntegrationTestBase):
         assert user.is_activated
         assert response.status_int == 302
 
-    def test_activate_invalid(self):
-        from pluserable.views import RegisterView
-        from pyramid_mailer.interfaces import IMailer
-        from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces import IActivationClass
-        from pluserable.tests.models import Activation
+    def test_activate_invalid_code_raises(self):
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -593,18 +587,18 @@ class TestRegisterView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.matchdict = Mock()
         get = Mock()
         get.return_value = 'invalid'
         request.matchdict.get = get
 
         view = RegisterView(request)
-        response = view.activate()
-        user = User.get_by_username(request, 'sagan')
+        with self.assertRaises(HTTPNotFound):
+            view.activate()
 
+        user = request.replusitory.q_user_by_username('sagan')
         assert not user.is_activated
-        assert response.status_int == 404
 
     def test_activate_invalid_user(self):
         from pluserable.views import RegisterView

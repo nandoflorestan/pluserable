@@ -82,14 +82,14 @@ class ActivateUser(PluserableAction):
     def do(self):
         activation = self.repo.q_activation_by_code(self.payload['code'])
         if not activation:
-            return HTTPNotFound()
+            raise HTTPNotFound()
 
         user = self.repo.q_user_by_id(self.payload['user_id'])
         if not user:
-            return HTTPNotFound()
+            raise HTTPNotFound()
 
         if user.activation is not activation:
-            return HTTPNotFound()
+            raise HTTPNotFound()
 
         self.repo.delete_activation(activation)
         return user, activation
