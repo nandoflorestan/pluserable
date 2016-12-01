@@ -323,8 +323,7 @@ class TestRegisterView(IntegrationTestBase):
 
         def handle_registration(event):
             request = event.request
-            session = request.registry.getUtility(IDBSession)
-            session.commit()
+            request.replusitory.flush()
 
         self.config.add_subscriber(handle_registration, NewRegistrationEvent)
 
@@ -345,7 +344,7 @@ class TestRegisterView(IntegrationTestBase):
             add_flash.assert_called_with(
                 request, plain=view.Str.registration_done, kind="success")
         assert response.status_int == 302
-        user = User.get_by_username(request, 'admin')
+        user = request.replusitory.q_user_by_username('admin')
         assert user.is_activated is True
 
     def test_registration_craps_out(self):
