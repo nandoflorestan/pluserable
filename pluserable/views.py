@@ -71,15 +71,14 @@ def authenticated(request, userid):
     return HTTPFound(location=location, headers=headers)
 
 
-def create_activation(request, user):
-    db = get_session(request)
+def create_activation(request, user):  # TODO Move to action
     Activation = request.registry.getUtility(IActivationClass)
     activation = Activation()
 
-    db.add(activation)
+    repo = request.replusitory
+    repo.store_activation(activation)
     user.activation = activation
-
-    db.flush()
+    repo.flush()
 
     # TODO Create a hook for the app to give us body and subject!
     # TODO We don't need pystache just for this!
@@ -390,7 +389,7 @@ class RegisterView(BaseView):
         self.request.registry.notify(NewRegistrationEvent(
             self.request, user, None, controls))
         if autologin:
-            dbsession.flush()  # in order to get the id
+            self.request.replusitory.flush()  # in order to get the id
             return authenticated(self.request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)
@@ -400,7 +399,7 @@ class RegisterView(BaseView):
         # This generic method must work with any custom User class and any
         # custom registration form:
         user = self.User(**controls)
-        dbsession.add(user)
+        self.request.replusitory.store_user(user)
         return user
 
     def activate(self):

@@ -323,16 +323,10 @@ class TestRegisterView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_register_creates_user(self):
-        from pyramid_mailer.mailer import DummyMailer
-        from pyramid_mailer.interfaces import IMailer
-        from pluserable.views import RegisterView
-        from pluserable.interfaces import IActivationClass, IUserClass
-        from pluserable.tests.models import Activation, User
-
         self.config.registry.registerUtility(Activation, IActivationClass)
         self.config.registry.registerUtility(User, IUserClass)
-        self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.include('pluserable')
         self.config.add_route('index', '/')
 
         request = self.get_request(post={
@@ -348,7 +342,7 @@ class TestRegisterView(IntegrationTestBase):
         response = view.register()
 
         assert response.status_int == 302
-        user = User.get_by_username(request, 'admin')
+        user = request.replusitory.q_user_by_username('admin')
         assert user is not None
 
     def test_register_validation(self):

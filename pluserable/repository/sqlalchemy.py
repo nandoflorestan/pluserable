@@ -50,6 +50,10 @@ class Repository(BaseSQLAlchemyRepository):
         """Return an iterator on all users."""
         return self.sas.query(self.User)
 
+    def store_user(self, user):
+        """Save the ``user`` instance."""
+        self.sas.add(user)
+
     def q_groups(self):
         """Return an iterator on all groups."""
         return self.sas.query(self.Group)
@@ -57,6 +61,10 @@ class Repository(BaseSQLAlchemyRepository):
     def q_group_by_id(self, id):
         """Return a group with ``id``, or None."""
         return self.sas.query(self.Group).get(id)
+
+    def store_activation(self, activation):
+        """Save the ``activation`` instance."""
+        self.sas.add(activation)
 
     def q_activation_by_code(self, code):
         """Return the Activation with ``code``, or None."""
