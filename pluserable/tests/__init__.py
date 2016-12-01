@@ -13,14 +13,15 @@ from pluserable.interfaces import (
 class PluserableTestCase(TestCase):
     """Base class for all our tests, especially unit tests."""
 
-    def create_users(self, count=1):
+    def create_users(self, count=1, activation=False):
         """Return a user if count is 1, else a list of users."""
         users = []
         for index in range(1, count + 1):
             user = User(username='sagan{}'.format(index),
                         email='carlsagan{}@nasa.org'.format(index),
                         password='science')
-            # user.password = 'password'  # TODO Remove
+            if activation:
+                user.activation = Activation()
             users.append(user)
         if hasattr(self, 'sas'):
             self.sas.add_all(users)

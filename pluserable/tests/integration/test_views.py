@@ -23,7 +23,7 @@ class TestAuthView(IntegrationTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         getUtility = Mock()
         getUtility.return_value = True
@@ -50,7 +50,7 @@ class TestAuthView(IntegrationTestBase):
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.include('pluserable')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = None
         view = AuthView(request)
         response = view.login()
@@ -66,7 +66,7 @@ class TestAuthView(IntegrationTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = Mock()
         view = AuthView(request)
 
@@ -185,7 +185,7 @@ class TestAuthView(IntegrationTestBase):
         self.config.include('pluserable')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         invalidate = Mock()
         request.user = Mock()
@@ -222,7 +222,7 @@ class TestRegisterView(IntegrationTestBase):
 
         self.config.add_route('index', '/')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         getUtility = Mock()
         getUtility.return_value = True
@@ -255,7 +255,7 @@ class TestRegisterView(IntegrationTestBase):
 
         self.config.add_route('index', '/')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         getUtility = Mock()
         getUtility.return_value = True
@@ -290,7 +290,7 @@ class TestRegisterView(IntegrationTestBase):
 
         self.config.add_route('index', '/')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = None
         view = RegisterView(request)
         response = view.register()
@@ -315,7 +315,7 @@ class TestRegisterView(IntegrationTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = Mock()
         view = RegisterView(request)
         response = view.register()
@@ -524,34 +524,15 @@ class TestRegisterView(IntegrationTestBase):
         assert the_user.is_activated
         assert response.status_int == 302
 
-    def test_activate_multiple_users(self):
-        from pluserable.views import RegisterView
-        from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces import IActivationClass
-        from pluserable.tests.models import Activation
+    def test_activation_works(self):
         self.config.registry.registerUtility(Activation, IActivationClass)
-
         self.config.registry.registerUtility(User, IUserClass)
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.include('pluserable')
         self.config.add_route('index', '/')
 
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.activation = Activation()
-        user.password = 'min4'
-        user1 = User(username='sagan', email='carlsagan2@nasa.org')
-        user1.activation = Activation()
-        user1.password = 'more'
-
-        self.sas.add(user)
-        self.sas.add(user1)
+        user1, user2 = self.create_users(count=2, activation=True)
         self.sas.flush()
-
-        request = testing.DummyRequest()
-        request.matchdict = Mock()
 
         def get(key, default):
             if key == 'code':
@@ -559,16 +540,16 @@ class TestRegisterView(IntegrationTestBase):
             else:
                 return user1.id
 
+        request = self.get_request()
+        request.matchdict = Mock()
         request.matchdict.get = get
-
         view = RegisterView(request)
         response = view.activate()
-        user = User.get_by_username(request, 'sagan')
 
-        activations = Activation.get_all(request)
+        activations = self.sas.query(Activation).all()
 
-        assert len(activations.all()) == 1
-        assert user.is_activated
+        assert len(activations) == 1
+        assert user1.is_activated
         assert response.status_int == 302
 
     def test_activate_invalid_code_raises(self):
@@ -657,7 +638,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = None
         view = ForgotPasswordView(request)
         response = view.forgot_password()
@@ -673,7 +654,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = Mock()
         view = ForgotPasswordView(request)
         response = view.forgot_password()
@@ -769,7 +750,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         request.matchdict = Mock()
         get = Mock()
@@ -940,7 +921,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
 
         request.matchdict = Mock()
         get = Mock()
@@ -973,7 +954,7 @@ class TestProfileView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = Mock()
 
         request.matchdict = Mock()
@@ -1004,7 +985,7 @@ class TestProfileView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.user = Mock()
 
         request.matchdict = Mock()
