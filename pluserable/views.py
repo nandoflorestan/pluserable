@@ -12,7 +12,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from .actions import instantiate_action, CheckCredentials
+from .actions import instantiate_action, ActivateUser, CheckCredentials
 from .interfaces import (
     IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
@@ -404,21 +404,13 @@ class RegisterView(BaseView):
         return user
 
     def activate(self):
-        code = self.request.matchdict.get('code', None)
-        user_id = self.request.matchdict.get('user_id', None)
+        activate_user = instantiate_action(
+            ActivateUser, self.request, payload={
+                'code':    self.request.matchdict.get('code', None),
+                'user_id': self.request.matchdict.get('user_id', None),
+            })
+        user, activation = activate_user()
 
-        activation = self.Activation.get_by_code(self.request, code)
-        if not activation:
-            return HTTPNotFound()
-
-        user = self.User.get_by_id(self.request, user_id)
-        if not user:
-            return HTTPNotFound()
-
-        if user.activation is not activation:
-            return HTTPNotFound()
-
-        dbsession.delete(activation)
         add_flash(self.request, plain=self.Str.activation_email_verified,
                   kind='success')
         self.request.registry.notify(

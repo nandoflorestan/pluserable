@@ -25,6 +25,11 @@ class Repository(BaseSQLAlchemyRepository):
     def Group(self):
         return self.mundi.get_utility(const.GROUP_CLASS)
 
+    def q_user_by_activation(self, activation):
+        """Return the Activation with ``activation``, or None."""
+        return self.sas.query(self.User).filter(
+            self.User.activation_id == activation.id_value).first()
+
     def q_user_by_id(self, id):
         """Return a user with ``id``, or None."""
         # print("\nFetching {} #{}\n".format(self.User, id))
@@ -58,7 +63,6 @@ class Repository(BaseSQLAlchemyRepository):
         return self.sas.query(self.Activation).filter(
             self.Activation.code == code).first()
 
-    def q_user_by_activation(self, activation):
-        """Return the Activation with ``activation``, or None."""
-        return self.sas.query(self.User).filter(
-            self.User.activation_id == activation.id_value).first()
+    def delete_activation(self, activation):
+        assert isinstance(activation, self.Activation)
+        self.sas.delete(activation)

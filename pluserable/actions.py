@@ -9,6 +9,7 @@ be thin.  Business rules must be decoupled from the web framework.
 
 from bag.settings import SettingsReader
 from pyramid.decorator import reify
+from pyramid.httpexceptions import HTTPNotFound
 from mundi.action import Action
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.interfaces import IMundi
@@ -26,8 +27,8 @@ def instantiate_action(cls, request, payload: dict, agent=None):
     )
 
 
-class CheckCredentials(Action):
-    """Business rules decoupled from the web framework and from persistence."""
+class PluserableAction(Action):
+    """Base class for our actions."""
 
     @reify
     def _strings(self):
@@ -36,6 +37,10 @@ class CheckCredentials(Action):
     @reify
     def _settings_reader(self):
         return SettingsReader(self.registry.settings)  # TODO NOT REGISTRY
+
+
+class CheckCredentials(PluserableAction):
+    """Business rules decoupled from the web framework and from persistence."""
 
     @reify
     def _allow_inactive_login(self):
@@ -70,3 +75,21 @@ class CheckCredentials(Action):
                 and not user.is_activated:
             raise AuthenticationFailure(self._strings.inactive_account)
         return user
+
+
+class ActivateUser(PluserableAction):
+
+    def do(self):
+        activation = self.repo.q_activation_by_code(self.payload['code'])
+        if not activation:
+            return HTTPNotFound()
+
+        user = self.repo.q_user_by_id(self.payload['user_id'])
+        if not user:
+            return HTTPNotFound()
+
+        if user.activation is not activation:
+            return HTTPNotFound()
+
+        self.repo.delete_activation(activation)
+        return user, activation

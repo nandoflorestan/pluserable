@@ -505,7 +505,7 @@ class TestRegisterView(IntegrationTestBase):
         self.sas.add(user)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.matchdict = Mock()
 
         def get(key, default):
@@ -518,9 +518,9 @@ class TestRegisterView(IntegrationTestBase):
 
         view = RegisterView(request)
         response = view.activate()
-        user = User.get_by_username(request, 'sagan')
+        the_user = request.replusitory.q_user_by_username('sagan')
 
-        assert user.is_activated
+        assert the_user.is_activated
         assert response.status_int == 302
 
     def test_activate_multiple_users(self):
