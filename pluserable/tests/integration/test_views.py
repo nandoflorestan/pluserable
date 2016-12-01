@@ -601,13 +601,6 @@ class TestRegisterView(IntegrationTestBase):
         assert not user.is_activated
 
     def test_activate_invalid_user(self):
-        from pluserable.views import RegisterView
-        from pyramid_mailer.interfaces import IMailer
-        from pyramid_mailer.mailer import DummyMailer
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces import IActivationClass
-        from pluserable.tests.models import Activation
         self.config.registry.registerUtility(Activation, IActivationClass)
 
         self.config.registry.registerUtility(User, IUserClass)
@@ -630,7 +623,7 @@ class TestRegisterView(IntegrationTestBase):
         self.sas.add(user2)
         self.sas.flush()
 
-        request = testing.DummyRequest()
+        request = self.get_request()
         request.matchdict = Mock()
 
         def get(val, ret):
@@ -642,13 +635,12 @@ class TestRegisterView(IntegrationTestBase):
         request.matchdict.get = get
 
         view = RegisterView(request)
-        response = view.activate()
-        new_user1 = User.get_by_username(request, 'sagan')
-        new_user2 = User.get_by_username(request, 'jessie')
-
+        with self.assertRaises(HTTPNotFound):
+            view.activate()
+        new_user1 = request.replusitory.q_user_by_username('sagan')
+        new_user2 = request.replusitory.q_user_by_username('jessie')
         assert not new_user1.is_activated
         assert not new_user2.is_activated
-        assert response.status_int == 404
 
 
 class TestForgotPasswordView(IntegrationTestBase):
