@@ -7,7 +7,7 @@ from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
 from pluserable.events import NewRegistrationEvent
 from pluserable.interfaces import IDBSession
-from pluserable.views import AuthView, RegisterView
+from pluserable.views import AuthView, ForgotPasswordView, RegisterView
 from pluserable.interfaces import (
     ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
 from pluserable.strings import UIStringsBase
@@ -500,7 +500,6 @@ class TestRegisterView(IntegrationTestBase):
 class TestForgotPasswordView(IntegrationTestBase):
 
     def test_forgot_password_loads(self):
-        from pluserable.views import ForgotPasswordView
         from pluserable.interfaces import IUserClass
         from pluserable.tests.models import User
         from pluserable.interfaces import IActivationClass
@@ -519,7 +518,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.get('form', None)
 
     def test_forgot_password_logged_in_redirects(self):
-        from pluserable.views import ForgotPasswordView
         from pluserable.interfaces import IUserClass
         from pluserable.tests.models import User
 
@@ -535,7 +533,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_valid_user(self):
-        from pluserable.views import ForgotPasswordView
 
 
         from pluserable.interfaces import IUserClass
@@ -569,7 +566,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
-        from pluserable.views import ForgotPasswordView
 
         self.config.add_route('index', '/')
         self.config.include('pluserable')
@@ -594,7 +590,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert len(response['errors']) == 1
 
     def test_reset_password_loads(self):
-        from pluserable.views import ForgotPasswordView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -623,7 +618,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert 'sagan' in response['form']
 
     def test_reset_password_valid_user(self):
-        from pluserable.views import ForgotPasswordView
         from pluserable.events import PasswordResetEvent
         from pluserable.models import crypt
         self.config.add_route('index', '/')
@@ -665,7 +659,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_reset_password_invalid_password(self):
-        from pluserable.views import ForgotPasswordView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -698,7 +691,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert len(response['errors']) == 1
 
     def test_reset_password_empty_password(self):
-        from pluserable.views import ForgotPasswordView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -727,32 +719,23 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert len(response['errors']) == 1
 
     def test_invalid_reset_gets_404(self):
-        from pluserable.views import ForgotPasswordView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request()
-
         request.matchdict = Mock()
         get = Mock()
-        get.return_value = 'b'
+        get.return_value = 'wrong value'
         request.matchdict.get = get
 
-        request.user = None
-
+        request.user = None  # nobody is logged in
         view = ForgotPasswordView(request)
-        response = view.reset_password()
+        ret = view.reset_password()
 
-        assert response.status_int == 404
+        assert ret.status_int == 404
 
 
 class TestProfileView(IntegrationTestBase):

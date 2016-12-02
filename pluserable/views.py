@@ -291,44 +291,43 @@ class ForgotPasswordView(BaseView):
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
-        schema = self.request.registry.getUtility(IResetPasswordSchema)
-        schema = schema().bind(request=self.request)
+        request = self.request
+        schema = request.registry.getUtility(IResetPasswordSchema)
+        schema = schema().bind(request=request)
 
-        form = self.request.registry.getUtility(IResetPasswordForm)
+        form = request.registry.getUtility(IResetPasswordForm)
         form = form(schema)
 
-        code = self.request.matchdict.get('code', None)
-        activation = self.Activation.get_by_code(self.request, code)
+        code = request.matchdict.get('code', None)
+        activation = request.replusitory.q_activation_by_code(code)
         if not activation:
             return HTTPNotFound()
 
-        user = self.User.get_by_activation(self.request, activation)
+        user = request.replusitory.q_user_by_activation(activation)
 
-        if user:
-            if self.request.method == 'GET':
-                appstruct = {'username': user.username} if hasattr(
-                    user, 'username') else {'email': user.email}
-                return render_form(self.request, form, appstruct)
+        if request.method == 'GET':
+            appstruct = {'username': user.username} if hasattr(
+                user, 'username') else {'email': user.email}
+            return render_form(request, form, appstruct)
 
-            elif self.request.method == 'POST':
-                controls = self.request.POST.items()
-                try:
-                    captured = validate_form(controls, form)
-                except FormValidationFailure as e:
-                    return e.result(self.request)
+        elif request.method == 'POST':
+            controls = request.POST.items()
+            try:
+                captured = validate_form(controls, form)
+            except FormValidationFailure as e:
+                return e.result(request)
 
-                password = captured['password']
+            password = captured['password']
 
-                user.password = password
-                dbsession.add(user)
-                dbsession.delete(activation)
+            user.password = password
+            request.replusitory.delete_activation(activation)
 
-                add_flash(self.request, plain=self.Str.reset_password_done,
-                          kind='success')
-                self.request.registry.notify(PasswordResetEvent(
-                    self.request, user, password))
-                location = self.reset_password_redirect_view
-                return HTTPFound(location=location)
+            add_flash(request, plain=self.Str.reset_password_done,
+                      kind='success')
+            request.registry.notify(PasswordResetEvent(
+                request, user, password))
+            location = self.reset_password_redirect_view
+            return HTTPFound(location=location)
 
 
 class RegisterView(BaseView):
