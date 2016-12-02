@@ -68,30 +68,6 @@ class BaseModel(object):
                 props[key] = obj
         return props
 
-    @classmethod
-    def get_all(cls, request, page=None, limit=None):
-        """Gets all records of the specific item with option page and limits.
-        """
-        session = get_session(request)
-
-        query = session.query(cls)
-
-        if limit:
-            query = query.limit(limit)
-
-        if page and limit:
-            offset = (page - 1) * limit
-            query = query.offset(offset)
-
-        return query
-
-    @classmethod
-    def get_by_id(cls, request, id):
-        """Gets an object by its primary key."""
-        session = get_session(request)
-        pk = getattr(cls, cls._idAttribute)
-        return session.query(cls).filter(pk == id).first()
-
 
 def three_days_from_now():
     return datetime.utcnow() + timedelta(days=3)

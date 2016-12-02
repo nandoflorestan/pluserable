@@ -268,7 +268,6 @@ class ForgotPasswordView(BaseView):
         repo = request.replusitory
         user = repo.q_user_by_email(captured['email'])
         activation = self.Activation()
-        # dbsession.add(activation)  # seems unnecessary
         user.activation = activation
         repo.flush()  # initialize activation.code
 
