@@ -5,10 +5,10 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
-from pluserable.events import NewRegistrationEvent, PasswordResetEvent
+from pluserable.events import (
+    NewRegistrationEvent, PasswordResetEvent, ProfileUpdatedEvent)
 from pluserable.interfaces import (
     IDBSession, ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
-from pluserable.models import crypt
 from pluserable.strings import UIStringsBase
 from pluserable.views import (
     AuthView, ForgotPasswordView, ProfileView, RegisterView)
@@ -628,7 +628,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         view = ForgotPasswordView(request)
         response = view.reset_password()
 
-        assert not crypt.check(user.password, 'temp' + user.salt)
+        assert user.check_password('test123')
         assert response.status_int == 302
 
     def test_reset_password_invalid_password(self):
@@ -780,68 +780,18 @@ class TestProfileView(IntegrationTestBase):
 
         assert len(response['errors']) == 3
 
-    def test_profile_update_profile(self):
-        from pluserable.events import ProfileUpdatedEvent
-
+    def test_profile_update_email(self):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.sas.add(user)
+        user = self.create_users(count=1)
         self.sas.flush()
 
         def handle_profile_updated(event):
-            request = event.request
-            session = request.registry.getUtility(IDBSession)
-            session.commit()
-
+            event.request.replusitory.sas.flush()
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_request(post={
-            'email': 'carlsagan@nasa.org',
-        }, request_method='POST')
-
-        request.user = user
-
-        request.matchdict = Mock()
-        get = Mock()
-        get.return_value = user.id
-        request.matchdict.get = get
-
-        # The code being tested
-        ProfileView(request).profile()
-
-        # Assertions
-        new_user = User.get_by_id(request, user.id)
-        assert new_user.email == 'carlsagan@nasa.org'
-        assert crypt.check(user.password, 'temp' + user.salt)
-
-    def test_profile_update_password(self):  # Happy
-        from pluserable.events import ProfileUpdatedEvent
-
-        self.config.add_route('index', '/')
-        self.config.include('pluserable')
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-
-        self.sas.add(user)
-        self.sas.flush()
-
-        def handle_profile_updated(event):
-            request = event.request
-            session = request.registry.getUtility(IDBSession)
-            session.commit()
-
-        self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
-
-        request = self.get_request(post={
-            'email': 'carlsagan@nasa.org',
-            'password': {
-                'password': 'test123',
-                'password-confirm': 'test123',
-            },
+            'email': 'new_email@nasa.org',
         }, request_method='POST')
         request.user = user
 
@@ -854,6 +804,38 @@ class TestProfileView(IntegrationTestBase):
         ProfileView(request).edit_profile()
 
         # Assertions
-        new_user = User.get_by_id(request, user.id)
-        assert new_user.email == 'carlsagan@nasa.org'
-        assert not crypt.check(user.password, 'temp' + user.salt)
+        new_user = request.replusitory.q_user_by_id(user.id)
+        assert new_user.email == 'new_email@nasa.org'
+        assert user.check_password('science')
+
+    def test_profile_update_password(self):  # Happy
+        self.config.add_route('index', '/')
+        self.config.include('pluserable')
+        user = self.create_users(count=1)
+        self.sas.flush()
+
+        request = self.get_request(post={
+            'email': user.email,
+            'password': {
+                'password': 'new password',
+                'password-confirm': 'new password',
+            },
+        }, request_method='POST')
+        request.user = user
+
+        request.matchdict = Mock()
+        get = Mock()
+        get.return_value = user.id
+        request.matchdict.get = get
+
+        handle_profile_updated = Mock()
+        self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
+
+        # The code being tested
+        ProfileView(request).edit_profile()
+
+        # Assertions
+        assert user in request.replusitory.sas.dirty
+        assert user.email == 'carlsagan1@nasa.org'
+        assert user.check_password('new password')
+        assert handle_profile_updated.called

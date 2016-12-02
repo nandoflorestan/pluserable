@@ -420,6 +420,7 @@ class RegisterView(BaseView):
 class ProfileView(BaseView):
 
     def profile(self):
+        """Display a user profile."""
         user_id = self.request.matchdict.get('user_id', None)
         user = self.request.replusitory.q_user_by_id(user_id)
         if not user:
@@ -433,43 +434,45 @@ class ProfileView(BaseView):
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)
 
-    def edit_profile(self):  # TODO TEST OR REMOVE
-        user = self.request.user
+    def edit_profile(self):
+        """Let the user change her own email or password."""
+        request = self.request
+        user = request.user
         # if not user:  # substitute with effective_principals=Authenticated
         #     return HTTPNotFound()
 
         form = self._get_form()
 
-        if self.request.method == 'GET':
+        if request.method == 'GET':
             appstruct = {'email': user.email or ''}
             if hasattr(user, 'username'):
                 appstruct['username'] = user.username
-            return render_form(self.request, form, appstruct)
+            return render_form(request, form, appstruct)
 
-        elif self.request.method == 'POST':
-            controls = self.request.POST.items()
+        elif request.method == 'POST':
+            controls = request.POST.items()
 
             try:
                 captured = validate_form(controls, form)
             except FormValidationFailure as e:
                 if hasattr(user, 'username'):
                     # We pre-populate username
-                    return e.result(self.request, username=user.username)
+                    return e.result(request, username=user.username)
                 else:
-                    return e.result(self.request)
+                    return e.result(request)
 
             changed = False
             email = captured.get('email', None)
             if email:
-                email_user = self.User.get_by_email(self.request, email)
+                email_user = request.replusitory.q_user_by_email(email)
                 if email_user and email_user.id != user.id:
                     # TODO This should be a validation error, not add_flash
                     add_flash(
-                        self.request,
+                        request,
                         plain=self.Str.edit_profile_email_present.format(
                             email=email),
                         kind='error')
-                    return HTTPFound(location=self.request.url)
+                    return HTTPFound(location=request.url)
                 if email != user.email:
                     user.email = email
                     changed = True
@@ -480,12 +483,12 @@ class ProfileView(BaseView):
                 changed = True
 
             if changed:
-                add_flash(self.request, plain=self.Str.edit_profile_done,
+                add_flash(request, plain=self.Str.edit_profile_done,
                           kind='success')
-                self.request.registry.notify(
-                    ProfileUpdatedEvent(self.request, user, captured)
+                request.registry.notify(
+                    ProfileUpdatedEvent(request, user, captured)
                 )
-            return HTTPFound(location=self.request.url)
+            return HTTPFound(location=request.url)
 
 
 def get_pyramid_views_config():
