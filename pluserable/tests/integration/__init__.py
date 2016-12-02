@@ -21,6 +21,7 @@ class BaseTestCase(AppTestCase):
         cls.Session = sessionmaker()
 
     def setUp(self):
+        """Set up each test."""
         self.connection = connection = self.engine.connect()
 
         # begin a non-ORM transaction

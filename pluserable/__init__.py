@@ -1,11 +1,10 @@
 """Pluserable is a user registration and login library."""
 
 from mundi.core import Mundi
-from .const import REPOSITORY, SAS
+from .const import REPOSITORY
 from .interfaces import (
-    IUIStrings, IMundi, ILoginForm, ILoginSchema,
-    IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
-    IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
+    IUIStrings, ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
+    IResetPasswordSchema, IProfileSchema)
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
     UsernameResetPasswordSchema, UsernameProfileSchema, EmailLoginSchema,
@@ -25,6 +24,7 @@ def groupfinder(userid, request):
 
 
 class BaseStrategy(object):
+
     defaults = [
         (IUIStrings, UIStringsBase),
         (IForgotPasswordSchema, ForgotPasswordSchema),
@@ -38,6 +38,7 @@ class BaseStrategy(object):
 
 
 class UsernameStrategy(BaseStrategy):
+
     defaults = BaseStrategy.defaults + [
         (ILoginSchema, UsernameLoginSchema),
         (IRegisterSchema, UsernameRegisterSchema),
@@ -47,6 +48,7 @@ class UsernameStrategy(BaseStrategy):
 
 
 class EmailStrategy(BaseStrategy):
+
     defaults = BaseStrategy.defaults + [
         (ILoginSchema, EmailLoginSchema),
         (IRegisterSchema, EmailRegisterSchema),
@@ -62,7 +64,6 @@ def initialize_mundi(config_path, mundi=None):
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     mundi.set_default_utility(REPOSITORY,
                               'pluserable.repository.sqlalchemy:Repository')
-
     return mundi
 
 
