@@ -5,12 +5,13 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
-from pluserable.events import NewRegistrationEvent
-from pluserable.interfaces import IDBSession
-from pluserable.views import AuthView, ForgotPasswordView, RegisterView
+from pluserable.events import NewRegistrationEvent, PasswordResetEvent
 from pluserable.interfaces import (
-    ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
+    IDBSession, ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
+from pluserable.models import crypt
 from pluserable.strings import UIStringsBase
+from pluserable.views import (
+    AuthView, ForgotPasswordView, ProfileView, RegisterView)
 from pluserable.tests.models import User, Activation
 from . import IntegrationTestBase
 
@@ -500,13 +501,6 @@ class TestRegisterView(IntegrationTestBase):
 class TestForgotPasswordView(IntegrationTestBase):
 
     def test_forgot_password_loads(self):
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        from pluserable.interfaces import IActivationClass
-        from pluserable.tests.models import Activation
-        self.config.registry.registerUtility(Activation, IActivationClass)
-
-        self.config.registry.registerUtility(User, IUserClass)
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
@@ -518,10 +512,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.get('form', None)
 
     def test_forgot_password_logged_in_redirects(self):
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-
-        self.config.registry.registerUtility(User, IUserClass)
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
@@ -533,12 +523,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_valid_user(self):
-
-
-        from pluserable.interfaces import IUserClass
-        from pluserable.tests.models import User
-        self.config.registry.registerUtility(User, IUserClass)
-
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -566,7 +550,6 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
-
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -618,17 +601,10 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert 'sagan' in response['form']
 
     def test_reset_password_valid_user(self):
-        from pluserable.events import PasswordResetEvent
-        from pluserable.models import crypt
         self.config.add_route('index', '/')
         self.config.include('pluserable')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request(post={
@@ -646,10 +622,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         request.user = None
 
         def handle_password_reset(event):
-            request = event.request
-            session = request.registry.getUtility(IDBSession)
-            session.commit()
-
+            event.request.replusitory.sas.flush()
         self.config.add_subscriber(handle_password_reset, PasswordResetEvent)
 
         view = ForgotPasswordView(request)
@@ -741,13 +714,10 @@ class TestForgotPasswordView(IntegrationTestBase):
 class TestProfileView(IntegrationTestBase):
 
     def test_profile_loads(self):
-        from pluserable.views import ProfileView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.sas.add(user)
+        user = self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request()
@@ -765,7 +735,6 @@ class TestProfileView(IntegrationTestBase):
         assert response.get('user', None) == user
 
     def test_profile_bad_id(self):
-        from pluserable.views import ProfileView
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
@@ -790,7 +759,6 @@ class TestProfileView(IntegrationTestBase):
         assert response.status_int == 404
 
     def test_profile_update_profile_invalid(self):
-        from pluserable.views import ProfileView
         from pluserable.interfaces import IProfileSchema
         from pluserable.tests.schemas import ProfileSchema
         self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
@@ -817,9 +785,7 @@ class TestProfileView(IntegrationTestBase):
         assert len(response['errors']) == 3
 
     def test_profile_update_profile(self):
-        from pluserable.views import ProfileView
         from pluserable.events import ProfileUpdatedEvent
-        from pluserable.models import crypt
 
         self.config.add_route('index', '/')
         self.config.include('pluserable')
@@ -856,9 +822,7 @@ class TestProfileView(IntegrationTestBase):
         assert crypt.check(user.password, 'temp' + user.salt)
 
     def test_profile_update_password(self):  # Happy
-        from pluserable.views import ProfileView
         from pluserable.events import ProfileUpdatedEvent
-        from pluserable.models import crypt
 
         self.config.add_route('index', '/')
         self.config.include('pluserable')
