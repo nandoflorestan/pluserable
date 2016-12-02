@@ -421,7 +421,7 @@ class ProfileView(BaseView):
 
     def profile(self):
         user_id = self.request.matchdict.get('user_id', None)
-        user = self.User.get_by_id(self.request, user_id)
+        user = self.request.replusitory.q_user_by_id(user_id)
         if not user:
             return HTTPNotFound()
         return {'user': user}

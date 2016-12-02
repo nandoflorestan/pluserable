@@ -738,22 +738,18 @@ class TestProfileView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.include('pluserable')
 
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-
-        self.sas.add(user)
+        self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request()
         request.user = Mock()
-
         request.matchdict = Mock()
+
         get = Mock()
-        get.return_value = 99
+        get.return_value = 99  # This user ID does not exist
         request.matchdict.get = get
 
         view = ProfileView(request)
-
         response = view.profile()
 
         assert response.status_int == 404
