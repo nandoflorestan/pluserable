@@ -77,3 +77,4 @@ class FunctionalTestBase(AppTestCase):
         testing.tearDown()  # Remove Pyramid settings, registry and request
         self.trans.rollback()
         self.sas.close()
+        self.sas.remove()
