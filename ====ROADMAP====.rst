@@ -2,8 +2,8 @@
 pluserable roadmap
 ==================
 
-- Models should not see the request object; move all I/O to a Repository layer
 - Remove IUserClass, IActivationClass, IGroupClass, IUIStrings, schemas and forms
+- Remove __json__()
 - Rethink the base model in light of the repository.
 - Move certain modules into web/pyramid/
 - Should the repository be a subclass of bag.sqlalchemy.context:SAContext?
@@ -13,7 +13,6 @@ pluserable roadmap
 - Test or remove the edit_profile() view.
 - Do not create tables when running unit tests.
 - Evaluate our test coverage.
-- Move up subtransaction trick for tests. Or ditch it if we can rely on flush() only.
 - Does Mundi need a request concept?
 - Document the Repository.
 - Remove FormValidationFailure exception
@@ -22,11 +21,10 @@ pluserable roadmap
 - Lose pyramid_mailer, but provide a mail backend that uses it
 - Lose pystache
 - Lose mako and pyramid_mako (at least as required dependencies)
-- Lose deform, but keep colander
-- Lose webtest by preferring unit tests
-
 - Document
-
 - Integrate velruse for sure
 - Support Mozilla Persona?
 - Demand Python 3.5 and use https://docs.python.org/3/library/typing.html
+- Move up subtransaction trick for tests.
+  Or ditch it (done in branch "no_subtransaction").
+- New git repo

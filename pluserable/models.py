@@ -25,8 +25,8 @@ class BaseModel(object):
     """Base class which auto-generates table name and surrogate
     primary key column.
     """
-    _idAttribute = 'id'
 
+    _idAttribute = 'id'
     __table_args__ = {
         'mysql_engine': 'InnoDB',
         'mysql_charset': 'utf8'
@@ -51,7 +51,7 @@ class BaseModel(object):
     def id(self):
         return sa.Column(sa.Integer, autoincrement=True, primary_key=True)
 
-    def __json__(self, request, convert_date=True):
+    def __json__(self, convert_date=True):
         """Converts all the properties of the object into a dict
         for use in json.
         """
@@ -82,6 +82,7 @@ class ActivationMixin(BaseModel):
     The "created by" is a system: new user registration, password reset,
     forgot password etc.
     """
+
     @declared_attr
     def code(self):
         """A random hash that is valid only once."""
@@ -103,6 +104,7 @@ class ActivationMixin(BaseModel):
 
 
 class NoUsernameMixin(BaseModel):
+
     @declared_attr
     def email(self):
         """ E-mail for user """
@@ -207,6 +209,7 @@ class NoUsernameMixin(BaseModel):
 
 class UsernameMixin(NoUsernameMixin):
     """Additional username column for sites that need it."""
+
     @declared_attr
     def username(self):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
@@ -252,6 +255,7 @@ class GroupMixin(BaseModel):
 
 
 class UserGroupMixin(BaseModel):
+
     @declared_attr
     def group_id(self):
         return sa.Column(
