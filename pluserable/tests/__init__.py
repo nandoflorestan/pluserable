@@ -5,9 +5,9 @@ from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 from pluserable.web.pyramid import find_or_create_mundi
-from pluserable.tests.models import Activation, User, Group
+from pluserable.tests.models import Activation, User
 from pluserable.interfaces import (
-    IActivationClass, IDBSession, IGroupClass, IUIStrings, IUserClass)
+    IActivationClass, IDBSession, IUIStrings, IUserClass)
 from pluserable.strings import UIStringsBase
 
 
@@ -54,6 +54,5 @@ class AppTestCase(PluserableTestCase):
         # TODO REMOVE:
         registry.registerUtility(Activation, IActivationClass)
         registry.registerUtility(User, IUserClass)
-        registry.registerUtility(Group, IGroupClass)
         registry.registerUtility(UIStringsBase, IUIStrings)
         return config

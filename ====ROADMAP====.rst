@@ -2,7 +2,7 @@
 pluserable roadmap
 ==================
 
-- Remove IUserClass, IActivationClass, IGroupClass, IUIStrings, schemas and forms
+- Remove IUserClass, IActivationClass, IUIStrings, schemas and forms
 - Remove __json__()
 - Rethink the base model in light of the repository.
 - Move certain modules into web/pyramid/

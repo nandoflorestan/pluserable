@@ -4,7 +4,6 @@ from mundi.repository.sqlalchemy import BaseSQLAlchemyRepository
 from pyramid.decorator import reify
 from sqlalchemy import func
 from pluserable import const
-from pluserable.interfaces import IGroupClass
 
 
 class Repository(BaseSQLAlchemyRepository):
