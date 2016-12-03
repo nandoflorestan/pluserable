@@ -14,7 +14,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable.tests import AppTestCase
-from pluserable.tests.models import Base
 from pluserable.interfaces import IDBSession
 
 
@@ -58,23 +57,16 @@ class FunctionalTestBase(AppTestCase):
 
         self.engine = engine_from_config(config.registry.settings,
                                          prefix='sqlalchemy.')
-        app = self.main(config)
 
+        app = self.main(config)
         self.app = TestApp(app)
 
-        # TODO Move up the subtransaction trick
-        self.connection = connection = self.engine.connect()
-
         self.sas = app.registry.getUtility(IDBSession)
-        self.sas.configure(bind=connection)
-        # begin a non-ORM transaction
-        self.trans = connection.begin()
-
-        Base.metadata.bind = connection
+        self.sas.configure(bind=self.engine)
 
     def tearDown(self):
         """Roll back the Session (including calls to commit())."""
         testing.tearDown()  # Remove Pyramid settings, registry and request
-        self.trans.rollback()
-        self.sas.close()
+        self.sas.rollback()
+        # self.sas.close()
         self.sas.remove()

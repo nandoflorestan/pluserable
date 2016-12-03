@@ -13,7 +13,6 @@ pluserable roadmap
 - Test or remove the edit_profile() view.
 - Do not create tables when running unit tests.
 - Evaluate our test coverage.
-- Move up subtransaction trick for tests. Or ditch it if we can rely on flush() only.
 - Does Mundi need a request concept?
 - Document the Repository.
 - Remove FormValidationFailure exception

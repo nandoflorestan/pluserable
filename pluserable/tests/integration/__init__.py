@@ -18,18 +18,11 @@ class BaseTestCase(AppTestCase):
     def setUpClass(cls):  # TODO MOVE TO ..
         cls.settings = settings = cls._read_pyramid_settings()
         cls.engine = engine_from_config(settings, prefix='sqlalchemy.')
-        cls.Session = sessionmaker()
+        cls.Session = sessionmaker(bind=cls.engine)
 
     def setUp(self):
         """Set up each test."""
-        self.connection = connection = self.engine.connect()
-
-        # begin a non-ORM transaction
-        self.trans = connection.begin()
-        Base.metadata.bind = connection
-
-        # bind an individual Session to the connection
-        self.sas = self.Session(bind=connection)
+        self.sas = self.Session()
 
         def factory():
             return self.sas
@@ -38,13 +31,13 @@ class BaseTestCase(AppTestCase):
         self.config.include('pluserable')
 
     def tearDown(self):
-        # rollback - everything that happened with the
-        # Session above (including calls to commit())
-        # is rolled back.
+        """Roll back everything that happened with the session.
+
+        session.commit() must never be called.
+        """
         testing.tearDown()
-        self.trans.rollback()
+        self.sas.rollback()
         self.sas.close()
-        self.connection.close()
 
 
 class IntegrationTestBase(BaseTestCase):
