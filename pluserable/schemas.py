@@ -3,7 +3,7 @@
 import re
 import colander as c
 import deform.widget as w
-from .interfaces import IUIStrings
+from .strings import get_strings
 from .models import _
 
 
@@ -12,8 +12,8 @@ def email_exists(node, val):
     request = node.bindings['request']
     user = request.replusitory.q_user_by_email(val)
     if not user:
-        Str = request.registry.getUtility(IUIStrings)
-        raise c.Invalid(node, Str.reset_password_email_must_exist.format(val))
+        raise c.Invalid(node, get_strings(
+            request.registry).reset_password_email_must_exist.format(val))
 
 
 def unique_email(node, val):
@@ -21,8 +21,8 @@ def unique_email(node, val):
     request = node.bindings['request']
     other = request.replusitory.q_user_by_email(val)
     if other:
-        S = request.registry.getUtility(IUIStrings)
-        raise c.Invalid(node, S.registration_email_exists.format(other.email))
+        raise c.Invalid(node, get_strings(
+            request.registry).registration_email_exists.format(other.email))
 
 
 def unique_username(node, val):
@@ -30,8 +30,8 @@ def unique_username(node, val):
     request = node.bindings['request']
     user = request.replusitory.q_user_by_username(val)
     if user is not None:
-        Str = request.registry.getUtility(IUIStrings)
-        raise c.Invalid(node, Str.registration_username_exists)
+        raise c.Invalid(node, get_strings(
+            request.registry).registration_username_exists)
 
 
 def unix_username(node, value):  # TODO This is currently not used
@@ -51,8 +51,10 @@ def username_does_not_contain_at(node, value):
     an email or a username in the same field at login time, so the
     presence or absence of the @ tells us whether it is an email address.
     """
+    request = node.bindings['request']
     if '@' in value:
-        raise c.Invalid(node, _("May not contain this character: @"))
+        raise c.Invalid(node, get_strings(
+            request.registry).username_may_not_contain_at)
 
 
 # Schema fragments

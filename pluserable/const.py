@@ -8,3 +8,4 @@ SAS = 'sas'  # provides the SQLAlchemy session
 ACTIVATION_CLASS = 'activation class'
 GROUP_CLASS = 'group class'
 USER_CLASS = 'user class'
+STRING_CLASS = 'string class'

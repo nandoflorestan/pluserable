@@ -75,5 +75,6 @@ class Repository(BaseSQLAlchemyRepository):
             self.Activation.code == code).first()
 
     def delete_activation(self, activation):
+        """Delete the Activation instance from the database."""
         assert isinstance(activation, self.Activation)
         self.sas.delete(activation)

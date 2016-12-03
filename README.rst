@@ -36,10 +36,13 @@ Minimal integration
   like this::
 
     [Mundi utilities]
-    # Let pluserable know which model classes to use:
-    activation class = some.app.models:Activation
-    group class = some.app.models:Group
-    user class = some.app.models:User
+        # Let pluserable know which model classes to use:
+        activation class = some.app.models:Activation
+        group class = some.app.models:Group
+        user class = some.app.models:User
+
+        # Determining the UI strings is as easy as pointing to a class:
+        string class = pluserable.strings:UIStringsBase
 
 - Let pluserable know where to find the SQLAlchemy session. This could be
   a scoped session or a common session. Just write a function that returns
@@ -204,10 +207,14 @@ Changing strings
 Take a look at `this class
 <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/strings.py>`_.
 This is where we store all the strings in *pluserable*.
-If you'd like to change one or two messages, simply subclass this, then do::
+If you'd like to change one or two messages, simply create a subclass
+and configure it:
 
-    from pluserable.interfaces import IUIStrings
-    config.registry.registerUtility(MyStringsClass, IUIStrings)
+    [Mundi utilities]
+        # (...bla bla bla...)
+
+        # Determining the UI strings is as easy as pointing to a class:
+        string class = pluserable.strings:UIStringsBase
 
 
 Changing the primary key column name

@@ -297,7 +297,7 @@ class TestRegisterView(IntegrationTestBase):
         with patch('pluserable.views.add_flash') as add_flash:
             response = view.register()
             add_flash.assert_called_with(
-                request, plain=view.Str.registration_done, kind="success")
+                request, plain=UIStringsBase.registration_done, kind="success")
         assert response.status_int == 302
         user = request.replusitory.q_user_by_username('admin')
         assert user.is_activated is True
@@ -464,7 +464,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         with patch('pluserable.views.add_flash') as add_flash:
             response = view.forgot_password()
             add_flash.assert_called_with(
-                request, plain=view.Str.reset_password_email_sent,
+                request, plain=UIStringsBase.reset_password_email_sent,
                 kind="success")
         assert response.status_int == 302
 

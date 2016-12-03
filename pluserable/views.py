@@ -15,7 +15,7 @@ from pluserable.actions import (
     instantiate_action, ActivateUser, CheckCredentials)
 from pluserable import const
 from pluserable.interfaces import (
-    IMundi, IUIStrings, ILoginForm, ILoginSchema,
+    IMundi, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.events import (
@@ -24,6 +24,7 @@ from pluserable.events import (
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
 from pluserable.models import _
+from pluserable.strings import get_strings
 
 LOG = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ def includeme(config):
 
 
 def get_config_route(request, config_key):
+    """Resolve ``config_key`` to a URL, usually for redirection."""
     settings = request.registry.settings
     try:
         return request.route_url(settings[config_key])
@@ -63,8 +65,9 @@ def authenticated(request, userid):
     autologin = asbool(settings.get('pluserable.autologin', False))
 
     if not autologin:
-        Str = request.registry.getUtility(IUIStrings)
-        add_flash(request, plain=Str.authenticated, kind='success')
+        add_flash(
+            request,
+            plain=get_strings(request.registry).authenticated, kind='success')
 
     location = request.params.get('next') or get_config_route(
         request, 'pluserable.login_redirect')
@@ -138,12 +141,10 @@ class BaseView(object):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        mundi = get_mundi(request.registry)
-        self.Activation = mundi.get_utility(const.ACTIVATION_CLASS)
-        self.User = mundi.get_utility(const.USER_CLASS)
+        self.mundi = get_mundi(request.registry)
+        self.Activation = self.mundi.get_utility(const.ACTIVATION_CLASS)
+        self.User = self.mundi.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
-        getUtility = request.registry.getUtility
-        self.Str = getUtility(IUIStrings)
 
 
 class AuthView(BaseView):
@@ -164,7 +165,7 @@ class AuthView(BaseView):
             request,
             'pluserable.logout_redirect'
         )
-        self.form = form(self.schema, buttons=(self.Str.login_button,))
+        self.form = form(self.schema, buttons=(get_strings(self.mundi).login_button,))
 
     def login_ajax(self):
         try:
@@ -233,7 +234,7 @@ class AuthView(BaseView):
         """
         self.request.session.invalidate()
         headers = forget(self.request)
-        add_flash(self.request, plain=self.Str.logout, kind='success')
+        add_flash(self.request, plain=get_strings(self.mundi).logout, kind='success')
         return HTTPFound(location=self.logout_redirect_view, headers=headers)
 
 
@@ -278,7 +279,7 @@ class ForgotPasswordView(BaseView):
         user.activation = activation
         repo.flush()  # initialize activation.code
 
-        Str = self.Str
+        Str = get_strings(self.mundi)
 
         # TODO: Generate msg in a separate method so subclasses can override
         mailer = get_mailer(request)
@@ -328,7 +329,8 @@ class ForgotPasswordView(BaseView):
             user.password = password
             request.replusitory.delete_activation(activation)
 
-            add_flash(request, plain=self.Str.reset_password_done,
+            add_flash(request,
+                      plain=get_strings(self.mundi).reset_password_done,
                       kind='success')
             request.registry.notify(PasswordResetEvent(
                 request, user, password))
@@ -385,10 +387,12 @@ class RegisterView(BaseView):
         if self.require_activation:
             # SEND EMAIL ACTIVATION
             create_activation(self.request, user)
-            add_flash(self.request, plain=self.Str.activation_check_email,
+            add_flash(self.request,
+                      plain=get_strings(self.mundi).activation_check_email,
                       kind='success')
         elif not autologin:
-            add_flash(self.request, plain=self.Str.registration_done,
+            add_flash(self.request,
+                      plain=get_strings(self.mundi).registration_done,
                       kind='success')
 
         self.request.registry.notify(NewRegistrationEvent(
@@ -415,7 +419,8 @@ class RegisterView(BaseView):
             })
         user, activation = activate_user()
 
-        add_flash(self.request, plain=self.Str.activation_email_verified,
+        add_flash(self.request,
+                  plain=get_strings(self.mundi).activation_email_verified,
                   kind='success')
         self.request.registry.notify(
             RegistrationActivatedEvent(self.request, user, activation))
@@ -475,7 +480,8 @@ class ProfileView(BaseView):
                     # TODO This should be a validation error, not add_flash
                     add_flash(
                         request,
-                        plain=self.Str.edit_profile_email_present.format(
+                        plain=get_strings(
+                            self.mundi).edit_profile_email_present.format(
                             email=email),
                         kind='error')
                     return HTTPFound(location=request.url)
@@ -489,7 +495,8 @@ class ProfileView(BaseView):
                 changed = True
 
             if changed:
-                add_flash(request, plain=self.Str.edit_profile_done,
+                add_flash(request,
+                          plain=get_strings(self.mundi).edit_profile_done,
                           kind='success')
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)

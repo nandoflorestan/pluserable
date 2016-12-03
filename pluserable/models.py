@@ -281,4 +281,4 @@ class UserGroupMixin(BaseModel):
 __all__ = [
     k for k, v in locals().items()
     if isinstance(v, type) and issubclass(v, BaseModel)
-    ]
+]

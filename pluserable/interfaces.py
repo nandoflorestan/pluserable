@@ -7,10 +7,6 @@ class IDBSession(Interface):
     """Marker interface for registering a SQLAlchemy session."""
 
 
-class IUIStrings(Interface):
-    """Marker interface for a class containing translation strings."""
-
-
 class IMundi(Interface):
     """Marker interface for registering our Mundi instance."""
 

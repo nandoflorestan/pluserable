@@ -5,7 +5,7 @@ from pyramid.security import unauthenticated_userid
 from pluserable import initialize_mundi, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
-    IDBSession, IUIStrings, IMundi, ILoginForm, ILoginSchema,
+    IDBSession, IMundi, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.repository import instantiate_repository

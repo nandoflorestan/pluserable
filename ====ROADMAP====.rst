@@ -2,7 +2,6 @@
 pluserable roadmap
 ==================
 
-- Remove IUIStrings
 - Lose schema and form interfaces; document
 - Remove __json__()
 - Rethink the base model in light of the repository.

@@ -3,13 +3,12 @@
 from mundi.core import Mundi
 from .const import REPOSITORY
 from .interfaces import (
-    IUIStrings, ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
+    ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
     IResetPasswordSchema, IProfileSchema)
 from .schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
     UsernameResetPasswordSchema, UsernameProfileSchema, EmailLoginSchema,
     EmailRegisterSchema, EmailResetPasswordSchema, EmailProfileSchema)
-from .strings import UIStringsBase
 
 
 def groupfinder(userid, request):
@@ -26,7 +25,6 @@ def groupfinder(userid, request):
 class BaseStrategy(object):
 
     defaults = [
-        (IUIStrings, UIStringsBase),
         (IForgotPasswordSchema, ForgotPasswordSchema),
     ]
 

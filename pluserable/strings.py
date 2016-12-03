@@ -1,17 +1,18 @@
 """Strings for easy internationalization."""
 
-from zope.interface import implementer
-from pluserable.interfaces import IUIStrings
+from pluserable import const
+from pluserable.interfaces import IMundi
 from pluserable.models import _
 
 
-def get_strings(registry):
+def get_strings(reg):
     """Return the configured Strings class."""
-    return registry.queryUtility(IUIStrings)
+    if hasattr(reg, 'getUtility'):  # reg must be a Zope/Pyramid registry
+        reg = reg.getUtility(IMundi)  # otherwise reg gotta be the Mundi:
+    return reg.get_utility(const.STRING_CLASS)
 
 
-@implementer(IUIStrings)
-class UIStringsBase(object):  # TODO Continue building
+class UIStringsBase(object):
     """A class containing all GUI strings in the application.
 
     User apps can simply subclass and change whatever text they want.
@@ -62,3 +63,4 @@ Regards,
     # because it gives spammers context:
     reset_password_email_sent = _("Please check your e-mail to finish "
                                   "resetting your password.")
+    username_may_not_contain_at = _("May not contain this character: @")

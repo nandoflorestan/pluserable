@@ -32,7 +32,7 @@ class PluserableAction(Action):
 
     @reify
     def _strings(self):
-        return get_strings(self.registry)  # TODO NOT REGISTRY
+        return get_strings(self.mundi)
 
     @reify
     def _settings_reader(self):
