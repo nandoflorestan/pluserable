@@ -15,7 +15,7 @@ from pluserable.actions import (
     instantiate_action, ActivateUser, CheckCredentials)
 from pluserable import const
 from pluserable.interfaces import (
-    IUserClass, IMundi, IUIStrings, ILoginForm, ILoginSchema,
+    IMundi, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.events import (
@@ -138,11 +138,11 @@ class BaseView(object):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.Activation = get_mundi(request.registry).get_utility(
-            const.ACTIVATION_CLASS)
+        mundi = get_mundi(request.registry)
+        self.Activation = mundi.get_utility(const.ACTIVATION_CLASS)
+        self.User = mundi.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
         getUtility = request.registry.getUtility
-        self.User = getUtility(IUserClass)
         self.Str = getUtility(IUIStrings)
 
 

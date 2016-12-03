@@ -41,11 +41,6 @@ Minimal integration
     group class = some.app.models:Group
     user class = some.app.models:User
 
-- Tell pluserable which models to use::
-
-    from pluserable.interfaces import IUserClass
-    registry.registerUtility(User, IUserClass)
-
 - Let pluserable know where to find the SQLAlchemy session. This could be
   a scoped session or a common session. Just write a function that returns
   the session and then register it against the IDBSession interface::

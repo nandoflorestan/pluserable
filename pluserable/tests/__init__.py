@@ -6,7 +6,7 @@ from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 from pluserable.web.pyramid import find_or_create_mundi
 from pluserable.tests.models import Activation, User
-from pluserable.interfaces import IDBSession, IUIStrings, IUserClass
+from pluserable.interfaces import IDBSession, IUIStrings
 from pluserable.strings import UIStringsBase
 
 
@@ -51,6 +51,5 @@ class AppTestCase(PluserableTestCase):
         registry.registerUtility(session_factory, IDBSession)
 
         # TODO REMOVE:
-        registry.registerUtility(User, IUserClass)
         registry.registerUtility(UIStringsBase, IUIStrings)
         return config

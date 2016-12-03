@@ -1,7 +1,6 @@
 """TODO Move to pluserable.web.pyramid.resources."""
 
 from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
-from pluserable.interfaces import IUserClass
 
 
 class BaseFactory(object):

@@ -15,10 +15,6 @@ class IMundi(Interface):
     """Marker interface for registering our Mundi instance."""
 
 
-class IUserClass(Interface):
-    """Interface for a user model class."""
-
-
 class ILoginSchema(Interface):
     pass
 

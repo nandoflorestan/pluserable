@@ -2,19 +2,19 @@
 pluserable roadmap
 ==================
 
-- Remove IUserClass, IUIStrings, schemas and forms
+- Remove IUIStrings
+- Lose schema and form interfaces; document
 - Remove __json__()
 - Rethink the base model in light of the repository.
 - Move certain modules into web/pyramid/
 - Should the repository be a subclass of bag.sqlalchemy.context:SAContext?
 - Create a ZODB repository in order to validate the interfaces
+- Document the Repository.
 - Go through the TODOs on the code
-- Refactor views: Create an action layer (also known as service layer)
-- Test or remove the edit_profile() view.
-- Do not create tables when running unit tests.
+- Extract actions from views
+- Do not create tables when running only fast unit tests.
 - Evaluate our test coverage.
 - Does Mundi need a request concept?
-- Document the Repository.
 - Remove FormValidationFailure exception
 - Add civilized way of selecting which routes/views I want for my project
 - Refactor sending emails with the strategy pattern
