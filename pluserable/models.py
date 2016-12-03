@@ -189,14 +189,6 @@ class NoUsernameMixin(BaseModel):
         """Generate random string of fixed length."""
         return random_hash(chars)
 
-    @classmethod
-    def q_by_email(cls, sas, email, **filters):
-        q = sas.query(cls).filter(
-            func.lower(cls.email) == email.lower())
-        if filters:
-            q = q.filter_by(**filters)
-        return q
-
     def check_password(self, password):
         """Check the ``password`` and return a boolean."""
         if not password:

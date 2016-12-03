@@ -38,7 +38,7 @@ class Repository(BaseSQLAlchemyRepository):
     def q_user_by_email(self, email):
         """Return a user with ``email``, or None."""
         return self.sas.query(self.User).filter(
-            self.User.email.ilike(email)).first()
+            func.lower(self.User.email) == email.lower()).first()
 
     def q_user_by_username(self, username):
         """Return a user with ``username``, or None. Case-insensitive."""
