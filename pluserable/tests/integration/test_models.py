@@ -25,10 +25,9 @@ class TestModels(IntegrationTestBase):
 class TestUser(IntegrationTestBase):
 
     def test_password_hashing(self):
+        """Passwords are not stored; only their hashes are stored."""
         from pluserable.tests.models import User
-        user1 = User(username='sagan', email='carlsagan@nasa.org')
-        user1.password = 'password'
-        self.sas.add(user1)
+        user1 = self.create_users(count=1)
         self.sas.flush()
 
         assert user1.password != 'password'

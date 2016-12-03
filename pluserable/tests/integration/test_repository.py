@@ -125,7 +125,7 @@ class TestRepository(IntegrationTestBase):
         users = self.create_users(count=2)
         activation = Activation()
         users[1].activation = activation
-        self.sas.commit()
+        self.sas.flush()
 
         repo = instantiate_repository(self.config.registry)
         ret = repo.q_user_by_activation(activation)

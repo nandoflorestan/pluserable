@@ -7,17 +7,17 @@ from pluserable.tests.slow import FunctionalTestBase
 class TestViews(FunctionalTestBase):
 
     def test_index(self):
-        """Call the index view, make sure routes are working."""
+        """Call the index view; make sure routes are working."""
         res = self.app.get('/')
         assert res.status_int == 200
 
     def test_get_register(self):
-        """Call the register view, make sure routes are working."""
+        """Call the register view; make sure routes are working."""
         res = self.app.get('/register')
         assert res.status_int == 200
 
-    def test_get_login(self):
-        """Call the login view, make sure routes are working."""
+    def test_show_login(self):
+        """Call the login view; make sure routes are working."""
         res = self.app.get('/login')
         self.assertEqual(res.status_int, 200)
 
@@ -33,7 +33,7 @@ class TestViews(FunctionalTestBase):
 
     def test_empty_login(self):
         """Empty login fails."""
-        res = self.app.post(str('/login'), {'submit': True})
+        res = self.app.post('/login', {'submit': True})
 
         assert b"There was a problem with your submission" in res.body
         assert b"Required" in res.body
@@ -41,44 +41,33 @@ class TestViews(FunctionalTestBase):
 
     def test_valid_login(self):
         """Call the login view, make sure routes are working."""
-        from pluserable.tests.models import User
-        admin = User(username='sagan', email='carlsagan@nasa.org')
-        admin.password = 'temp'
-        self.sas.add(admin)
+        user = self.create_users(count=1)
         self.sas.flush()
 
         res = self.app.get('/login')
-
         res = self.app.post(
-            str('/login'),
+            '/login',
             {
                 'submit': True,
-                'handle': 'sagan',
-                'password': 'temp',
+                'handle': user.username,
+                'password': 'science',
             }
         )
         assert res.status_int == 302
 
     def test_inactive_login(self):
         """Make sure inactive users can't sign in."""
-        from pluserable.tests.models import User
-        from pluserable.tests.models import Activation
-        admin = User(username='sagan', email='carlsagan@nasa.org')
-        admin.activation = Activation()
-        admin.password = 'temp'
-        self.sas.add(admin)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         res = self.app.get('/login')
-
         res = self.app.post(
-            str('/login'),
+            '/login',
             {
                 'submit': True,
-                'handle': 'sagan',
-                'password': 'temp',
+                'handle': user.username,
+                'password': 'science',
             }
         )
-
         assert b'Your account is not active; please check your e-mail.' \
             in res.body

@@ -62,6 +62,10 @@ class Repository(BaseSQLAlchemyRepository):
         """Return a group with ``id``, or None."""
         return self.sas.query(self.Group).get(id)
 
+    def q_activations(self):
+        """Return an iterator on all activations."""
+        return self.sas.query(self.Activation)
+
     def store_activation(self, activation):
         """Save the ``activation`` instance."""
         self.sas.add(activation)

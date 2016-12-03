@@ -8,20 +8,20 @@ from pyramid_mailer.mailer import DummyMailer
 from pluserable.events import (
     NewRegistrationEvent, PasswordResetEvent, ProfileUpdatedEvent)
 from pluserable.interfaces import (
-    IDBSession, ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
+    ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
 from pluserable.strings import UIStringsBase
 from pluserable.views import (
     AuthView, ForgotPasswordView, ProfileView, RegisterView)
-from pluserable.tests.models import User, Activation
+from pluserable.tests.models import User
 from . import IntegrationTestBase
 
 
 class TestAuthView(IntegrationTestBase):
 
     def test_auth_view_extensions(self):
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
 
         request = self.get_request()
 
@@ -38,9 +38,9 @@ class TestAuthView(IntegrationTestBase):
         assert form.called
 
     def test_login_loads(self):
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
 
         request = self.get_request()
         request.user = None
@@ -50,9 +50,9 @@ class TestAuthView(IntegrationTestBase):
         assert response.get('form', None)
 
     def test_login_redirects_if_logged_in(self):
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
 
         request = self.get_request()
         request.user = Mock()
@@ -82,9 +82,9 @@ class TestAuthView(IntegrationTestBase):
 
     def test_login_fails_bad_credentials(self):
         """Make sure we can't log in with bad credentials."""
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
 
         request = self.get_request(post={
             'submit': True,
@@ -102,22 +102,15 @@ class TestAuthView(IntegrationTestBase):
         """Make sure we can log in."""
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
-
-        admin = User(username='sagan', email='carlsagan@nasa.org')
-        admin.password = 'min4'
-
-        self.sas.add(admin)
-        self.sas.flush()
-
-        from pluserable.views import AuthView
         self.config.add_route('index', '/')
+        user = self.create_users(count=1)
+        self.sas.flush()
 
         request = self.get_request(post={
                 'submit': True,
-                'handle': 'sagan',
-                'password': 'min4',
+                'handle': user.username,
+                'password': 'science',
             }, request_method='POST')
-
         view = AuthView(request)
         response = view.login()
 
@@ -125,13 +118,11 @@ class TestAuthView(IntegrationTestBase):
 
     def test_inactive_login_fails(self):
         """Make sure we can't log in with an inactive user."""
-        user = self.create_users(count=1, activation=True)
-        self.sas.flush()
-
-        from pluserable.views import AuthView
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
+        user = self.create_users(count=1, activation=True)
+        self.sas.flush()
 
         request = self.get_request(post={
             'submit': True,
@@ -148,9 +139,9 @@ class TestAuthView(IntegrationTestBase):
                 kind='error')
 
     def test_logout(self):
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.add_route('index', '/')
         request = self.get_request()
 
         invalidate = Mock()
@@ -174,46 +165,34 @@ class TestAuthView(IntegrationTestBase):
 class TestRegisterView(IntegrationTestBase):
 
     def test_register_view_extensions_with_mail(self):
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
         request = self.get_request()
-
-        getUtility = Mock()
-        getUtility.return_value = True
-
         schema = Mock()
         form = Mock()
-
         self.config.registry.registerUtility(schema, IRegisterSchema)
         self.config.registry.registerUtility(form, IRegisterForm)
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
 
         with patch('pluserable.views.get_mailer') as get_mailer:
             RegisterView(request)
             assert get_mailer.called
-
         assert schema.called
         assert form.called
 
     def test_register_view_extensions_without_mail(self):
+        self.config.registry.settings['pluserable.require_activation'] = False
         self.config.add_route('index', '/')
 
         request = self.get_request()
-
-        getUtility = Mock()
-        getUtility.return_value = True
-
         schema = Mock()
         form = Mock()
-
-        self.config.registry.settings['pluserable.require_activation'] = False
         self.config.registry.registerUtility(schema, IRegisterSchema)
         self.config.registry.registerUtility(form, IRegisterForm)
 
         with patch('pluserable.views.get_mailer') as get_mailer:
             RegisterView(request)
             assert not get_mailer.called
-
         schema.assert_called_once_with()
         assert form.called
 
@@ -229,11 +208,10 @@ class TestRegisterView(IntegrationTestBase):
         assert response.get('form', None)
 
     def test_register_redirects_if_logged_in(self):
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        self.config.add_route('index', '/')
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route('index', '/')
 
         request = self.get_request()
         request.user = Mock()
@@ -242,7 +220,7 @@ class TestRegisterView(IntegrationTestBase):
 
         assert response.status_int == 302
 
-    def test_register_creates_user(self):
+    def test_register_creates_inactive_user(self):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -260,15 +238,14 @@ class TestRegisterView(IntegrationTestBase):
 
         assert response.status_int == 302
         user = request.replusitory.q_user_by_username('admin')
-        assert user is not None
+        assert isinstance(user, User)
+        assert not user.is_activated
 
     def test_register_validation(self):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
-
         self.config.add_route('index', '/')
 
         request = self.get_request(request_method='POST')
-
         request.user = Mock()
         view = RegisterView(request)
         response = view.register()
@@ -278,19 +255,15 @@ class TestRegisterView(IntegrationTestBase):
 
     def test_register_existing_user(self):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
-
         self.config.add_route('index', '/')
-
-        admin = User(username='sagan', email='carlsagan@nasa.org')
-        admin.password = 'test123'
-        self.sas.add(admin)
+        user = self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request(post={
-            'username': 'sagan',
+            'username': user.username,
             'password': {
-                'password': 'test123',
-                'password-confirm': 'test123',
+                'password': 'science',
+                'password-confirm': 'science',
             },
             'email': 'carlsagan@nasa.org'
         }, request_method='POST')
@@ -300,15 +273,13 @@ class TestRegisterView(IntegrationTestBase):
         assert isinstance(adict, dict)
         assert adict['errors']
 
-    def test_register_no_email_validation(self):
-
-        self.config.add_route('index', '/')
+    def test_register_no_activation_suceeds(self):
+        """Test register() with setting to not require activation."""
         self.config.registry.settings['pluserable.require_activation'] = False
+        self.config.add_route('index', '/')
 
         def handle_registration(event):
-            request = event.request
-            request.replusitory.flush()
-
+            event.request.replusitory.flush()
         self.config.add_subscriber(handle_registration, NewRegistrationEvent)
 
         request = self.get_request(post={
@@ -332,16 +303,14 @@ class TestRegisterView(IntegrationTestBase):
         assert user.is_activated is True
 
     def test_registration_craps_out(self):
+        self.config.add_route('index', '/')
 
         def send(message):
             raise Exception("I broke!")
 
         mailer = Mock()
         mailer.send = send
-
         self.config.registry.registerUtility(mailer, IMailer)
-
-        self.config.add_route('index', '/')
 
         request = self.get_request(post={
             'username': 'admin',
@@ -351,22 +320,15 @@ class TestRegisterView(IntegrationTestBase):
             },
             'email': 'carlsagan@nasa.org'
         }, request_method='POST')
-
-        request.user = Mock()
         view = RegisterView(request)
 
         self.assertRaises(Exception, view.register)
 
     def test_activate(self):
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        user = User(username='sagan', email='carlsagan2@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request()
@@ -382,8 +344,9 @@ class TestRegisterView(IntegrationTestBase):
 
         view = RegisterView(request)
         response = view.activate()
-        the_user = request.replusitory.q_user_by_username('sagan')
+        the_user = request.replusitory.q_user_by_username(user.username)
 
+        assert the_user is user
         assert the_user.is_activated
         assert response.status_int == 302
 
@@ -406,7 +369,7 @@ class TestRegisterView(IntegrationTestBase):
         view = RegisterView(request)
         response = view.activate()
 
-        activations = self.sas.query(Activation).all()
+        activations = list(request.replusitory.q_activations())
 
         assert len(activations) == 1
         assert user1.is_activated
@@ -417,11 +380,7 @@ class TestRegisterView(IntegrationTestBase):
 
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request()
@@ -434,26 +393,16 @@ class TestRegisterView(IntegrationTestBase):
         with self.assertRaises(HTTPNotFound):
             view.activate()
 
-        user = request.replusitory.q_user_by_username('sagan')
-        assert not user.is_activated
+        the_user = request.replusitory.q_user_by_username(user.username)
+        assert the_user is user
+        assert not the_user.is_activated
 
-    def test_activate_invalid_user(self):
+    def test_activate_invalid_user_raises_not_found(self):
+        """One user tries to get activated with another's code."""
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        bad_act = Activation()
-
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.activation = Activation()
-        user.password = 'min4'
-
-        user2 = User(username='jessie', email='carlsagan2@nasa.org')
-        user2.activation = bad_act
-        user2.password = 'more'
-
-        self.sas.add(user)
-        self.sas.add(user2)
+        user1, user2 = self.create_users(count=2, activation=True)
         self.sas.flush()
 
         request = self.get_request()
@@ -461,19 +410,18 @@ class TestRegisterView(IntegrationTestBase):
 
         def get(val, ret):
             if val == 'code':
-                return bad_act.code
+                return user2.activation.code
             elif val == 'user_id':
-                return user.id
+                return user1.id
 
         request.matchdict.get = get
 
         view = RegisterView(request)
         with self.assertRaises(HTTPNotFound):
             view.activate()
-        new_user1 = request.replusitory.q_user_by_username('sagan')
-        new_user2 = request.replusitory.q_user_by_username('jessie')
-        assert not new_user1.is_activated
-        assert not new_user2.is_activated
+
+        for user in request.replusitory.q_users():
+            assert not user.is_activated
 
 
 class TestForgotPasswordView(IntegrationTestBase):
@@ -498,19 +446,15 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert response.status_int == 302
 
-    def test_forgot_password_valid_user(self):
+    def test_forgot_password_valid_user_succeeds(self):
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-
-        self.sas.add(user)
+        self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request(post={
-            'email': 'carlsagan@nasa.org'
+            'email': 'carlsagan1@nasa.org'
         }, request_method='POST')
 
         request.user = None
@@ -528,11 +472,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-
-        self.sas.add(user)
+        self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request(post={
@@ -550,12 +490,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request()
@@ -576,6 +511,7 @@ class TestForgotPasswordView(IntegrationTestBase):
     def test_reset_password_valid_user(self):
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
+
         user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
@@ -594,7 +530,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         request.user = None
 
         def handle_password_reset(event):
-            event.request.replusitory.sas.flush()
+            event.request.replusitory.flush()
         self.config.add_subscriber(handle_password_reset, PasswordResetEvent)
 
         view = ForgotPasswordView(request)
@@ -607,12 +543,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request(post={
@@ -635,35 +566,28 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert len(response['errors']) == 1
 
     def test_reset_password_empty_password(self):
-        self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route('index', '/')
 
-        user = User(username='sagan', password='temp',
-                    email='carlsagan@nasa.org')
-        user.password = 'min4'
-        user.activation = Activation()
-
-        self.sas.add(user)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request(request_method='POST')
-
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.activation.code
         request.matchdict.get = get
-
         request.user = None
 
         view = ForgotPasswordView(request)
-
         response = view.reset_password()
 
         assert len(response['errors']) == 1
 
     def test_invalid_reset_gets_404(self):
-        self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route('index', '/')
+
         self.create_users(count=1, activation=True)
         self.sas.flush()
 
@@ -725,12 +649,9 @@ class TestProfileView(IntegrationTestBase):
         from pluserable.interfaces import IProfileSchema
         from pluserable.tests.schemas import ProfileSchema
         self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
-
         self.config.add_route('index', '/')
 
-        user = User(username='sagan', email='carlsagan@nasa.org')
-        user.password = 'temp'
-        self.sas.add(user)
+        user = self.create_users(count=1)
         self.sas.flush()
 
         request = self.get_request(request_method='POST')
@@ -748,18 +669,18 @@ class TestProfileView(IntegrationTestBase):
 
     def test_profile_update_email(self):
         self.config.add_route('index', '/')
+
         user = self.create_users(count=1)
         self.sas.flush()
 
         def handle_profile_updated(event):
-            event.request.replusitory.sas.flush()
+            event.request.replusitory.flush()
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_request(post={
             'email': 'new_email@nasa.org',
         }, request_method='POST')
         request.user = user
-
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.id
@@ -769,8 +690,9 @@ class TestProfileView(IntegrationTestBase):
         ProfileView(request).edit_profile()
 
         # Assertions
-        new_user = request.replusitory.q_user_by_id(user.id)
-        assert new_user.email == 'new_email@nasa.org'
+        the_user = request.replusitory.q_user_by_id(user.id)
+        assert the_user is user
+        assert the_user.email == 'new_email@nasa.org'
         assert user.check_password('science')
 
     def test_profile_update_password(self):  # Happy
