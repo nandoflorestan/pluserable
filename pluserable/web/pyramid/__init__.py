@@ -17,7 +17,7 @@ def get_user(request):
     userid = unauthenticated_userid(request)
     if userid is None:
         return None
-    return request.replusitory.get_by_id(request, userid)
+    return request.replusitory.q_user_by_id(userid)
 
 
 ''' TODO REMOVE
