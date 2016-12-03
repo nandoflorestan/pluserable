@@ -3,7 +3,6 @@ import colander
 import deform
 import pystache
 from bag.web.pyramid.flash_msg import add_flash
-from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -12,17 +11,19 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from .actions import instantiate_action, ActivateUser, CheckCredentials
-from .interfaces import (
-    IUserClass, IActivationClass, IUIStrings, ILoginForm, ILoginSchema,
+from pluserable.actions import (
+    instantiate_action, ActivateUser, CheckCredentials)
+from pluserable import const
+from pluserable.interfaces import (
+    IUserClass, IMundi, IUIStrings, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from .events import (NewRegistrationEvent, RegistrationActivatedEvent,
-                     PasswordResetEvent, ProfileUpdatedEvent)
-from .exceptions import AuthenticationFailure, FormValidationFailure
-from .httpexceptions import HTTPBadRequest
-from .models import _
-
+from pluserable.events import (
+    NewRegistrationEvent, RegistrationActivatedEvent, PasswordResetEvent,
+    ProfileUpdatedEvent)
+from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
+from pluserable.httpexceptions import HTTPBadRequest
+from pluserable.models import _
 
 LOG = logging.getLogger(__name__)
 
@@ -71,8 +72,13 @@ def authenticated(request, userid):
     return HTTPFound(location=location, headers=headers)
 
 
+def get_mundi(registry):
+    return registry.getUtility(IMundi)
+
+
 def create_activation(request, user):  # TODO Move to action
-    Activation = request.registry.getUtility(IActivationClass)
+    Activation = get_mundi(request.registry).get_utility(
+        const.ACTIVATION_CLASS)
     activation = Activation()
 
     repo = request.replusitory
@@ -132,10 +138,11 @@ class BaseView(object):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
+        self.Activation = get_mundi(request.registry).get_utility(
+            const.ACTIVATION_CLASS)
         self.settings = request.registry.settings
         getUtility = request.registry.getUtility
         self.User = getUtility(IUserClass)
-        self.Activation = getUtility(IActivationClass)
         self.Str = getUtility(IUIStrings)
 
 

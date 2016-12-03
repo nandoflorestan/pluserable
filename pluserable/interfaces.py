@@ -19,10 +19,6 @@ class IUserClass(Interface):
     """Interface for a user model class."""
 
 
-class IActivationClass(Interface):
-    """Interface for a user activation model class."""
-
-
 class ILoginSchema(Interface):
     pass
 

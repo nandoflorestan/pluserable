@@ -43,9 +43,8 @@ Minimal integration
 
 - Tell pluserable which models to use::
 
-    from pluserable.interfaces import IUserClass, IActivationClass
+    from pluserable.interfaces import IUserClass
     registry.registerUtility(User, IUserClass)
-    registry.registerUtility(Activation, IActivationClass)
 
 - Let pluserable know where to find the SQLAlchemy session. This could be
   a scoped session or a common session. Just write a function that returns
