@@ -211,12 +211,6 @@ class UsernameMixin(NoUsernameMixin):
     def username(self):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
 
-    @classmethod
-    def get_by_username_password(cls, request, username, password):
-        """Only return the user object if the password is correct."""
-        user = cls.get_by_username(request, username)
-        return user if user.check_password(password) else None
-
 
 class GroupMixin(BaseModel):
     """Mixin class for groups."""
