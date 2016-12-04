@@ -1,30 +1,8 @@
 """Unit tests for pure methods of models."""
 
 from datetime import datetime
-from pluserable.tests.models import Activation, Base, Group
+from pluserable.tests.models import Activation, Group
 from . import FastTestCase
-from sqlalchemy import Column
-from sqlalchemy.types import DateTime
-
-
-class SomeModel(Base):
-
-    start_date = Column(DateTime)
-
-
-class TestBaseModel(FastTestCase):
-
-    def test_tablename(self):
-        model = SomeModel()
-        assert model.__tablename__ == 'some_model'
-
-    def test_json(self):
-        model = SomeModel()
-        model.id = 1
-        model.start_date = datetime.now()
-
-        data = {'id': 1, 'start_date': model.start_date.isoformat()}
-        assert model.__json__() == data
 
 
 class TestActivation(FastTestCase):

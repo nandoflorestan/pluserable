@@ -2,14 +2,12 @@
 pluserable roadmap
 ==================
 
-- Lose schema and form interfaces; document
-- Remove __json__()
-- Rethink the base model in light of the repository.
 - Move certain modules into web/pyramid/
 - Should the repository be a subclass of bag.sqlalchemy.context:SAContext?
 - Create a ZODB repository in order to validate the interfaces
 - Document the Repository.
 - Go through the TODOs on the code
+- Lose schema and form interfaces; document
 - Extract actions from views
 - Do not create tables when running only fast unit tests.
 - Evaluate our test coverage.

@@ -8,11 +8,11 @@ from datetime import datetime, timedelta, date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from bag.sqlalchemy.tricks import MinimalBase, ID
 from bag.text import pluralize
 from bag.text.hash import random_hash
 
 import cryptacular.bcrypt
-import re
 import hashlib
 import sqlalchemy as sa
 
@@ -21,59 +21,11 @@ _ = TranslationStringFactory('pluserable')
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 
 
-class BaseModel(object):
-    """Base class which auto-generates table name and surrogate
-    primary key column.
-    """
-
-    _idAttribute = 'id'
-    __table_args__ = {
-        'mysql_engine': 'InnoDB',
-        'mysql_charset': 'utf8'
-    }
-
-    @property
-    def id_value(self):
-        return getattr(self, self._idAttribute)
-
-    @declared_attr
-    def __tablename__(cls):
-        """Convert CamelCase class name to underscores_between_words
-        table name.
-        """
-        name = cls.__name__.replace('Mixin', '')
-        return (
-            name[0].lower() +
-            re.sub(r'([A-Z])', lambda m: "_" + m.group(0).lower(), name[1:])
-        )
-
-    @declared_attr
-    def id(self):
-        return sa.Column(sa.Integer, autoincrement=True, primary_key=True)
-
-    def __json__(self, convert_date=True):
-        """Converts all the properties of the object into a dict
-        for use in json.
-        """
-        props = {}
-        blacklist = ['password', '_password']
-        for key in self.__dict__:
-            if key in blacklist:
-                continue
-            if not key.startswith('__') and not key.startswith('_sa_'):
-                obj = getattr(self, key)
-                if (isinstance(obj, datetime) or isinstance(obj, date)) \
-                        and convert_date:
-                    obj = obj.isoformat()
-                props[key] = obj
-        return props
-
-
 def three_days_from_now():
     return datetime.utcnow() + timedelta(days=3)
 
 
-class ActivationMixin(BaseModel):
+class ActivationMixin(MinimalBase, ID):
     """Handles activations/password reset items for users.
 
     The code should be a random hash that is valid only once.
@@ -103,7 +55,7 @@ class ActivationMixin(BaseModel):
                          default='web')
 
 
-class NoUsernameMixin(BaseModel):
+class NoUsernameMixin(MinimalBase, ID):
 
     @declared_attr
     def email(self):
@@ -155,9 +107,8 @@ class NoUsernameMixin(BaseModel):
 
     @declared_attr
     def activation_id(self):
-        return sa.Column(sa.Integer, sa.ForeignKey('%s.%s' % (
-            ActivationMixin.__tablename__,
-            self._idAttribute)))
+        return sa.Column(sa.Integer, sa.ForeignKey('{}.id'.format(
+            ActivationMixin.__tablename__)))
 
     @declared_attr
     def activation(self):
@@ -203,7 +154,7 @@ class NoUsernameMixin(BaseModel):
     # @property
     # def __acl__(self):
     #     return [
-    #         (Allow, 'user:%s' % self.id_value, 'access_user')
+    #         (Allow, 'user:%s' % self.id, 'access_user')
     #     ]
 
 
@@ -215,7 +166,7 @@ class UsernameMixin(NoUsernameMixin):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
 
 
-class GroupMixin(BaseModel):
+class GroupMixin(MinimalBase, ID):
     """Mixin class for groups."""
 
     @declared_attr
@@ -254,25 +205,19 @@ class GroupMixin(BaseModel):
         return '<Group: %s>' % self.name
 
 
-class UserGroupMixin(BaseModel):
+class UserGroupMixin(MinimalBase, ID):
 
     @declared_attr
     def group_id(self):
         return sa.Column(
             sa.Integer,
-            sa.ForeignKey('%s.%s' % (
-                GroupMixin.__tablename__,
-                self._idAttribute)
-            )
-        )
+            sa.ForeignKey(GroupMixin.__tablename__ + '.id'))
 
     @declared_attr
     def user_id(self):
         return sa.Column(
             sa.Integer,
-            sa.ForeignKey('user.' + self._idAttribute,
-                          onupdate='CASCADE', ondelete='CASCADE'),
-        )
+            sa.ForeignKey('user.id', onupdate='CASCADE', ondelete='CASCADE'))
 
     def __repr__(self):
         return '<UserGroup: %s, %s>' % (self.group_name, self.user_id,)
@@ -280,5 +225,5 @@ class UserGroupMixin(BaseModel):
 
 __all__ = [
     k for k, v in locals().items()
-    if isinstance(v, type) and issubclass(v, BaseModel)
+    if isinstance(v, type) and issubclass(v, MinimalBase)
 ]

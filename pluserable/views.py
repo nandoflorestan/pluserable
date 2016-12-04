@@ -148,6 +148,7 @@ class BaseView(object):
 
 
 class AuthView(BaseView):
+
     def __init__(self, request):
         super(AuthView, self).__init__(request)
 
@@ -167,7 +168,7 @@ class AuthView(BaseView):
         )
         self.form = form(self.schema, buttons=(get_strings(self.mundi).login_button,))
 
-    def login_ajax(self):
+    def login_ajax(self):  # TODO ADD TESTS FOR THIS!
         try:
             cstruct = self.request.json_body
         except ValueError as e:
@@ -191,14 +192,10 @@ class AuthView(BaseView):
                 'reason': e.message,
             })
 
-        # We pass the user back as well so the authentication
-        # can use its security code or any other information stored
-        # on the user
-        user_json = user.__json__(self.request)
-
-        return {'status': 'okay', 'user': user_json}
+        return {'status': 'okay', 'user': user.to_dict()}
 
     def login(self):
+        """Present the login form, or validate data and authenticate user."""
         if self.request.method == 'GET':
             if self.request.user:
                 return HTTPFound(location=self.login_redirect_view)
@@ -224,7 +221,7 @@ class AuthView(BaseView):
                                    errors=[e])
 
             self.request.user = user
-            return authenticated(self.request, user.id_value)
+            return authenticated(self.request, user.id)
 
     def logout(self):
         """Remove the auth cookies and redirect...

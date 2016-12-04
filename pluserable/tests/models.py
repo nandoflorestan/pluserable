@@ -1,10 +1,11 @@
 """Models for tests."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from pluserable.models import (ActivationMixin, BaseModel, GroupMixin,
+from bag.sqlalchemy.tricks import MinimalBase
+from pluserable.models import (ActivationMixin, GroupMixin,
                                UsernameMixin, UserGroupMixin)
 
-Base = declarative_base(cls=BaseModel)
+Base = declarative_base(cls=MinimalBase)
 
 
 # Inherit from NoUsernameMixin instead if you do not want a username field.
