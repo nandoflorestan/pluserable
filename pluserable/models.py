@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 
 from pyramid.i18n import TranslationStringFactory
 # from pyramid.security import Allow
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 

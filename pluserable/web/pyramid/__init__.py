@@ -9,7 +9,7 @@ from pluserable.interfaces import (
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.repository import instantiate_repository
-from pluserable.resources import RootFactory
+from .resources import RootFactory
 
 
 def get_user(request):

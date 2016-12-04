@@ -1,6 +1,5 @@
 from pyramid import testing
 from mock import Mock
-from pluserable.resources import RootFactory
 from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
 from pluserable import groupfinder
 from pluserable.tests.models import User, Group

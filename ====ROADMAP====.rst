@@ -2,13 +2,13 @@
 pluserable roadmap
 ==================
 
-- Move certain modules into web/pyramid/
 - Should the repository be a subclass of bag.sqlalchemy.context:SAContext?
 - Create a ZODB repository in order to validate the interfaces
 - Document the Repository.
 - Go through the TODOs on the code
 - Lose schema and form interfaces; document
 - Extract actions from views
+- Move views into web/pyramid/. What about events and exceptions?
 - Evaluate our test coverage.
 - Does Mundi need a request concept?
 - Remove FormValidationFailure exception

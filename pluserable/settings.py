@@ -1,4 +1,4 @@
-from .resources import UserFactory
+from pluserable.web.pyramid.resources import UserFactory
 from .views import get_pyramid_views_config
 
 
