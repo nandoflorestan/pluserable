@@ -1,11 +1,11 @@
 """Pluserable is a user registration and login library."""
 
 from mundi.core import Mundi
-from .const import REPOSITORY
-from .interfaces import (
+from pluserable import const
+from pluserable.interfaces import (
     ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
     IResetPasswordSchema, IProfileSchema)
-from .schemas import (
+from pluserable.schemas import (
     ForgotPasswordSchema, UsernameLoginSchema, UsernameRegisterSchema,
     UsernameResetPasswordSchema, UsernameProfileSchema, EmailLoginSchema,
     EmailRegisterSchema, EmailResetPasswordSchema, EmailProfileSchema)
@@ -60,8 +60,12 @@ def initialize_mundi(config_path, mundi=None):
     mundi = mundi or Mundi.from_ini(config_path)
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
-    mundi.set_default_utility(REPOSITORY,
+    mundi.set_default_utility(const.REPOSITORY,
                               'pluserable.repository.sqlalchemy:Repository')
+
+    # The UI text can be changed; by default we use UIStringsBase itself:
+    mundi.set_default_utility(const.STRING_CLASS,
+                              'pluserable.strings:UIStringsBase')
     return mundi
 
 

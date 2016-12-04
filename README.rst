@@ -41,9 +41,6 @@ Minimal integration
         group class = some.app.models:Group
         user class = some.app.models:User
 
-        # Determining the UI strings is as easy as pointing to a class:
-        string class = pluserable.strings:UIStringsBase
-
 - Let pluserable know where to find the SQLAlchemy session. This could be
   a scoped session or a common session. Just write a function that returns
   the session and then register it against the IDBSession interface::
