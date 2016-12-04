@@ -59,13 +59,8 @@ class NoUsernameMixin(MinimalBase, ID):
 
     @declared_attr
     def email(self):
-        """ E-mail for user """
+        """User e-mail address."""
         return sa.Column(sa.Unicode(100), nullable=False, unique=True)
-
-    @declared_attr
-    def status(self):
-        """ Status of user """
-        return sa.Column(sa.Integer())
 
     @declared_attr
     def last_login_date(self):
