@@ -7,7 +7,6 @@ from pyramid import testing
 from pluserable.web.pyramid import find_or_create_mundi
 from pluserable.tests.models import Activation, User
 from pluserable.interfaces import IDBSession
-from pluserable.strings import UIStringsBase
 
 
 class PluserableTestCase(TestCase):
@@ -50,3 +49,27 @@ class AppTestCase(PluserableTestCase):
         find_or_create_mundi(registry)
         registry.registerUtility(session_factory, IDBSession)
         return config
+
+    run_once = False
+
+    @classmethod
+    def setUpClass(cls):
+        """Create test database and tables when some tests start running."""
+        if AppTestCase.run_once:
+            return  # Only create tables once per test suite run
+        AppTestCase.run_once = True
+
+        from py.test import config
+
+        # Only run database setup on master (in case of xdist/multiproc mode)
+        if not hasattr(config, 'slaveinput'):
+            from paste.deploy.loadwsgi import appconfig
+            from sqlalchemy import engine_from_config
+            from pluserable.tests.models import Base
+
+            cls = AppTestCase  # set class variables on superclass
+            cls.settings = cls._read_pyramid_settings()
+            cls.engine = engine_from_config(cls.settings, prefix='sqlalchemy.')
+            print('Creating the tables on the test database:\n%s' % cls.engine)
+            Base.metadata.drop_all(cls.engine)
+            Base.metadata.create_all(cls.engine)

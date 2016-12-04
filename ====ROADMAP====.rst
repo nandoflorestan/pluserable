@@ -9,7 +9,6 @@ pluserable roadmap
 - Go through the TODOs on the code
 - Lose schema and form interfaces; document
 - Extract actions from views
-- Do not create tables when running only fast unit tests.
 - Evaluate our test coverage.
 - Does Mundi need a request concept?
 - Remove FormValidationFailure exception

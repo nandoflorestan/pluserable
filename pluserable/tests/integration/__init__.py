@@ -5,7 +5,6 @@ It accesses a database, so it is slower than a unit test.
 
 from mock import Mock
 from pyramid import testing
-from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 from pluserable.repository import instantiate_repository
 from pluserable.tests import AppTestCase
@@ -13,12 +12,6 @@ from pluserable.tests.models import Base
 
 
 class BaseTestCase(AppTestCase):
-
-    @classmethod
-    def setUpClass(cls):  # TODO MOVE TO ..
-        cls.settings = settings = cls._read_pyramid_settings()
-        cls.engine = engine_from_config(settings, prefix='sqlalchemy.')
-        cls.Session = sessionmaker()
 
     def setUp(self):
         """Set up each test."""
@@ -29,7 +22,7 @@ class BaseTestCase(AppTestCase):
         Base.metadata.bind = connection
 
         # bind an individual Session to the connection
-        self.sas = self.Session(bind=connection)
+        self.sas = sessionmaker()(bind=connection)
 
         def factory():
             return self.sas
