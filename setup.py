@@ -39,7 +39,6 @@ requires = [
     'transaction',
     'cryptacular',
     'deform',
-    'pystache',         # TODO REMOVE, use mako
     'pyramid',          # TODO REMOVE when agnostic
     'beaker', 'pyramid_beaker',  # TODO Alternative for sessions?
     'pyramid_mailer',

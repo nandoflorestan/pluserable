@@ -21,6 +21,10 @@ class UIStringsBase(object):
     activation_check_email = \
         _("Thank you for registering! Please check your e-mail now. You can "
           "continue by clicking the activation link we have sent you.")
+    activation_email_subject = _("Please activate your account!")
+    activation_email_plain = _(
+        "Please validate your email and activate your account by visiting:\n"
+        "ACTIVATION_LINK")
     activation_email_verified = _("Your e-mail address has been verified. "
                                   "Thank you!")
 

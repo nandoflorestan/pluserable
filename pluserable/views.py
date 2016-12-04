@@ -1,7 +1,6 @@
 import logging
 import colander
 import deform
-import pystache
 from bag.web.pyramid.flash_msg import add_flash
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
@@ -23,7 +22,6 @@ from pluserable.events import (
     ProfileUpdatedEvent)
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
-from pluserable.models import _
 from pluserable.strings import get_strings
 
 LOG = logging.getLogger(__name__)
@@ -80,8 +78,8 @@ def get_mundi(registry):
 
 
 def create_activation(request, user):  # TODO Move to action
-    Activation = get_mundi(request.registry).get_utility(
-        const.ACTIVATION_CLASS)
+    mundi = get_mundi(request.registry)
+    Activation = mundi.get_utility(const.ACTIVATION_CLASS)
     activation = Activation()
 
     repo = request.replusitory
@@ -89,19 +87,14 @@ def create_activation(request, user):  # TODO Move to action
     user.activation = activation
     repo.flush()
 
-    # TODO Create a hook for the app to give us body and subject!
-    # TODO We don't need pystache just for this!
-    body = pystache.render(
-        _("Please validate your email and activate your account by visiting:\n"
-            "{{ link }}"),
-        {
-            'link': request.route_url('activate', user_id=user.id,
-                                      code=user.activation.code)
-        }
+    link = request.route_url('activate', user_id=user.id,
+                             code=user.activation.code)
+    strings = get_strings(mundi)
+    message = Message(
+        subject=strings.activation_email_subject,
+        recipients=[user.email],
+        body=strings.activation_email_plain.replace('ACTIVATION_LINK', link),
     )
-    subject = _("Please activate your account!")
-
-    message = Message(subject=subject, recipients=[user.email], body=body)
     mailer = get_mailer(request)
     mailer.send(message)
 
