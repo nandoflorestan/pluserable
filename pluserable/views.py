@@ -318,7 +318,7 @@ class ForgotPasswordView(BaseView):
             password = captured['password']
 
             user.password = password
-            request.replusitory.delete_activation(activation)
+            request.replusitory.delete_activation(user, activation)
 
             add_flash(request,
                       plain=get_strings(self.mundi).reset_password_done,

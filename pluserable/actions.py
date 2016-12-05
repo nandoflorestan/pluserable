@@ -91,5 +91,5 @@ class ActivateUser(PluserableAction):
         if user.activation is not activation:
             raise HTTPNotFound()
 
-        self.repo.delete_activation(activation)
+        self.repo.delete_activation(user, activation)
         return user, activation

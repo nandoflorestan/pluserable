@@ -1,10 +1,10 @@
 """Base models for apps that use SQLAlchemy and pluserable."""
 
-from datetime import datetime, timedelta
 import hashlib
 from urllib.parse import urlencode
 
 # from pyramid.security import Allow
+import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -12,17 +12,11 @@ from bag.sqlalchemy.tricks import MinimalBase, ID
 from bag.text import pluralize
 from bag.text.hash import random_hash
 
-import cryptacular.bcrypt
-import sqlalchemy as sa
-
-crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
+from pluserable.data.models import (
+    crypt, three_days_from_now, ActivationBase, UserBase)
 
 
-def three_days_from_now():
-    return datetime.utcnow() + timedelta(days=3)
-
-
-class ActivationMixin(MinimalBase, ID):
+class ActivationMixin(ActivationBase, MinimalBase, ID):
     """Handles activations/password reset items for users.
 
     The code should be a random hash that is valid only once.
@@ -52,7 +46,7 @@ class ActivationMixin(MinimalBase, ID):
                          default='web')
 
 
-class NoUsernameMixin(MinimalBase, ID):
+class NoUsernameMixin(UserBase, MinimalBase, ID):
 
     @declared_attr
     def email(self):
@@ -60,7 +54,7 @@ class NoUsernameMixin(MinimalBase, ID):
         return sa.Column(sa.Unicode(100), nullable=False, unique=True)
 
     @declared_attr
-    def last_login_date(self):
+    def last_login_date(self):  # TODO REMOVE OR MAKE WORK, TEST
         """Date of user's last login."""
         return sa.Column(
             sa.TIMESTAMP(timezone=False),
@@ -70,7 +64,7 @@ class NoUsernameMixin(MinimalBase, ID):
         )
 
     @declared_attr
-    def registered_date(self):
+    def registered_date(self):  # TODO REMOVE OR TEST
         """Date of user's registration."""
         return sa.Column(
             sa.TIMESTAMP(timezone=False),
@@ -81,21 +75,8 @@ class NoUsernameMixin(MinimalBase, ID):
 
     @declared_attr
     def salt(self):
-        """ Password salt for user """
+        """Password salt for user."""
         return sa.Column(sa.Unicode(256), nullable=False)
-
-    @declared_attr
-    def _password(self):
-        """ Password hash for user object """
-        return sa.Column('password', sa.Unicode(256), nullable=False)
-
-    @hybrid_property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, value):
-        self._set_password(value)
 
     @declared_attr
     def activation_id(self):
@@ -106,48 +87,10 @@ class NoUsernameMixin(MinimalBase, ID):
     def activation(self):
         return sa.orm.relationship('Activation', backref='user')
 
-    @property
-    def is_activated(self):
-        return self.activation_id is None
-
-    def _get_password(self):
-        return self._password
-
-    def _set_password(self, raw_password):
-        self._password = self._hash_password(raw_password)
-
-    def _hash_password(self, password):
-        if not self.salt:
-            self.salt = random_hash(24)
-        return str(crypt.encode(password + self.salt))
-
-    def gravatar_url(self, default='mm', size=80, cacheable=True):
-        """Return a Gravatar image URL for this user."""
-        base = "http://www.gravatar.com/avatar/" if cacheable else \
-            "https://secure.gravatar.com/avatar/"
-        return base + \
-            hashlib.md5(self.email.encode('utf8').lower()).hexdigest() + \
-            "?" + urlencode({'d': default, 's': str(size)})
-
-    @classmethod
-    def generate_random_password(cls, chars=12):
-        """Generate random string of fixed length."""
-        return random_hash(chars)
-
-    def check_password(self, password):
-        """Check the ``password`` and return a boolean."""
-        if not password:
-            return False
-        return crypt.check(self.password, password + self.salt)
-
-    def __repr__(self):
-        return '<User: %s>' % self.email
-
-    # @property
-    # def __acl__(self):
-    #     return [
-    #         (Allow, 'user:%s' % self.id, 'access_user')
-    #     ]
+    @declared_attr
+    def _password(self):
+        """Password hash."""
+        return sa.Column('password', sa.Unicode(256), nullable=False)
 
 
 class UsernameMixin(NoUsernameMixin):

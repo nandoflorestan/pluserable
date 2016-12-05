@@ -349,6 +349,7 @@ class TestRegisterView(IntegrationTestBase):
         the_user = request.replusitory.q_user_by_username(user.username)
 
         assert the_user is user
+        assert the_user.activation is None
         assert the_user.is_activated
         assert response.status_int == 302
 

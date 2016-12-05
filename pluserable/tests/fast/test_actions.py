@@ -8,8 +8,8 @@ from . import FakeMundi, FastTestCase
 class TestCheckCredentials(FastTestCase):
     """Unit tests for _check_credentials()."""
 
-    def _make_one(self):
-        user = self.create_users(count=1)
+    def _make_one(self, activation=False):
+        user = self.create_users(count=1, activation=activation)
         action = CheckCredentials(  # Barely instantiate just to test a method
             registry=self._make_registry(), repository=None, agent=user,
             payload={}, mundi=None)
@@ -27,7 +27,6 @@ class TestCheckCredentials(FastTestCase):
         assert ret is user
 
     def test_with_pending_activation_raises(self):
-        user, action = self._make_one()
-        user.activation_id = 42
+        user, action = self._make_one(activation=True)
         with self.assertRaises(AuthenticationFailure):
             action._check_credentials(user, user.email, password='science')
