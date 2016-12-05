@@ -1,8 +1,10 @@
 """Strings for easy internationalization."""
 
+from pyramid.i18n import TranslationStringFactory
 from pluserable import const
 from pluserable.interfaces import IMundi
-from pluserable.models import _
+
+_ = TranslationStringFactory('pluserable')
 
 
 def get_strings(reg):

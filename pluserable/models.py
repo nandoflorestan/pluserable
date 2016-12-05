@@ -1,10 +1,10 @@
 """Base models for apps that use SQLAlchemy and pluserable."""
 
+from datetime import datetime, timedelta
+import hashlib
 from urllib.parse import urlencode
 
-from pyramid.i18n import TranslationStringFactory
 # from pyramid.security import Allow
-from datetime import datetime, timedelta
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -13,10 +13,7 @@ from bag.text import pluralize
 from bag.text.hash import random_hash
 
 import cryptacular.bcrypt
-import hashlib
 import sqlalchemy as sa
-
-_ = TranslationStringFactory('pluserable')
 
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 

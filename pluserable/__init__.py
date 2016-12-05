@@ -12,6 +12,7 @@ from pluserable.schemas import (
 
 
 def groupfinder(userid, request):
+    """Return the main principals of the current user."""
     user = request.user
     groups = None
     if user:

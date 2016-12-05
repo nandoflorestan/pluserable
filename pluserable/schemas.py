@@ -3,8 +3,7 @@
 import re
 import colander as c
 import deform.widget as w
-from .strings import get_strings
-from .models import _
+from .strings import get_strings, _  # TODO Move strings to strings.py
 
 
 def email_exists(node, val):
