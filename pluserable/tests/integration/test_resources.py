@@ -1,5 +1,5 @@
 from pyramid import testing
-from pluserable.repository import instantiate_repository
+from pluserable.data.repository import instantiate_repository
 from pluserable.web.pyramid.resources import UserFactory
 from . import IntegrationTestBase
 

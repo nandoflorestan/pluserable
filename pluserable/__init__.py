@@ -61,8 +61,8 @@ def initialize_mundi(config_path, mundi=None):
     mundi = mundi or Mundi.from_ini(config_path)
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
-    mundi.set_default_utility(const.REPOSITORY,
-                              'pluserable.repository.sqlalchemy:Repository')
+    mundi.set_default_utility(
+        const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
 
     # The UI text can be changed; by default we use UIStringsBase itself:
     mundi.set_default_utility(const.STRING_CLASS,

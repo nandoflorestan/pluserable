@@ -6,7 +6,7 @@ It accesses a database, so it is slower than a unit test.
 from mock import Mock
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
-from pluserable.repository import instantiate_repository
+from pluserable.data.repository import instantiate_repository
 from pluserable.tests import AppTestCase
 from pluserable.tests.models import Base
 

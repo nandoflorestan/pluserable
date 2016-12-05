@@ -2,8 +2,8 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from bag.sqlalchemy.tricks import MinimalBase
-from pluserable.models import (ActivationMixin, GroupMixin,
-                               UsernameMixin, UserGroupMixin)
+from pluserable.data.sqlalchemy.models import (
+    ActivationMixin, GroupMixin, UsernameMixin, UserGroupMixin)
 
 Base = declarative_base(cls=MinimalBase)
 

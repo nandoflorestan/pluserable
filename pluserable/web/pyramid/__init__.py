@@ -8,7 +8,7 @@ from pluserable.interfaces import (
     IDBSession, IMundi, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from pluserable.repository import instantiate_repository
+from pluserable.data.repository import instantiate_repository
 from .resources import RootFactory
 
 
