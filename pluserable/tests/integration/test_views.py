@@ -139,6 +139,7 @@ class TestAuthView(IntegrationTestBase):
                 kind='error')
 
     def test_logout(self):
+        """User logs out successfully."""
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.add_route('index', '/')
@@ -155,7 +156,8 @@ class TestAuthView(IntegrationTestBase):
                 with patch('pluserable.views.add_flash') as add_flash:
                     view.logout()
                     add_flash.assert_called_with(
-                        request, plain=UIStringsBase.logout, kind="success")
+                        request, plain=UIStringsBase.logout_done,
+                        kind="success")
 
                 forget.assert_called_with(request)
                 assert invalidate.called

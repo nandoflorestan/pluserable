@@ -28,9 +28,9 @@ class UIStringsBase(object):
     activation_email_verified = _("Your e-mail address has been verified. "
                                   "Thank you!")
 
-    authenticated = _('You are now logged in.')
     login_button = _('Log in')
-    logout = _('You have logged out.')
+    login_done = _('You are now logged in.')
+    logout_done = _('You have logged out.')
 
     wrong_email = _('Wrong email or password.')
     wrong_username = _('Wrong username or password.')

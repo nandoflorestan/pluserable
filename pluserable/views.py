@@ -54,26 +54,24 @@ def get_config_route(request, config_key):
 def authenticated(request, userid):
     """Set the auth cookies and redirect.
 
-    ...either to the URL indicated in the "next" parameter,
+    ...either to the URL indicated in the "next" request parameter,
     or to the page defined in pluserable.login_redirect,
     which defaults to a view named 'index'.
     """
-    settings = request.registry.settings
-    headers = remember(request, userid)
-    autologin = asbool(settings.get('pluserable.autologin', False))
-
-    if not autologin:
-        add_flash(
-            request,
-            plain=get_strings(request.registry).authenticated, kind='success')
-
-    location = request.params.get('next') or get_config_route(
-        request, 'pluserable.login_redirect')
-
-    return HTTPFound(location=location, headers=headers)
+    autologin = asbool(request.registry.settings.get(
+        'pluserable.autologin', False))
+    msg = get_strings(request.registry).login_done
+    if not autologin and msg:
+        add_flash(request, plain=msg, kind='success')
+    return HTTPFound(
+        headers=remember(request, userid),
+        location=request.params.get('next')
+        or get_config_route(request, 'pluserable.login_redirect'),
+    )
 
 
 def get_mundi(registry):
+    """Return the Mundi instance for this application."""
     return registry.getUtility(IMundi)
 
 
@@ -222,10 +220,13 @@ class AuthView(BaseView):
         ...to the view defined in the ``pluserable.logout_redirect`` setting,
         which defaults to a view named 'index'.
         """
+        msg = get_strings(self.mundi).logout_done
+        if msg:
+            add_flash(
+                self.request, plain=msg, kind='success')
         self.request.session.invalidate()
-        headers = forget(self.request)
-        add_flash(self.request, plain=get_strings(self.mundi).logout, kind='success')
-        return HTTPFound(location=self.logout_redirect_view, headers=headers)
+        return HTTPFound(
+            location=self.logout_redirect_view, headers=forget(self.request))
 
 
 class ForgotPasswordView(BaseView):

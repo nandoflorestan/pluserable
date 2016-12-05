@@ -205,13 +205,21 @@ Take a look at `this class
 <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/strings.py>`_.
 This is where we store all the strings in *pluserable*.
 If you'd like to change one or two messages, simply create a subclass
-and configure it:
+and configure it::
 
     [Mundi utilities]
         # (...bla bla bla...)
 
         # Determining the UI strings is as easy as pointing to a class:
         string class = pluserable.strings:UIStringsBase
+
+Here is an example implementation of a strings class::
+
+    class AuthStrings(UIStringsBase):
+        """Our alterations to the pluserable UI text."""
+
+        login_done = None   # Do not flash a message after the user logs in
+        logout_done = None  # Do not flash a message after the user logs out
 
 
 Changing the primary key column name
