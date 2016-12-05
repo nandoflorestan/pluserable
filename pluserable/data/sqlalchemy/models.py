@@ -13,7 +13,7 @@ from bag.text import pluralize
 from bag.text.hash import random_hash
 
 from pluserable.data.models import (
-    crypt, three_days_from_now, ActivationBase, UserBase)
+    crypt, three_days_from_now, ActivationBase, GroupBase, UserBase)
 
 
 class ActivationMixin(ActivationBase, MinimalBase, ID):
@@ -101,7 +101,7 @@ class UsernameMixin(NoUsernameMixin):
         return sa.Column(sa.Unicode(30), nullable=False, unique=True)
 
 
-class GroupMixin(MinimalBase, ID):
+class GroupMixin(GroupBase, MinimalBase, ID):
     """Mixin class for groups."""
 
     @declared_attr
@@ -135,9 +135,6 @@ class GroupMixin(MinimalBase, ID):
     #         passive_deletes=True,
     #         passive_updates=True,
     #     )
-
-    def __repr__(self):
-        return '<Group: %s>' % self.name
 
 
 class UserGroupMixin(MinimalBase, ID):

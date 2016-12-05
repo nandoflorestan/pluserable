@@ -92,6 +92,7 @@ class UserBase:
 
     @property
     def is_activated(self):
+        """False if this user needs to confirm her email address."""
         return self.activation is None
 
     # @property
@@ -99,3 +100,17 @@ class UserBase:
     #     return [
     #         (Allow, 'user:%s' % self.id, 'access_user')
     #     ]
+
+
+class GroupBase:
+    """Base class for a Group model."""
+
+    def __init__(self, name, description=None, users=[]):
+        """Constructor."""
+        assert name and isinstance(name, str)
+        self.name = name
+        self.description = description
+        self.users = users
+
+    def __repr__(self):
+        return '<Group: {}>'.format(self.name)
