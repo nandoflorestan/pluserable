@@ -19,9 +19,6 @@ from pluserable.tests import AppTestCase
 from pluserable.tests.models import Base
 
 
-DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-
-
 class FunctionalTestBase(AppTestCase):
 
     def main(self, config):
@@ -54,8 +51,9 @@ class FunctionalTestBase(AppTestCase):
 
     def setUp(self):
         """Called before each functional test."""
-        settings = self._read_pyramid_settings()
-        config = self._initialize_config(settings, DBSession)
+        DBSession = scoped_session(
+            sessionmaker(extension=ZopeTransactionExtension()))
+        config = self._initialize_config(self.settings, DBSession)
 
         self.engine = engine_from_config(config.registry.settings,
                                          prefix='sqlalchemy.')

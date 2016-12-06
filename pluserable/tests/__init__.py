@@ -63,7 +63,6 @@ class AppTestCase(PluserableTestCase):
 
         # Only run database setup on master (in case of xdist/multiproc mode)
         if not hasattr(config, 'slaveinput'):
-            from paste.deploy.loadwsgi import appconfig
             from sqlalchemy import engine_from_config
             from pluserable.tests.models import Base
 

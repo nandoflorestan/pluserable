@@ -9,15 +9,14 @@ class Repository:
     """This repository is incomplete work. TODO: FINISH IT."""
 
     db = ZODB.DB(None)  # Create an in-memory database, just testing for now
-    # TODO: Use the better persistent collections
-    # TODO: Replace all SQLAlchemy stuff
+    # TODO: Replace all SQLAlchemy stuff ("self.sas")
 
     def __init__(self, mundi, session_factory):
         """Constructor."""
         self.mundi = mundi
         self.con = self.db.open()
         if 'users' not in self.root:
-            self.root['users'] = []  # TODO
+            self.root['users'] = []  # TODO: Use the persistent collections
 
     @reify
     def User(self):
