@@ -20,31 +20,18 @@ def get_user(request):
     return request.replusitory.q_user_by_id(userid)
 
 
-''' TODO REMOVE
-def register_mundi_utility(config, name: str, utility):
-    """Configurator directive that registers a utility with mundi.
-
-    Example usage::
-
-        config.register_mundi_utility('sas', my_scoped_session)
-    """
-    assert isinstance(name, str), 'The "name" argument must be a string.'
-    from pluserable.interfaces import IMundi
-    mundi = config.registry.queryUtility(IMundi)
-    mundi.register_utility(name, utility)
-
-# config.add_directive('register_mundi_utility', register_mundi_utility)
-'''
-
-
 def find_or_create_mundi(registry):
     """Try to find Mundi in the registry, then initialize it."""
+    mundi = registry.queryUtility(IMundi, default=None)
+    if mundi:
+        return mundi
+
+    # Mundi is not yet registered, so let's create it:
     config_path = registry.settings.get('__file__')
     if not config_path:
         raise RuntimeError('pluserable needs a "__file__" setting containing '
                            'the path to the configuration file.')
-    mundi = initialize_mundi(
-        config_path, mundi=registry.queryUtility(IMundi, default=None))
+    mundi = initialize_mundi(config_path)
     registry.registerUtility(mundi, IMundi)
     return mundi
 
