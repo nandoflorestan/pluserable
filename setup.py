@@ -40,7 +40,6 @@ requires = [
     'cryptacular',
     'deform',
     'pyramid',          # TODO REMOVE when agnostic
-    'beaker', 'pyramid_beaker',  # TODO Alternative for sessions?
     'pyramid_mailer',
     'pyramid_deform',
     'pyramid_mako',

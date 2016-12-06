@@ -8,8 +8,8 @@ from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
-from pyramid_beaker import session_factory_from_settings
 from pyramid.response import Response
+from pyramid.session import SignedCookieSessionFactory
 from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
@@ -36,7 +36,7 @@ class FunctionalTestBase(AppTestCase):
         settings = config.registry.settings
 
         # Pyramid sessions
-        session_factory = session_factory_from_settings(settings)
+        session_factory = SignedCookieSessionFactory('sum_see_krert')
         config.set_session_factory(session_factory)
 
         if settings.get('su.require_activation', True):

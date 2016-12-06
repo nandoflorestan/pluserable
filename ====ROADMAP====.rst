@@ -2,8 +2,6 @@
 pluserable roadmap
 ==================
 
-- Create a ZODB repository in order to validate the interfaces
-- Document the Repository.
 - Go through the TODOs on the code
 - Lose schema and form interfaces; document
 - Extract actions from views
@@ -17,6 +15,9 @@ pluserable roadmap
 - Lose mako and pyramid_mako (at least as required dependencies)
 - Document
 - Integrate velruse for sure
-- Support Mozilla Persona?
 - Demand Python 3.5 and use https://docs.python.org/3/library/typing.html
+- Tests should use only the repository, never the session directly.
+- Create a ZODB repository in order to validate the interfaces.
+- Document the Repository.
+- Support Mozilla Persona?
 - New git repo
