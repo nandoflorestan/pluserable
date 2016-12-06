@@ -4,22 +4,21 @@ It is the slowest kind of test. Not only does it hit the database,
 it also generates the content of a response. It passes through all layers.
 """
 
+from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_beaker import session_factory_from_settings
 from pyramid.response import Response
-from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable.data.repository import instantiate_repository
-from pluserable.interfaces import IDBSession
 from pluserable.tests import AppTestCase
-from pluserable.tests.models import Base
 
 
 class FunctionalTestBase(AppTestCase):
+    """Base class for tests that make a request and check the response."""
 
     def main(self, config):
         def index(request):
@@ -51,29 +50,21 @@ class FunctionalTestBase(AppTestCase):
 
     def setUp(self):
         """Called before each functional test."""
-        DBSession = scoped_session(
-            sessionmaker(extension=ZopeTransactionExtension()))
-        config = self._initialize_config(self.settings, DBSession)
+        self.subtransaction = SubtransactionTrick(
+            engine=self.engine,
+            sessionmaker=scoped_session(
+                sessionmaker(extension=ZopeTransactionExtension()))
+        )
+        self.sas = self.subtransaction.sas  # TODO REMOVE
 
-        self.engine = engine_from_config(config.registry.settings,
-                                         prefix='sqlalchemy.')
+        config = self._initialize_config(self.settings, self.sas)
+
         app = self.main(config)
-
         self.app = TestApp(app)
 
-        # TODO Move up the subtransaction trick
-        self.connection = connection = self.engine.connect()
-
-        self.sas = app.registry.getUtility(IDBSession)
-        self.sas.configure(bind=connection)
-        # begin a non-ORM transaction
-        self.trans = connection.begin()
-        Base.metadata.bind = connection
         self.repo = instantiate_repository(config.registry)
 
     def tearDown(self):
         """Roll back the Session (including calls to commit())."""
         testing.tearDown()  # Remove Pyramid settings, registry and request
-        self.trans.rollback()
-        self.sas.close()
-        self.sas.remove()
+        self.subtransaction.close()  # roll back the session

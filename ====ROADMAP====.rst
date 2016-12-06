@@ -19,6 +19,4 @@ pluserable roadmap
 - Integrate velruse for sure
 - Support Mozilla Persona?
 - Demand Python 3.5 and use https://docs.python.org/3/library/typing.html
-- Move up subtransaction trick for tests.
-  Or ditch it (done in branch "no_subtransaction").
 - New git repo

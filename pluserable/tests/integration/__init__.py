@@ -4,46 +4,36 @@ It accesses a database, so it is slower than a unit test.
 """
 
 from mock import Mock
+from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable.data.repository import instantiate_repository
 from pluserable.tests import AppTestCase
-from pluserable.tests.models import Base
 
 
-class BaseTestCase(AppTestCase):
+class IntegrationTestBase(AppTestCase):
+    """Enclose each test in a subtransaction and roll it back."""
 
     def setUp(self):
         """Set up each test."""
-        self.connection = connection = self.engine.connect()
+        self.subtransaction = SubtransactionTrick(
+            engine=self.engine, sessionmaker=sessionmaker)
+        self.sas = self.subtransaction.sas  # TODO REMOVE
 
-        # begin a non-ORM transaction
-        self.trans = connection.begin()
-        Base.metadata.bind = connection
+        def sas_factory():
+            return self.subtransaction.sas
 
-        # bind an individual Session to the connection
-        self.sas = sessionmaker()(bind=connection)
-
-        def factory():
-            return self.sas
-
-        self.config = self._initialize_config(self.settings, factory)
+        self.config = self._initialize_config(self.settings, sas_factory)
         self.config.include('pluserable')
         self.repo = instantiate_repository(self.config.registry)
 
     def tearDown(self):
-        # rollback - everything that happened with the
-        # Session above (including calls to commit())
-        # is rolled back.
+        """Executed after each test."""
         testing.tearDown()
-        self.trans.rollback()
-        self.sas.close()
-        self.connection.close()
-
-
-class IntegrationTestBase(BaseTestCase):
+        self.subtransaction.close()
 
     def get_request(self, post=None, request_method='GET'):
+        """Return a dummy request for testing."""
         if post is None:
             post = {}
         request = testing.DummyRequest(post)
