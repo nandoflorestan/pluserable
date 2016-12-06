@@ -13,9 +13,10 @@ from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
+from pluserable.data.repository import instantiate_repository
+from pluserable.interfaces import IDBSession
 from pluserable.tests import AppTestCase
 from pluserable.tests.models import Base
-from pluserable.interfaces import IDBSession
 
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -69,8 +70,8 @@ class FunctionalTestBase(AppTestCase):
         self.sas.configure(bind=connection)
         # begin a non-ORM transaction
         self.trans = connection.begin()
-
         Base.metadata.bind = connection
+        self.repo = instantiate_repository(config.registry)
 
     def tearDown(self):
         """Roll back the Session (including calls to commit())."""

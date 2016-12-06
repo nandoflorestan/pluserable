@@ -1,19 +1,15 @@
 """Base models for apps that use SQLAlchemy and pluserable."""
 
-import hashlib
-from urllib.parse import urlencode
-
 # from pyramid.security import Allow
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from bag.sqlalchemy.tricks import MinimalBase, ID
 from bag.text import pluralize
 from bag.text.hash import random_hash
 
 from pluserable.data.models import (
-    crypt, three_days_from_now, ActivationBase, GroupBase, UserBase)
+    three_days_from_now, ActivationBase, GroupBase, UserBase)
 
 
 class ActivationMixin(ActivationBase, MinimalBase, ID):
@@ -152,7 +148,7 @@ class UserGroupMixin(MinimalBase, ID):
             sa.ForeignKey('user.id', onupdate='CASCADE', ondelete='CASCADE'))
 
     def __repr__(self):
-        return '<UserGroup: %s, %s>' % (self.group_name, self.user_id,)
+        return '<{}: {}, {}>'.format(type(self), self.group_id, self.user_id)
 
 
 __all__ = [

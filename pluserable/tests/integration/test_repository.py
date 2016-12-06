@@ -59,10 +59,8 @@ class TestRepository(IntegrationTestBase):
     def test_gen_users(self):
         """q_users() returns all existing users."""
         self.create_users(count=2)
-        self.sas.flush()
-
-        repo = instantiate_repository(self.config.registry)
-        users = list(repo.q_users())
+        self.repo.flush()
+        users = list(self.repo.q_users())
         assert len(users) == 2
 
     def test_q_user_by_id(self):

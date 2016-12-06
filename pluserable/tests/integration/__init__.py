@@ -29,6 +29,7 @@ class BaseTestCase(AppTestCase):
 
         self.config = self._initialize_config(self.settings, factory)
         self.config.include('pluserable')
+        self.repo = instantiate_repository(self.config.registry)
 
     def tearDown(self):
         # rollback - everything that happened with the
@@ -48,5 +49,5 @@ class IntegrationTestBase(BaseTestCase):
         request = testing.DummyRequest(post)
         request.session = Mock()
         request.method = request_method
-        request.replusitory = instantiate_repository(request.registry)
+        request.replusitory = self.repo
         return request

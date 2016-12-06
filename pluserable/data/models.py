@@ -5,10 +5,7 @@
 from datetime import datetime, timedelta
 import hashlib
 from urllib.parse import urlencode
-
-from bag.text import pluralize
 from bag.text.hash import random_hash
-
 import cryptacular.bcrypt
 
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
@@ -55,7 +52,7 @@ class UserBase:
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<User: %s>' % self.email
+        return '<{}: {}>'.format(type(self), self.email)
 
     def gravatar_url(self, default='mm', size=80, cacheable=True):
         """Return a Gravatar image URL for this user."""
@@ -105,12 +102,5 @@ class UserBase:
 class GroupBase:
     """Base class for a Group model."""
 
-    def __init__(self, name, description=None, users=[]):
-        """Constructor."""
-        assert name and isinstance(name, str)
-        self.name = name
-        self.description = description
-        self.users = users
-
     def __repr__(self):
-        return '<Group: {}>'.format(self.name)
+        return '<{}: {}>'.format(type(self), self.name)

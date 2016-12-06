@@ -22,8 +22,8 @@ class PluserableTestCase(TestCase):
             if activation:
                 user.activation = Activation()
             users.append(user)
-        if hasattr(self, 'sas'):
-            self.sas.add_all(users)
+            if hasattr(self, 'repo'):
+                self.repo.store_user(user)
         if count == 1:
             return users[0]
         else:
