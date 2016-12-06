@@ -70,3 +70,4 @@ Regards,
     reset_password_email_sent = _("Please check your e-mail to finish "
                                   "resetting your password.")
     username_may_not_contain_at = _("May not contain this character: @")
+    unacceptable_characters = _("Contains unacceptable characters.")

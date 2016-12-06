@@ -6,6 +6,7 @@ from . import IntegrationTestBase
 
 
 class TestSchemas(IntegrationTestBase):
+
     def test_valid_login_schema(self):
         request = self.get_request(post={
             'handle': 'sagan',
@@ -46,6 +47,17 @@ class TestSchemas(IntegrationTestBase):
                 assert len(exc.children) == 1
                 the_error = exc.children[0]
                 assert the_error.node.name == 'username'
-                assert the_error.msg == ['May not contain this character: @']
+                assert the_error.msg == ['Contains unacceptable characters.']
                 raise
         self.assertRaises(Invalid, run)
+
+    def test_usernames_may_contain_dot_dash_underline(self):
+        handle = 'Sagan-was-a-GREAT_writer.'
+        POST = dict(username=handle, email='sagan@nasa.gov', password='pass')
+        request = self.get_request(post=POST)
+        schema = UsernameRegisterSchema().bind(request=request)
+
+        result = schema.deserialize(request.POST)
+        assert result['username'] == handle
+        assert result['password'] == 'pass'
+        assert result['email'] == 'sagan@nasa.gov'

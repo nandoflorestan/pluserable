@@ -3,7 +3,7 @@
 import re
 import colander as c
 import deform.widget as w
-from .strings import get_strings, _  # TODO Move strings to strings.py
+from .strings import get_strings, _
 
 
 def email_exists(node, val):
@@ -33,22 +33,28 @@ def unique_username(node, val):
             request.registry).registration_username_exists)
 
 
-def unix_username(node, value):  # TODO This is currently not used
+def unix_username(node, value):
     """Colander validator that ensures the username is alphanumeric."""
+    request = node.bindings['request']
     if not ALPHANUM.match(value):
-        raise c.Invalid(node, _("Contains unacceptable characters."))
+        raise c.Invalid(node, get_strings(
+            request.registry).unacceptable_characters)
 
 
 ALPHANUM = re.compile(r'^[a-zA-Z0-9_.-]+$')
 
 
 def username_does_not_contain_at(node, value):
-    """Colander validator that ensures the username does not contain an
-    ``@`` character.
+    """Ensure the username does not contain an ``@`` character.
 
     This is important because the system can be configured to accept
     an email or a username in the same field at login time, so the
     presence or absence of the @ tells us whether it is an email address.
+
+    This Colander validator is not being used by default. We are using the
+    ``unix_username`` validator which does more. But we are keeping this
+    validator here in case someone wishes to use it instead of
+    ``unix_username``.
     """
     request = node.bindings['request']
     if '@' in value:
@@ -68,7 +74,7 @@ def get_username_creation_node(
     return c.SchemaNode(
         c.String(), title=title, description=description,
         validator=validator or c.All(
-            c.Length(max=30), username_does_not_contain_at, unique_username))
+            c.Length(max=30), unix_username, unique_username))
 
 
 def get_email_node(validator=None, description=None):
