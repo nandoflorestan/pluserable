@@ -4,6 +4,8 @@ import ZODB
 from pyramid.decorator import reify
 from pluserable import const
 
+# TODO: How is a unique "column" enforced in ZODB?
+
 
 class Repository:
     """This repository is incomplete work. TODO: FINISH IT."""

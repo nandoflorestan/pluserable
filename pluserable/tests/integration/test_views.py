@@ -232,7 +232,7 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.org'
+            'email': 'carlsagan@nasa.gov'
         }, request_method='POST')
         request.user = Mock()
         view = RegisterView(request)
@@ -267,7 +267,7 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'science',
                 'password-confirm': 'science',
             },
-            'email': 'carlsagan@nasa.org'
+            'email': 'carlsagan@nasa.gov'
         }, request_method='POST')
 
         view = RegisterView(request)
@@ -290,7 +290,7 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.org'
+            'email': 'carlsagan@nasa.gov'
         }, request_method='POST')
 
         request.user = Mock()
@@ -320,7 +320,7 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.org'
+            'email': 'carlsagan@nasa.gov'
         }, request_method='POST')
         view = RegisterView(request)
 
@@ -457,7 +457,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.sas.flush()
 
         request = self.get_request(post={
-            'email': 'carlsagan1@nasa.org'
+            'email': 'carlsagan1@nasa.gov'
         }, request_method='POST')
 
         request.user = None
@@ -681,7 +681,7 @@ class TestProfileView(IntegrationTestBase):
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_request(post={
-            'email': 'new_email@nasa.org',
+            'email': 'new_email@nasa.gov',
         }, request_method='POST')
         request.user = user
         request.matchdict = Mock()
@@ -695,7 +695,7 @@ class TestProfileView(IntegrationTestBase):
         # Assertions
         the_user = request.replusitory.q_user_by_id(user.id)
         assert the_user is user
-        assert the_user.email == 'new_email@nasa.org'
+        assert the_user.email == 'new_email@nasa.gov'
         assert user.check_password('science')
 
     def test_profile_update_password(self):  # Happy
@@ -725,6 +725,6 @@ class TestProfileView(IntegrationTestBase):
 
         # Assertions
         assert user in request.replusitory.sas.dirty
-        assert user.email == 'carlsagan1@nasa.org'
+        assert user.email == 'carlsagan1@nasa.gov'
         assert user.check_password('new password')
         assert handle_profile_updated.called

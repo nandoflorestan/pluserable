@@ -20,3 +20,18 @@ class TestGroup(FastTestCase):
         group = Group(name='foo', description='bar')
         assert group.name == 'foo'
         assert group.description == 'bar'
+
+    def test_repr(self):
+        group = Group(name='foo', description='bar')
+        assert repr(group) == '<Group: foo>'
+
+
+class TestUser(FastTestCase):
+
+    def test_check_password_empty_password_returns_false(self):
+        user = self.create_users(count=1)
+        assert user.check_password(password='') is False
+
+    def test_repr(self):
+        user = self.create_users(count=1)
+        assert repr(user) == '<User: carlsagan1@nasa.gov>'

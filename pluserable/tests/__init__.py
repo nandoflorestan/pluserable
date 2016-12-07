@@ -17,7 +17,7 @@ class PluserableTestCase(TestCase):
         users = []
         for index in range(1, count + 1):
             user = User(username='sagan{}'.format(index),
-                        email='carlsagan{}@nasa.org'.format(index),
+                        email='carlsagan{}@nasa.gov'.format(index),
                         password='science')
             if activation:
                 user.activation = Activation()

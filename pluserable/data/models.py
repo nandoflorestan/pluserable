@@ -1,7 +1,5 @@
 """Base model classes for any backend (SQLAlchemy, ZODB etc.)."""
 
-# TODO: How is a unique "column" enforced in ZODB?
-
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 from bag.text.hash import random_hash
@@ -52,12 +50,12 @@ class UserBase:
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<{}: {}>'.format(type(self), self.email)
+        return '<{}: {}>'.format(self.__class__.__name__, self.email)
 
-    def gravatar_url(self, default='mm', size=80, cacheable=True):
+    def gravatar_url(self, default='mm', size=80, cacheable=True):  # no cover
         """Return a Gravatar image URL for this user."""
-        return gravatar_image(self.email, default=default, size=size,
-                              cacheable=cacheable)
+        return gravatar_image(  # pragma: no cover
+            self.email, default=default, size=size, cacheable=cacheable)
 
     @property
     def password(self):
@@ -74,8 +72,11 @@ class UserBase:
         return str(crypt.encode(password + self.salt))
 
     @classmethod
-    def generate_random_password(cls, chars=12):
-        """Generate random string of fixed length."""
+    def generate_random_password(cls, chars=12):  # pragma: no cover
+        """Generate random string of fixed length.
+
+        This method is not used in the pluserable system, but offered anyway.
+        """
         return random_hash(chars)
 
     def check_password(self, password):
@@ -100,4 +101,4 @@ class GroupBase:
     """Base class for a Group model."""
 
     def __repr__(self):
-        return '<{}: {}>'.format(type(self), self.name)
+        return '<{}: {}>'.format(self.__class__.__name__, self.name)
