@@ -31,6 +31,7 @@ logs
 .coverage
 .tox
 .cache/
+htmlcov/
 
 # Vim
 *.swp

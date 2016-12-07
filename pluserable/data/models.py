@@ -3,9 +3,9 @@
 # TODO: How is a unique "column" enforced in ZODB?
 
 from datetime import datetime, timedelta
-import hashlib
 from urllib.parse import urlencode
 from bag.text.hash import random_hash
+from bag.web import gravatar_image
 import cryptacular.bcrypt
 
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
@@ -56,11 +56,8 @@ class UserBase:
 
     def gravatar_url(self, default='mm', size=80, cacheable=True):
         """Return a Gravatar image URL for this user."""
-        base = "http://www.gravatar.com/avatar/" if cacheable else \
-            "https://secure.gravatar.com/avatar/"
-        return base + \
-            hashlib.md5(self.email.encode('utf8').lower()).hexdigest() + \
-            "?" + urlencode({'d': default, 's': str(size)})
+        return gravatar_image(self.email, default=default, size=size,
+                              cacheable=cacheable)
 
     @property
     def password(self):
