@@ -16,13 +16,13 @@ from pluserable.interfaces import IMundi
 from pluserable.strings import get_strings
 
 
-def instantiate_action(cls, request, payload: dict, agent=None):
+def instantiate_action(cls, request, payload: dict, user=None):
     """Convenience function to be used from pluserable views."""
     return cls(
         repo=request.replusitory,
         mundi=request.registry.getUtility(IMundi),
         registry=request.registry,
-        agent=agent or getattr(request, 'user', None),
+        user=user or getattr(request, 'user', None),
         payload=payload,
     )
 
@@ -53,7 +53,7 @@ class CheckCredentials(PluserableAction):
             'pluserable.require_activation', True)
 
     def q_user(self, handle):
-        """``handle`` can be a username or an email."""
+        """Fetch user. ``handle`` can be a username or an email."""
         if '@' in handle:
             return self.repo.q_user_by_email(handle)
         else:
@@ -62,10 +62,11 @@ class CheckCredentials(PluserableAction):
     def do(self):
         """Return user object if credentials are valid, else raise."""
         handle = self.payload['handle']
-        user = self.q_user(handle)
+        user = self.q_user(handle)  # IO
         return self._check_credentials(user, handle, self.payload['password'])
 
     def _check_credentials(self, user, handle, password):
+        """Pure method (no IO) that checks credentials against ``user``."""
         if not user or not user.check_password(password):
             raise AuthenticationFailure(
                 self._strings.wrong_email if '@' in handle

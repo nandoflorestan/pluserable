@@ -11,7 +11,7 @@ class TestCheckCredentials(FastTestCase):
     def _make_one(self, activation=False):
         user = self.create_users(count=1, activation=activation)
         action = CheckCredentials(  # Barely instantiate just to test a method
-            registry=self._make_registry(), repository=None, agent=user,
+            registry=self._make_registry(), repository=None, user=user,
             payload={}, mundi=None)
         action.mundi = FakeMundi()
         return user, action
