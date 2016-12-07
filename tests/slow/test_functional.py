@@ -1,7 +1,7 @@
 from mock import Mock, patch
 from pyramid import testing
 from pyramid.compat import PY3
-from pluserable.tests.slow import FunctionalTestBase
+from tests.slow import FunctionalTestBase
 
 
 class TestViews(FunctionalTestBase):

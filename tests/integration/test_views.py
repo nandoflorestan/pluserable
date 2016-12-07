@@ -12,7 +12,7 @@ from pluserable.interfaces import (
 from pluserable.strings import UIStringsBase
 from pluserable.views import (
     AuthView, ForgotPasswordView, ProfileView, RegisterView)
-from pluserable.tests.models import User
+from tests.models import User
 from . import IntegrationTestBase
 
 
@@ -650,7 +650,7 @@ class TestProfileView(IntegrationTestBase):
 
     def test_profile_update_profile_invalid(self):
         from pluserable.interfaces import IProfileSchema
-        from pluserable.tests.schemas import ProfileSchema
+        from tests.schemas import ProfileSchema
         self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
         self.config.add_route('index', '/')
 

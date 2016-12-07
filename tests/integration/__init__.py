@@ -8,7 +8,7 @@ from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable.data.repository import instantiate_repository
-from pluserable.tests import AppTestCase
+from tests import AppTestCase
 
 
 class IntegrationTestBase(AppTestCase):

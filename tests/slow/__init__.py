@@ -14,7 +14,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable.data.repository import instantiate_repository
-from pluserable.tests import AppTestCase
+from tests import AppTestCase
 
 
 class FunctionalTestBase(AppTestCase):

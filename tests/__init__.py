@@ -5,7 +5,7 @@ from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 from pluserable.web.pyramid import find_or_create_mundi
-from pluserable.tests.models import Activation, User
+from tests.models import Activation, User
 from pluserable.interfaces import IDBSession
 
 
@@ -64,7 +64,7 @@ class AppTestCase(PluserableTestCase):
         # Only run database setup on master (in case of xdist/multiproc mode)
         if not hasattr(config, 'slaveinput'):
             from sqlalchemy import engine_from_config
-            from pluserable.tests.models import Base
+            from tests.models import Base
 
             cls = AppTestCase  # set class variables on superclass
             cls.settings = cls._read_pyramid_settings()

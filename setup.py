@@ -76,5 +76,5 @@ setup(
     install_requires=requires,
     tests_require=requires + ['pytest', 'mock', 'webtest'],
     cmdclass={'test': PyTest},
-    test_suite='pluserable/tests',
+    test_suite='tests',
 )

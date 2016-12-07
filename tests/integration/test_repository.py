@@ -1,7 +1,7 @@
 """Tests for the SQLAlchemy repository."""
 
 from pluserable.data.repository import instantiate_repository
-from pluserable.tests.models import Activation, Group
+from tests.models import Activation, Group
 from . import IntegrationTestBase
 
 

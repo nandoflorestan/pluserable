@@ -1,7 +1,7 @@
 from mock import Mock, patch
 from pluserable import groupfinder
 from pluserable.web.pyramid import get_user
-from pluserable.tests.models import Group
+from tests.models import Group
 from . import IntegrationTestBase
 
 

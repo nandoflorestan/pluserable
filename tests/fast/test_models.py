@@ -1,7 +1,7 @@
 """Unit tests for pure methods of models."""
 
 from datetime import datetime
-from pluserable.tests.models import Activation, Group
+from tests.models import Activation, Group
 from . import FastTestCase
 
 
