@@ -1,6 +1,6 @@
 """Pluserable is a user registration and login library."""
 
-from mundi.core import Mundi
+from kerno.core import Kerno
 from pluserable import const
 from pluserable.interfaces import (
     ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
@@ -56,18 +56,18 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def initialize_mundi(config_path, mundi=None):
+def initialize_kerno(config_path, kerno=None):
     """Initialize the core system, below the web framework."""
-    mundi = mundi or Mundi.from_ini(config_path)
+    kerno = kerno or Kerno.from_ini(config_path)
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
-    mundi.set_default_utility(
+    kerno.set_default_utility(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
 
     # The UI text can be changed; by default we use UIStringsBase itself:
-    mundi.set_default_utility(const.STRING_CLASS,
+    kerno.set_default_utility(const.STRING_CLASS,
                               'pluserable.strings:UIStringsBase')
-    return mundi
+    return kerno
 
 
 def includeme(config):

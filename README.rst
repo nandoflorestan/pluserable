@@ -32,10 +32,10 @@ Minimal integration
   Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
 
-- In your Pyramid configuration file, create a section called "Mundi utilities"
+- In your Pyramid configuration file, create a section called "Kerno utilities"
   like this::
 
-    [Mundi utilities]
+    [Kerno utilities]
         # Let pluserable know which model classes to use:
         activation class = some.app.models:Activation
         group class = some.app.models:Group
@@ -207,7 +207,7 @@ This is where we store all the strings in *pluserable*.
 If you'd like to change one or two messages, simply create a subclass
 and configure it::
 
-    [Mundi utilities]
+    [Kerno utilities]
         # (...bla bla bla...)
 
         # Determining the UI strings is as easy as pointing to a class:

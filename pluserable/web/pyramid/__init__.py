@@ -2,10 +2,10 @@
 
 from bag.settings import SettingsReader
 from pyramid.security import unauthenticated_userid
-from pluserable import initialize_mundi, EmailStrategy, UsernameStrategy
+from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
-    IDBSession, IMundi, ILoginForm, ILoginSchema,
+    IDBSession, IKerno, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.data.repository import instantiate_repository
@@ -20,20 +20,20 @@ def get_user(request):
     return request.replusitory.q_user_by_id(userid)
 
 
-def find_or_create_mundi(registry):
-    """Try to find Mundi in the registry, then initialize it."""
-    mundi = registry.queryUtility(IMundi, default=None)
-    if mundi:
-        return mundi
+def find_or_create_kerno(registry):
+    """Try to find Kerno in the registry, then initialize it."""
+    kerno = registry.queryUtility(IKerno, default=None)
+    if kerno:
+        return kerno
 
-    # Mundi is not yet registered, so let's create it:
+    # Kerno is not yet registered, so let's create it:
     config_path = registry.settings.get('__file__')
     if not config_path:
         raise RuntimeError('pluserable needs a "__file__" setting containing '
                            'the path to the configuration file.')
-    mundi = initialize_mundi(config_path)
-    registry.registerUtility(mundi, IMundi)
-    return mundi
+    kerno = initialize_kerno(config_path)
+    registry.registerUtility(kerno, IKerno)
+    return kerno
 
 
 def includeme(config):
@@ -59,7 +59,7 @@ def includeme(config):
         default='pluserable.settings:get_default_pluserable_settings')
     settings['pluserable'] = configurator(config)
 
-    find_or_create_mundi(registry)
+    find_or_create_kerno(registry)
 
     # SubmitForm is the default for all our forms
     for form in (ILoginForm, IRegisterForm, IForgotPasswordForm,

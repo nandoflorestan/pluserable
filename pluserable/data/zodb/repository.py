@@ -13,24 +13,24 @@ class Repository:
     db = ZODB.DB(None)  # Create an in-memory database, just testing for now
     # TODO: Replace all SQLAlchemy stuff ("self.sas")
 
-    def __init__(self, mundi, session_factory):
+    def __init__(self, kerno, session_factory):
         """Constructor."""
-        self.mundi = mundi
+        self.kerno = kerno
         self.con = self.db.open()
         if 'users' not in self.root:
             self.root['users'] = []  # TODO: Use the persistent collections
 
     @reify
     def User(self):
-        return self.mundi.get_utility(const.USER_CLASS)
+        return self.kerno.get_utility(const.USER_CLASS)
 
     @reify
     def Activation(self):
-        return self.mundi.get_utility(const.ACTIVATION_CLASS)
+        return self.kerno.get_utility(const.ACTIVATION_CLASS)
 
     @reify
     def Group(self):
-        return self.mundi.get_utility(const.GROUP_CLASS)
+        return self.kerno.get_utility(const.GROUP_CLASS)
 
     @reify
     def root(self):

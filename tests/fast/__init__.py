@@ -9,7 +9,7 @@ from pluserable.strings import UIStringsBase
 from .. import PluserableTestCase
 
 
-class FakeMundi:
+class FakeKerno:
     """Mock object for tests."""
 
     def get_utility(self, name):

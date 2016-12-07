@@ -2,7 +2,7 @@
 
 from pluserable.actions import CheckCredentials
 from pluserable.exceptions import AuthenticationFailure
-from . import FakeMundi, FastTestCase
+from . import FakeKerno, FastTestCase
 
 
 class TestCheckCredentials(FastTestCase):
@@ -12,8 +12,8 @@ class TestCheckCredentials(FastTestCase):
         user = self.create_users(count=1, activation=activation)
         action = CheckCredentials(  # Barely instantiate just to test a method
             registry=self._make_registry(), repository=None, user=user,
-            payload={}, mundi=None)
-        action.mundi = FakeMundi()
+            payload={}, kerno=None)
+        action.kerno = FakeKerno()
         return user, action
 
     def test_with_bad_password_raises(self):

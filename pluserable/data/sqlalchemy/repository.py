@@ -1,6 +1,6 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
-from mundi.repository.sqlalchemy import BaseSQLAlchemyRepository
+from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
 from pyramid.decorator import reify
 from sqlalchemy import func
 from pluserable import const
@@ -14,15 +14,15 @@ class Repository(BaseSQLAlchemyRepository):
 
     @reify
     def User(self):
-        return self.mundi.get_utility(const.USER_CLASS)
+        return self.kerno.get_utility(const.USER_CLASS)
 
     @reify
     def Activation(self):
-        return self.mundi.get_utility(const.ACTIVATION_CLASS)
+        return self.kerno.get_utility(const.ACTIVATION_CLASS)
 
     @reify
     def Group(self):
-        return self.mundi.get_utility(const.GROUP_CLASS)
+        return self.kerno.get_utility(const.GROUP_CLASS)
 
     def q_user_by_activation(self, activation):
         """Return the Activation with ``activation``, or None."""

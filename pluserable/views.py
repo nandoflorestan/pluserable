@@ -14,7 +14,7 @@ from pluserable.actions import (
     instantiate_action, ActivateUser, CheckCredentials)
 from pluserable import const
 from pluserable.interfaces import (
-    IMundi, ILoginForm, ILoginSchema,
+    IKerno, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.events import (
@@ -70,14 +70,14 @@ def authenticated(request, userid):
     )
 
 
-def get_mundi(registry):
-    """Return the Mundi instance for this application."""
-    return registry.getUtility(IMundi)
+def get_kerno(registry):
+    """Return the Kerno instance for this application."""
+    return registry.getUtility(IKerno)
 
 
 def create_activation(request, user):  # TODO Move to action
-    mundi = get_mundi(request.registry)
-    Activation = mundi.get_utility(const.ACTIVATION_CLASS)
+    kerno = get_kerno(request.registry)
+    Activation = kerno.get_utility(const.ACTIVATION_CLASS)
     activation = Activation()
 
     repo = request.replusitory
@@ -87,7 +87,7 @@ def create_activation(request, user):  # TODO Move to action
 
     link = request.route_url('activate', user_id=user.id,
                              code=user.activation.code)
-    strings = get_strings(mundi)
+    strings = get_strings(kerno)
     message = Message(
         subject=strings.activation_email_subject,
         recipients=[user.email],
@@ -132,9 +132,9 @@ class BaseView(object):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.mundi = get_mundi(request.registry)
-        self.Activation = self.mundi.get_utility(const.ACTIVATION_CLASS)
-        self.User = self.mundi.get_utility(const.USER_CLASS)
+        self.kerno = get_kerno(request.registry)
+        self.Activation = self.kerno.get_utility(const.ACTIVATION_CLASS)
+        self.User = self.kerno.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
 
 
@@ -157,7 +157,7 @@ class AuthView(BaseView):
             request,
             'pluserable.logout_redirect'
         )
-        self.form = form(self.schema, buttons=(get_strings(self.mundi).login_button,))
+        self.form = form(self.schema, buttons=(get_strings(self.kerno).login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
         try:
@@ -220,7 +220,7 @@ class AuthView(BaseView):
         ...to the view defined in the ``pluserable.logout_redirect`` setting,
         which defaults to a view named 'index'.
         """
-        msg = get_strings(self.mundi).logout_done
+        msg = get_strings(self.kerno).logout_done
         if msg:
             add_flash(
                 self.request, plain=msg, kind='success')
@@ -270,7 +270,7 @@ class ForgotPasswordView(BaseView):
         user.activation = activation
         repo.flush()  # initialize activation.code
 
-        Str = get_strings(self.mundi)
+        Str = get_strings(self.kerno)
 
         # TODO: Generate msg in a separate method so subclasses can override
         mailer = get_mailer(request)
@@ -321,7 +321,7 @@ class ForgotPasswordView(BaseView):
             request.replusitory.delete_activation(user, activation)
 
             add_flash(request,
-                      plain=get_strings(self.mundi).reset_password_done,
+                      plain=get_strings(self.kerno).reset_password_done,
                       kind='success')
             request.registry.notify(PasswordResetEvent(
                 request, user, password))
@@ -379,11 +379,11 @@ class RegisterView(BaseView):
             # SEND EMAIL ACTIVATION
             create_activation(self.request, user)
             add_flash(self.request,
-                      plain=get_strings(self.mundi).activation_check_email,
+                      plain=get_strings(self.kerno).activation_check_email,
                       kind='success')
         elif not autologin:
             add_flash(self.request,
-                      plain=get_strings(self.mundi).registration_done,
+                      plain=get_strings(self.kerno).registration_done,
                       kind='success')
 
         self.request.registry.notify(NewRegistrationEvent(
@@ -411,7 +411,7 @@ class RegisterView(BaseView):
         user, activation = activate_user()
 
         add_flash(self.request,
-                  plain=get_strings(self.mundi).activation_email_verified,
+                  plain=get_strings(self.kerno).activation_email_verified,
                   kind='success')
         self.request.registry.notify(
             RegistrationActivatedEvent(self.request, user, activation))
@@ -472,7 +472,7 @@ class ProfileView(BaseView):
                     add_flash(
                         request,
                         plain=get_strings(
-                            self.mundi).edit_profile_email_present.format(
+                            self.kerno).edit_profile_email_present.format(
                             email=email),
                         kind='error')
                     return HTTPFound(location=request.url)
@@ -487,7 +487,7 @@ class ProfileView(BaseView):
 
             if changed:
                 add_flash(request,
-                          plain=get_strings(self.mundi).edit_profile_done,
+                          plain=get_strings(self.kerno).edit_profile_done,
                           kind='success')
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)

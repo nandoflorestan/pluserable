@@ -19,6 +19,7 @@ def content_of(*files, encoding='utf-8'):
 
 
 class PyTest(TestCommand):
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
         # self.test_args = []
@@ -33,7 +34,7 @@ class PyTest(TestCommand):
 
 requires = [
     'bag > 0.8.0',
-    'mundi',
+    'kerno',
     'sqlalchemy',       # TODO REMOVE when agnostic
     'zope.sqlalchemy',  # TODO REMOVE when agnostic
     'transaction',

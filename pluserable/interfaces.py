@@ -7,8 +7,8 @@ class IDBSession(Interface):
     """Marker interface for registering a SQLAlchemy session."""
 
 
-class IMundi(Interface):
-    """Marker interface for registering our Mundi instance."""
+class IKerno(Interface):
+    """Marker interface for registering our Kerno instance."""
 
 
 class ILoginSchema(Interface):

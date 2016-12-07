@@ -7,7 +7,6 @@ pluserable roadmap
 - Extract actions from views
 - Move views into web/pyramid/. What about events and exceptions?
 - Evaluate our test coverage.
-- Does Mundi need a request concept?
 - Remove FormValidationFailure exception
 - Add civilized way of selecting which routes/views I want for my project
 - Refactor sending emails with the strategy pattern

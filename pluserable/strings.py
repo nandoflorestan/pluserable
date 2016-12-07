@@ -2,7 +2,7 @@
 
 from pyramid.i18n import TranslationStringFactory
 from pluserable import const
-from pluserable.interfaces import IMundi
+from pluserable.interfaces import IKerno
 
 _ = TranslationStringFactory('pluserable')
 
@@ -10,7 +10,7 @@ _ = TranslationStringFactory('pluserable')
 def get_strings(reg):
     """Return the configured Strings class."""
     if hasattr(reg, 'getUtility'):  # reg must be a Zope/Pyramid registry
-        reg = reg.getUtility(IMundi)  # otherwise reg gotta be the Mundi:
+        reg = reg.getUtility(IKerno)  # otherwise reg gotta be the Kerno:
     return reg.get_utility(const.STRING_CLASS)
 
 

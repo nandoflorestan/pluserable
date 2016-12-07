@@ -10,9 +10,9 @@ be thin.  Business rules must be decoupled from the web framework.
 from bag.settings import SettingsReader
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
-from mundi.action import Action
+from kerno.action import Action
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.interfaces import IMundi
+from pluserable.interfaces import IKerno
 from pluserable.strings import get_strings
 
 
@@ -20,7 +20,7 @@ def instantiate_action(cls, request, payload: dict, user=None):
     """Convenience function to be used from pluserable views."""
     return cls(
         repo=request.replusitory,
-        mundi=request.registry.getUtility(IMundi),
+        kerno=request.registry.getUtility(IKerno),
         registry=request.registry,
         user=user or getattr(request, 'user', None),
         payload=payload,
@@ -32,7 +32,7 @@ class PluserableAction(Action):
 
     @reify
     def _strings(self):
-        return get_strings(self.mundi)
+        return get_strings(self.kerno)
 
     @reify
     def _settings_reader(self):
