@@ -1,30 +1,20 @@
-from pyramid import testing
-from mock import Mock
-from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
+from mock import Mock, patch
 from pluserable import groupfinder
-from pluserable.tests.models import User, Group
+from pluserable.web.pyramid import get_user
+from pluserable.tests.models import Group
 from . import IntegrationTestBase
 
 
 class TestInitCase(IntegrationTestBase):
 
-    '''def test_request_factory(self):  # TODO Why is this commented out?
-       from pluserable import SignUpRequestFactory
-       from pluserable.tests.models import User
-
-       user1 = self.create_user(count=1)
-       self.sas.flush()
-
-       with patch('pluserable.unauthenticated_userid') as unauth:
-           unauth.return_value = 1
-           request = SignUpRequestFactory({})
-           request.registry = Mock()
-           getUtility = Mock()
-           getUtility.return_value = self.sas
-           request.registry.getUtility = getUtility
-
-           user = request.user
-           assert user == user1'''
+    def test_get_user_fetches_existing_user(self):
+        """Fake an authenticated user and see if it appears as request.user."""
+        the_user = self.create_users(count=1)
+        self.repo.flush()
+        with patch('pluserable.web.pyramid.unauthenticated_userid') as unauth:
+            unauth.return_value = 1
+            request = self.get_request()
+            assert get_user(request) is the_user
 
     def test_groupfinder(self):
         user1 = self.create_users(count=1)
