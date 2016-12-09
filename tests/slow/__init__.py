@@ -40,7 +40,7 @@ class FunctionalTestBase(AppTestCase):
         config.set_session_factory(session_factory)
 
         if settings.get('su.require_activation', True):
-            config.include('pyramid_mailer')
+            config.include('pyramid_mailer')  # TODO Avoid test emails
 
         config.include('pyramid_mako')
         config.include('pluserable')

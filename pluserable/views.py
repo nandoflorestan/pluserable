@@ -11,7 +11,8 @@ from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
 from pluserable.actions import (
-    instantiate_action, ActivateUser, CheckCredentials)
+    instantiate_action, ActivateUser, CheckCredentials,
+    require_activation_setting_value)
 from pluserable import const
 from pluserable.interfaces import (
     IKerno, ILoginForm, ILoginSchema,
@@ -187,32 +188,33 @@ class AuthView(BaseView):
 
     def login(self):
         """Present the login form, or validate data and authenticate user."""
-        if self.request.method == 'GET':
-            if self.request.user:
+        request = self.request
+        if request.method == 'GET':
+            if request.user:
                 return HTTPFound(location=self.login_redirect_view)
-            return render_form(self.request, self.form)
+            return render_form(request, self.form)
 
-        elif self.request.method == 'POST':
-            controls = self.request.POST.items()
-            try:
+        elif request.method == 'POST':
+            controls = request.POST.items()
+            try:  # TODO Move form validation to another action in this op
                 captured = validate_form(controls, self.form)
             except FormValidationFailure as e:
-                return e.result(self.request)
+                return e.result(request)
 
             try:
-                check_credentials = instantiate_action(
-                    CheckCredentials, self.request, payload={
+                kerno = request.registry.queryUtility(IKerno)
+                peto = kerno.run_operation(
+                    'Log in', user=None, repo=request.replusitory, payload={
                         'handle': captured['handle'],
                         'password': captured['password'],
                     })
-                user = check_credentials()
-            except AuthenticationFailure as e:
-                add_flash(self.request, plain=str(e), kind='error')
-                return render_form(self.request, self.form, captured,
+            except AuthenticationFailure as e:  # TODO View for this exception
+                add_flash(request, plain=str(e), kind='error')
+                return render_form(request, self.form, captured,
                                    errors=[e])
 
-            self.request.user = user
-            return authenticated(self.request, user.id)
+            request.user = peto.user
+            return authenticated(request, peto.user.id)
 
     def logout(self):
         """Remove the auth cookies and redirect...
@@ -346,11 +348,12 @@ class RegisterView(BaseView):
             self.settings.get('pluserable.activate_redirect', 'index'),
             request)
 
-        self.require_activation = asbool(
-            self.settings.get('pluserable.require_activation', True))
+        # TODO reify:
+        kerno = self.request.registry.queryUtility(IKerno)
+        self.require_activation = require_activation_setting_value(kerno)
 
-        if self.require_activation:
-            self.mailer = get_mailer(request)
+        # if self.require_activation:  # TODO REMOVE
+        #     self.mailer = get_mailer(request)
 
     def register(self):
         if self.request.method == 'GET':
@@ -403,18 +406,19 @@ class RegisterView(BaseView):
         return user
 
     def activate(self):
-        activate_user = instantiate_action(
-            ActivateUser, self.request, payload={
-                'code':    self.request.matchdict.get('code', None),
-                'user_id': self.request.matchdict.get('user_id', None),
+        request = self.request
+        kerno = request.registry.queryUtility(IKerno)
+        peto = kerno.run_operation(
+            'Activate user', user=None, repo=request.replusitory, payload={
+                'code':    request.matchdict.get('code', None),
+                'user_id': request.matchdict.get('user_id', None),
             })
-        user, activation = activate_user()
 
-        add_flash(self.request,
+        add_flash(request,  # TODO Move into action
                   plain=get_strings(self.kerno).activation_email_verified,
                   kind='success')
-        self.request.registry.notify(
-            RegistrationActivatedEvent(self.request, user, activation))
+        request.registry.notify(  # TODO Move into action
+            RegistrationActivatedEvent(request, peto.user, peto.activation))
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self.after_activate_url)
 

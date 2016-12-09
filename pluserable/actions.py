@@ -16,7 +16,13 @@ from pluserable.interfaces import IKerno
 from pluserable.strings import get_strings
 
 
-def instantiate_action(cls, request, payload: dict, user=None):
+def register_operations(kerno):
+    """At startup register our operations (made of actions) with kerno."""
+    kerno.register_operation(name='Log in', actions=[CheckCredentials])
+    kerno.register_operation(name='Activate user', actions=[ActivateUser])
+
+
+def instantiate_action(cls, request, payload: dict, user=None):  # TODO REMOVE
     """Convenience function to be used from pluserable views."""
     return cls(
         repo=request.replusitory,
@@ -32,38 +38,34 @@ class PluserableAction(Action):
 
     @reify
     def _strings(self):
-        return get_strings(self.kerno)
+        return get_strings(self.peto.kerno)
 
-    @reify
-    def _settings_reader(self):
-        return SettingsReader(self.registry.settings)  # TODO NOT REGISTRY
+
+def require_activation_setting_value(kerno):
+    """Return the value of a certain setting."""
+    return kerno.pluserable_settings.bool('require_activation', default=True)
 
 
 class CheckCredentials(PluserableAction):
     """Business rules decoupled from the web framework and from persistence."""
 
     @reify
-    def _allow_inactive_login(self):
-        return self._settings_reader.bool(
-            'pluserable.allow_inactive_login', False)
-
-    @reify
     def _require_activation(self):
-        return self._settings_reader.bool(
-            'pluserable.require_activation', True)
+        return require_activation_setting_value(self.peto.kerno)
 
     def q_user(self, handle):
         """Fetch user. ``handle`` can be a username or an email."""
         if '@' in handle:
-            return self.repo.q_user_by_email(handle)
+            return self.peto.repo.q_user_by_email(handle)
         else:
-            return self.repo.q_user_by_username(handle)
+            return self.peto.repo.q_user_by_username(handle)
 
-    def do(self):
-        """Return user object if credentials are valid, else raise."""
-        handle = self.payload['handle']
+    def __call__(self):
+        """Get user object if credentials are valid, else raise."""
+        handle = self.peto.dirty['handle']
         user = self.q_user(handle)  # IO
-        return self._check_credentials(user, handle, self.payload['password'])
+        self.peto.user = self._check_credentials(
+            user, handle, self.peto.dirty['password'])
 
     def _check_credentials(self, user, handle, password):
         """Pure method (no IO) that checks credentials against ``user``."""
@@ -72,25 +74,26 @@ class CheckCredentials(PluserableAction):
                 self._strings.wrong_email if '@' in handle
                 else self._strings.wrong_username)
 
-        if not self._allow_inactive_login and self._require_activation \
-                and not user.is_activated:
+        if self._require_activation and not user.is_activated:
             raise AuthenticationFailure(self._strings.inactive_account)
         return user
 
 
 class ActivateUser(PluserableAction):
 
-    def do(self):
-        activation = self.repo.q_activation_by_code(self.payload['code'])
+    def __call__(self):
+        peto = self.peto
+        activation = peto.repo.q_activation_by_code(peto.dirty['code'])
         if not activation:
-            raise HTTPNotFound()
+            raise HTTPNotFound()  # TODO Don't import pyramid in actions
 
-        user = self.repo.q_user_by_id(self.payload['user_id'])
+        user = peto.repo.q_user_by_id(peto.dirty['user_id'])
         if not user:
             raise HTTPNotFound()
 
         if user.activation is not activation:
             raise HTTPNotFound()
 
-        self.repo.delete_activation(user, activation)
-        return user, activation
+        peto.repo.delete_activation(user, activation)
+        peto.user = user
+        peto.activation = activation

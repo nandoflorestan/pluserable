@@ -183,6 +183,7 @@ class TestRegisterView(IntegrationTestBase):
         assert form.called
 
     def test_register_view_extensions_without_mail(self):
+        raise RuntimeError('setting has moved')
         self.config.registry.settings['pluserable.require_activation'] = False
         self.config.add_route('index', '/')
 
@@ -277,6 +278,7 @@ class TestRegisterView(IntegrationTestBase):
 
     def test_register_no_activation_suceeds(self):
         """Test register() with setting to not require activation."""
+        raise RuntimeError('setting has moved')
         self.config.registry.settings['pluserable.require_activation'] = False
         self.config.add_route('index', '/')
 

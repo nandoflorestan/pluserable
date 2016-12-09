@@ -1,7 +1,9 @@
 """Pluserable is a user registration and login library."""
 
+from bag.settings import SettingsReader
 from kerno.core import Kerno
 from pluserable import const
+from pluserable.actions import register_operations
 from pluserable.interfaces import (
     ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
     IResetPasswordSchema, IProfileSchema)
@@ -67,6 +69,16 @@ def initialize_kerno(config_path, kerno=None):
     # The UI text can be changed; by default we use UIStringsBase itself:
     kerno.set_default_utility(const.STRING_CLASS,
                               'pluserable.strings:UIStringsBase')
+
+    # Other settings are read from the [pluserable] section of the ini file:
+    try:
+        section = kerno.settings['pluserable']
+    except:
+        section = {}
+    kerno.pluserable_settings = SettingsReader(section)
+
+    # Register our operations (made of actions) with kerno.
+    register_operations(kerno)
     return kerno
 
 

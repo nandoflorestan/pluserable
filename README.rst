@@ -48,7 +48,8 @@ Minimal integration
     from pluserable.interfaces import IDBSession
     config.registry.registerUtility(session_factory, IDBSession)
 
-- You may write a function that returns a pluserable configuration,
+- You may write a function that returns a configuration for Pyramid routes and
+  views (which is something you probably want to manipulate in code anyway),
   and then inform pluserable about it like this::
 
     registry.settings['pluserable_configurator'] = 'my.package:some_function'
@@ -96,7 +97,9 @@ in the ``request.replusitory`` variable.
 
   - You may just disable it by setting, in your .ini file::
 
-        pluserable.require_activation = False
+      [pluserable]
+          # (other settings, then...)
+          require_activation = False
 
   - Otherwise, configure pyramid_mailer `according to its documentation
     <http://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/>`_

@@ -1,32 +1,30 @@
 """Unit tests for pure methods of actions (pure business rules)."""
 
+from mock import Mock
 from pluserable.actions import CheckCredentials
 from pluserable.exceptions import AuthenticationFailure
-from . import FakeKerno, FastTestCase
+from . import FastTestCase
 
 
 class TestCheckCredentials(FastTestCase):
-    """Unit tests for _check_credentials()."""
+    """Unit tests for the _check_credentials() method."""
 
-    def _make_one(self, activation=False):
+    def _test(self, password=None, activation=False):
         user = self.create_users(count=1, activation=activation)
-        action = CheckCredentials(  # Barely instantiate just to test a method
-            registry=self._make_registry(), repository=None, user=user,
-            payload={}, kerno=None)
-        action.kerno = FakeKerno()
-        return user, action
+        action = Mock()
+        action._require_activation = True
+        return user, CheckCredentials._check_credentials(
+            self=action, user=user, handle=user.username,
+            password=password or 'science')
 
     def test_with_bad_password_raises(self):
-        user, action = self._make_one()
         with self.assertRaises(AuthenticationFailure):
-            action._check_credentials(user, user.email, password='wrong')
+            self._test(password='wrong')
 
     def test_with_ok_password_returns_user(self):
-        user, action = self._make_one()
-        ret = action._check_credentials(user, user.email, password='science')
+        user, ret = self._test()
         assert ret is user
 
     def test_with_pending_activation_raises(self):
-        user, action = self._make_one(activation=True)
         with self.assertRaises(AuthenticationFailure):
-            action._check_credentials(user, user.email, password='science')
+            self._test(activation=True)
