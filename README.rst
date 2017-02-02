@@ -95,7 +95,7 @@ in the ``request.replusitory`` variable.
 - The /register form should appear, though ugly. Now you have a choice
   regarding user activation by email:
 
-  - You may just disable it by setting, in your .ini file::
+  - You may just disable user activation by setting, in your .ini file::
 
       [pluserable]
           # (other settings, then...)

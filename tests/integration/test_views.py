@@ -166,39 +166,6 @@ class TestAuthView(IntegrationTestBase):
 
 class TestRegisterView(IntegrationTestBase):
 
-    def test_register_view_extensions_with_mail(self):
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-        self.config.add_route('index', '/')
-
-        request = self.get_request()
-        schema = Mock()
-        form = Mock()
-        self.config.registry.registerUtility(schema, IRegisterSchema)
-        self.config.registry.registerUtility(form, IRegisterForm)
-
-        with patch('pluserable.views.get_mailer') as get_mailer:
-            RegisterView(request)
-            assert get_mailer.called
-        assert schema.called
-        assert form.called
-
-    def test_register_view_extensions_without_mail(self):
-        raise RuntimeError('setting has moved')
-        self.config.registry.settings['pluserable.require_activation'] = False
-        self.config.add_route('index', '/')
-
-        request = self.get_request()
-        schema = Mock()
-        form = Mock()
-        self.config.registry.registerUtility(schema, IRegisterSchema)
-        self.config.registry.registerUtility(form, IRegisterForm)
-
-        with patch('pluserable.views.get_mailer') as get_mailer:
-            RegisterView(request)
-            assert not get_mailer.called
-        schema.assert_called_once_with()
-        assert form.called
-
     def test_register_loads_not_logged_in(self):
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
@@ -276,10 +243,10 @@ class TestRegisterView(IntegrationTestBase):
         assert isinstance(adict, dict)
         assert adict['errors']
 
-    def test_register_no_activation_suceeds(self):
+    @patch('pluserable.views.require_activation_setting_value')
+    def test_register_no_activation_suceeds(self, get_setting_mock):
         """Test register() with setting to not require activation."""
-        raise RuntimeError('setting has moved')
-        self.config.registry.settings['pluserable.require_activation'] = False
+        get_setting_mock.return_value = False
         self.config.add_route('index', '/')
 
         def handle_registration(event):

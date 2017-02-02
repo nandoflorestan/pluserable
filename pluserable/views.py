@@ -349,11 +349,8 @@ class RegisterView(BaseView):
             request)
 
         # TODO reify:
-        kerno = self.request.registry.queryUtility(IKerno)
+        kerno = get_kerno(self.request.registry)
         self.require_activation = require_activation_setting_value(kerno)
-
-        # if self.require_activation:  # TODO REMOVE
-        #     self.mailer = get_mailer(request)
 
     def register(self):
         if self.request.method == 'GET':
@@ -379,8 +376,7 @@ class RegisterView(BaseView):
         autologin = asbool(self.settings.get('pluserable.autologin', False))
 
         if self.require_activation:
-            # SEND EMAIL ACTIVATION
-            create_activation(self.request, user)
+            create_activation(self.request, user)  # send activation email
             add_flash(self.request,
                       plain=get_strings(self.kerno).activation_check_email,
                       kind='success')
