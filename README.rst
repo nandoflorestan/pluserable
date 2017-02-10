@@ -12,6 +12,8 @@ minimal interference, so your app can mostly keep its existing models.
 *pluserable* now requires Python >= 3.4.
 The last version of *pluserable* that supported Python 2 was 0.2.0.
 
+The documentation is at http://docs.nando.audio/pluserable/latest/
+
 
 Minimal integration
 ===================

@@ -21,6 +21,8 @@ bin
 develop-eggs
 .installed.cfg
 
+docs/source/
+
 # Installer logs
 pip-log.txt
 logs
