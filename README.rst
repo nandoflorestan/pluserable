@@ -298,5 +298,5 @@ The differences are:
   edit her OWN email and password, we have a simpler URL: "/edit_profile".
 - *pluserable* does not include an outdated version of *bootstrap*.
 - *pluserable* does not have a scaffolding script.
-- *pluserable* uses pyramid.compat rather than the *six* library.
+- *pluserable* no longer supports Python 2.
 - *pluserable* uses the bag library for a maintained version of FlashMessage.
