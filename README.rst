@@ -51,7 +51,8 @@ Minimal integration
     config.registry.registerUtility(session_factory, IDBSession)
 
 - You may write a function that returns a configuration for Pyramid routes and
-  views (which is something you probably want to manipulate in code anyway),
+  views (which is something you probably want to manipulate in code
+  because it won't change between dev, staging and production environments),
   and then inform pluserable about it like this::
 
     registry.settings['pluserable_configurator'] = 'my.package:some_function'
