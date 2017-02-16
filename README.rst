@@ -67,9 +67,20 @@ Minimal integration
         # Manipulate adict to customize pluserable for your application, then
         return adict
 
-- Include pluserable in your Pyramid app::
+- Include **pluserable** into your Pyramid application,
+  just after Pyramid's Configurator is instantiated::
 
     config.include('pluserable')
+
+This does almost nothing: it only makes a new config method available.
+You have to use it next::
+
+    config.setup_pluserable(  # Directive that starts pluserable up
+        global_settings['__file__'],  # Path to your INI configuration file
+    )
+
+The above causes **pluserable** to read certain sections of your INI file --
+especially the ``[Kerno utilities]`` section.
 
 The backend for database access is in a separate class, this way you can
 substitute the implementation. This is called the "repository" pattern.

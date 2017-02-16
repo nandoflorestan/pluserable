@@ -20,24 +20,20 @@ def get_user(request):
     return request.replusitory.q_user_by_id(userid)
 
 
-def find_or_create_kerno(registry):
-    """Try to find Kerno in the registry, then initialize it."""
+def find_or_create_kerno(registry, ini_path):
+    """Return kerno -- either found in the registry, or initialized here."""
     kerno = registry.queryUtility(IKerno, default=None)
-    if kerno:
-        return kerno
-
-    # Kerno is not yet registered, so let's create it:
-    config_path = registry.settings.get('__file__')
-    if not config_path:
-        raise RuntimeError('pluserable needs a "__file__" setting containing '
-                           'the path to the configuration file.')
-    kerno = initialize_kerno(config_path)
-    registry.registerUtility(kerno, IKerno)
+    if not kerno:  # Kerno is not yet registered, so let's create it:
+        kerno = initialize_kerno(ini_path)
+        registry.registerUtility(kerno, IKerno)
     return kerno
 
 
-def includeme(config):
-    """Integrate pluserable into a Pyramid web app."""
+def setup_pluserable(config, ini_path):
+    """Integrate pluserable into a Pyramid web app.
+
+    ``ini_path`` must be the path to an INI file.
+    """
     registry = config.registry
     # Ensure, at startup, that a SQLAlchemy session factory was configured:
     assert registry.queryUtility(IDBSession), 'No SQLAlchemy session ' \
@@ -59,7 +55,7 @@ def includeme(config):
         default='pluserable.settings:get_default_pluserable_settings')
     settings['pluserable'] = configurator(config)
 
-    find_or_create_kerno(registry)
+    find_or_create_kerno(registry, ini_path)
 
     # SubmitForm is the default for all our forms
     for form in (ILoginForm, IRegisterForm, IForgotPasswordForm,
@@ -80,3 +76,8 @@ def includeme(config):
 
     config.include('bag.web.pyramid.flash_msg')
     config.include('pluserable.views')
+
+
+def includeme(config):
+    """Pyramid integration. Add a configurator directive to be used next."""
+    config.add_directive('setup_pluserable', setup_pluserable)
