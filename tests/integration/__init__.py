@@ -8,7 +8,7 @@ from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable.data.repository import instantiate_repository
-from tests import AppTestCase
+from tests import AppTestCase, _get_ini_path
 
 
 class IntegrationTestBase(AppTestCase):
@@ -25,6 +25,8 @@ class IntegrationTestBase(AppTestCase):
 
         self.config = self._initialize_config(self.settings, sas_factory)
         self.config.include('pluserable')
+        self.config.setup_pluserable(_get_ini_path())
+
         self.repo = instantiate_repository(self.config.registry)
 
     def tearDown(self):

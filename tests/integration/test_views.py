@@ -117,10 +117,11 @@ class TestAuthView(IntegrationTestBase):
         assert response.status_int == 302
 
     def test_inactive_login_fails(self):
-        """Make sure we can't log in with an inactive user."""
+        """Ensure we can't log in with an inactive user."""
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.add_route('index', '/')
+
         user = self.create_users(count=1, activation=True)
         self.sas.flush()
 

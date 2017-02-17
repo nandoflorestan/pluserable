@@ -30,6 +30,13 @@ class PluserableTestCase(TestCase):
             return users
 
 
+def _get_ini_path(kind=''):
+    if kind:
+        kind = kind + '/'
+    path = resource_filename(__name__, kind + 'test.ini')
+    return path
+
+
 class AppTestCase(PluserableTestCase):
     """Base class providing a configured Pyramid app.
 
@@ -38,15 +45,12 @@ class AppTestCase(PluserableTestCase):
 
     @classmethod
     def _read_pyramid_settings(cls, kind=''):
-        if kind:
-            kind = kind + '/'
-        return appconfig(
-            'config:' + resource_filename(__name__, kind + 'test.ini'))
+        return appconfig('config:' + _get_ini_path(kind=kind))
 
     def _initialize_config(self, settings, session_factory):
         config = testing.setUp(settings=settings)
         registry = config.registry
-        find_or_create_kerno(registry)
+        find_or_create_kerno(registry, _get_ini_path())
         registry.registerUtility(session_factory, IDBSession)
         return config
 

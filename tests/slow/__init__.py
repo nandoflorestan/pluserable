@@ -14,7 +14,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable.data.repository import instantiate_repository
-from tests import AppTestCase
+from tests import AppTestCase, _get_ini_path
 
 
 class FunctionalTestBase(AppTestCase):
@@ -44,6 +44,7 @@ class FunctionalTestBase(AppTestCase):
 
         config.include('pyramid_mako')
         config.include('pluserable')
+        config.setup_pluserable(_get_ini_path())
 
         app = config.make_wsgi_app()
         return app

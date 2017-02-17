@@ -1,7 +1,10 @@
+"""This module contains views for Pyramid applications."""
+
 import logging
 import colander
 import deform
 from bag.web.pyramid.flash_msg import add_flash
+from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -140,25 +143,23 @@ class BaseView(object):
 
 
 class AuthView(BaseView):
+    """View that does login and logout."""
 
     def __init__(self, request):
         super(AuthView, self).__init__(request)
 
+        # TODO These shouldn't be computed every time... But run tests
+        self.login_redirect_view = get_config_route(
+            request, 'pluserable.login_redirect')
+        self.logout_redirect_view = get_config_route(
+            request, 'pluserable.logout_redirect')
+
         schema = request.registry.getUtility(ILoginSchema)
-        self.schema = schema().bind(request=self.request)
+        self.schema = schema().bind(request=request)
 
         form = request.registry.getUtility(ILoginForm)
-
-        self.login_redirect_view = get_config_route(
-            request,
-            'pluserable.login_redirect'
-        )
-
-        self.logout_redirect_view = get_config_route(
-            request,
-            'pluserable.logout_redirect'
-        )
-        self.form = form(self.schema, buttons=(get_strings(self.kerno).login_button,))
+        self.form = form(
+            self.schema, buttons=(get_strings(self.kerno).login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
         try:
