@@ -50,7 +50,6 @@ class AppTestCase(PluserableTestCase):
     def _initialize_config(self, settings, session_factory):
         config = testing.setUp(settings=settings)
         registry = config.registry
-        find_or_create_kerno(registry, _get_ini_path())
         registry.registerUtility(session_factory, IDBSession)
         return config
 

@@ -23,7 +23,9 @@ def get_user(request):
 def find_or_create_kerno(registry, ini_path):
     """Return kerno -- either found in the registry, or initialized here."""
     kerno = registry.queryUtility(IKerno, default=None)
-    if not kerno:  # Kerno is not yet registered, so let's create it:
+    if kerno:
+        initialize_kerno(ini_path, kerno)
+    else:  # Kerno is not yet registered, so let's create and register it:
         kerno = initialize_kerno(ini_path)
         registry.registerUtility(kerno, IKerno)
     return kerno
