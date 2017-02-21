@@ -41,5 +41,5 @@ class IntegrationTestBase(AppTestCase):
         request = testing.DummyRequest(post)
         request.session = Mock()
         request.method = request_method
-        request.replusitory = self.repo
+        request.repo = self.repo
         return request

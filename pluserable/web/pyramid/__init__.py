@@ -17,7 +17,7 @@ def get_user(request):
     userid = unauthenticated_userid(request)
     if userid is None:
         return None
-    return request.replusitory.q_user_by_id(userid)
+    return request.repo.q_user_by_id(userid)
 
 
 def find_or_create_kerno(registry, ini_path):
@@ -44,9 +44,9 @@ def setup_pluserable(config, ini_path):
     config.set_root_factory(RootFactory)
     settings_reader = SettingsReader(settings)
 
-    config.add_request_method(  # request.replusitory
+    config.add_request_method(  # request.repo
         lambda request: instantiate_repository(request.registry),
-        'replusitory', reify=True)
+        'repo', reify=True)
 
     # User code may create a setting "pluserable_configurator" that points
     # to a callable that we call here:

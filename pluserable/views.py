@@ -84,7 +84,7 @@ def create_activation(request, user):  # TODO Move to action
     Activation = kerno.get_utility(const.ACTIVATION_CLASS)
     activation = Activation()
 
-    repo = request.replusitory
+    repo = request.repo
     repo.store_activation(activation)
     user.activation = activation
     repo.flush()
@@ -205,7 +205,7 @@ class AuthView(BaseView):
             try:
                 kerno = request.registry.queryUtility(IKerno)
                 peto = kerno.run_operation(
-                    'Log in', user=None, repo=request.replusitory, payload={
+                    'Log in', user=None, repo=request.repo, payload={
                         'handle': captured['handle'],
                         'password': captured['password'],
                     })
@@ -267,7 +267,7 @@ class ForgotPasswordView(BaseView):
         except FormValidationFailure as e:
             return e.result(request)
 
-        repo = request.replusitory
+        repo = request.repo
         user = repo.q_user_by_email(captured['email'])
         activation = self.Activation()
         user.activation = activation
@@ -300,11 +300,11 @@ class ForgotPasswordView(BaseView):
         form = form(schema)
 
         code = request.matchdict.get('code', None)
-        activation = request.replusitory.q_activation_by_code(code)
+        activation = request.repo.q_activation_by_code(code)
         if not activation:
             return HTTPNotFound()
 
-        user = request.replusitory.q_user_by_activation(activation)
+        user = request.repo.q_user_by_activation(activation)
 
         if request.method == 'GET':
             appstruct = {'username': user.username} if hasattr(
@@ -321,7 +321,7 @@ class ForgotPasswordView(BaseView):
             password = captured['password']
 
             user.password = password
-            request.replusitory.delete_activation(user, activation)
+            request.repo.delete_activation(user, activation)
 
             add_flash(request,
                       plain=get_strings(self.kerno).reset_password_done,
@@ -389,7 +389,7 @@ class RegisterView(BaseView):
         self.request.registry.notify(NewRegistrationEvent(
             self.request, user, None, controls))
         if autologin:
-            self.request.replusitory.flush()  # in order to get the id
+            self.request.repo.flush()  # in order to get the id
             return authenticated(self.request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)
@@ -399,14 +399,14 @@ class RegisterView(BaseView):
         # This generic method must work with any custom User class and any
         # custom registration form:
         user = self.User(**controls)
-        self.request.replusitory.store_user(user)
+        self.request.repo.store_user(user)
         return user
 
     def activate(self):
         request = self.request
         kerno = request.registry.queryUtility(IKerno)
         peto = kerno.run_operation(
-            'Activate user', user=None, repo=request.replusitory, payload={
+            'Activate user', user=None, repo=request.repo, payload={
                 'code':    request.matchdict.get('code', None),
                 'user_id': request.matchdict.get('user_id', None),
             })
@@ -425,7 +425,7 @@ class ProfileView(BaseView):
     def profile(self):
         """Display a user profile."""
         user_id = self.request.matchdict.get('user_id', None)
-        user = self.request.replusitory.q_user_by_id(user_id)
+        user = self.request.repo.q_user_by_id(user_id)
         if not user:
             return HTTPNotFound()
         return {'user': user}
@@ -467,7 +467,7 @@ class ProfileView(BaseView):
             changed = False
             email = captured.get('email', None)
             if email:
-                email_user = request.replusitory.q_user_by_email(email)
+                email_user = request.repo.q_user_by_email(email)
                 if email_user and email_user.id != user.id:
                     # TODO This should be a validation error, not add_flash
                     add_flash(

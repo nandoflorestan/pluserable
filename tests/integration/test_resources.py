@@ -10,7 +10,7 @@ class TestResources(IntegrationTestBase):
         user = self.create_users(count=1)
         self.sas.flush()  # so the user has an id
         request = testing.DummyRequest()
-        request.replusitory = instantiate_repository(self.config.registry)
+        request.repo = instantiate_repository(self.config.registry)
         factory = UserFactory(request)
         fact_user = factory[user.id]
 

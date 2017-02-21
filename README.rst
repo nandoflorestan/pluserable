@@ -86,7 +86,7 @@ The backend for database access is in a separate class, this way you can
 substitute the implementation. This is called the "repository" pattern.
 It is recommended that you use the repository pattern in your app, too.
 The pluserable repository is instantiated once per request. It is available
-in the ``request.replusitory`` variable.
+in the ``request.repo`` variable.
 
 - Configure ``pluserable.login_redirect`` and ``pluserable.logout_redirect``
   (in your .ini configuration file) to set the redirection routes.

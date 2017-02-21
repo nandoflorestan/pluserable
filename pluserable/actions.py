@@ -25,7 +25,7 @@ def register_operations(kerno):
 def instantiate_action(cls, request, payload: dict, user=None):  # TODO REMOVE
     """Convenience function to be used from pluserable views."""
     return cls(
-        repo=request.replusitory,
+        repo=request.repo,
         kerno=request.registry.getUtility(IKerno),
         registry=request.registry,
         user=user or getattr(request, 'user', None),

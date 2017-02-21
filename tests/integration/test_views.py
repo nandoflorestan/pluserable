@@ -208,7 +208,7 @@ class TestRegisterView(IntegrationTestBase):
         response = view.register()
 
         assert response.status_int == 302
-        user = request.replusitory.q_user_by_username('admin')
+        user = request.repo.q_user_by_username('admin')
         assert isinstance(user, User)
         assert not user.is_activated
 
@@ -251,7 +251,7 @@ class TestRegisterView(IntegrationTestBase):
         self.config.add_route('index', '/')
 
         def handle_registration(event):
-            event.request.replusitory.flush()
+            event.request.repo.flush()
         self.config.add_subscriber(handle_registration, NewRegistrationEvent)
 
         request = self.get_request(post={
@@ -271,7 +271,7 @@ class TestRegisterView(IntegrationTestBase):
             add_flash.assert_called_with(
                 request, plain=UIStringsBase.registration_done, kind="success")
         assert response.status_int == 302
-        user = request.replusitory.q_user_by_username('admin')
+        user = request.repo.q_user_by_username('admin')
         assert user.is_activated is True
 
     def test_registration_craps_out(self):
@@ -316,7 +316,7 @@ class TestRegisterView(IntegrationTestBase):
 
         view = RegisterView(request)
         response = view.activate()
-        the_user = request.replusitory.q_user_by_username(user.username)
+        the_user = request.repo.q_user_by_username(user.username)
 
         assert the_user is user
         assert the_user.activation is None
@@ -342,7 +342,7 @@ class TestRegisterView(IntegrationTestBase):
         view = RegisterView(request)
         response = view.activate()
 
-        activations = list(request.replusitory.q_activations())
+        activations = list(request.repo.q_activations())
 
         assert len(activations) == 1
         assert user1.is_activated
@@ -366,7 +366,7 @@ class TestRegisterView(IntegrationTestBase):
         with self.assertRaises(HTTPNotFound):
             view.activate()
 
-        the_user = request.replusitory.q_user_by_username(user.username)
+        the_user = request.repo.q_user_by_username(user.username)
         assert the_user is user
         assert not the_user.is_activated
 
@@ -393,7 +393,7 @@ class TestRegisterView(IntegrationTestBase):
         with self.assertRaises(HTTPNotFound):
             view.activate()
 
-        for user in request.replusitory.q_users():
+        for user in request.repo.q_users():
             assert not user.is_activated
 
 
@@ -503,7 +503,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         request.user = None
 
         def handle_password_reset(event):
-            event.request.replusitory.flush()
+            event.request.repo.flush()
         self.config.add_subscriber(handle_password_reset, PasswordResetEvent)
 
         view = ForgotPasswordView(request)
@@ -647,7 +647,7 @@ class TestProfileView(IntegrationTestBase):
         self.sas.flush()
 
         def handle_profile_updated(event):
-            event.request.replusitory.flush()
+            event.request.repo.flush()
         self.config.add_subscriber(handle_profile_updated, ProfileUpdatedEvent)
 
         request = self.get_request(post={
@@ -663,7 +663,7 @@ class TestProfileView(IntegrationTestBase):
         ProfileView(request).edit_profile()
 
         # Assertions
-        the_user = request.replusitory.q_user_by_id(user.id)
+        the_user = request.repo.q_user_by_id(user.id)
         assert the_user is user
         assert the_user.email == 'new_email@nasa.gov'
         assert user.check_password('science')
@@ -694,7 +694,7 @@ class TestProfileView(IntegrationTestBase):
         ProfileView(request).edit_profile()
 
         # Assertions
-        assert user in request.replusitory.sas.dirty
+        assert user in request.repo.sas.dirty
         assert user.email == 'carlsagan1@nasa.gov'
         assert user.check_password('new password')
         assert handle_profile_updated.called

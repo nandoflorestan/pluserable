@@ -21,7 +21,7 @@ class RootFactory(BaseFactory):
 class UserFactory(RootFactory):
 
     def __getitem__(self, key):
-        user = self.request.replusitory.q_user_by_id(key)
+        user = self.request.repo.q_user_by_id(key)
 
         if user:
             user.__parent__ = self
