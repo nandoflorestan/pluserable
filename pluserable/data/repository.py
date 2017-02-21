@@ -3,7 +3,6 @@
 Repositories are persistence strategies.
 """
 
-from pluserable.const import REPOSITORY
 from pluserable.interfaces import IDBSession, IKerno
 
 
@@ -14,4 +13,4 @@ def instantiate_repository(registry):
     """
     kerno = registry.queryUtility(IKerno)
     session_factory = registry.queryUtility(IDBSession)
-    return kerno.get_utility(REPOSITORY)(kerno, session_factory)
+    return kerno.Repository(kerno, session_factory)

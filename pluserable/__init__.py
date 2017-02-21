@@ -65,6 +65,7 @@ def initialize_kerno(config_path, kerno=None):
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     kerno.set_default_utility(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
+    kerno.add_repository_mixin(kerno.get_utility(const.REPOSITORY))
 
     # The UI text can be changed; by default we use UIStringsBase itself:
     kerno.set_default_utility(const.STRING_CLASS,
