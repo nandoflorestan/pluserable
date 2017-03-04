@@ -42,7 +42,7 @@ class UserBase:
         #     email, password, salt, activation))
         self.email = email
         assert self.email and isinstance(self.email, str)
-        self.salt = self.salt or random_hash(24)
+        self.salt = salt or random_hash(24)
         self.password = password
         assert self.password and isinstance(self.password, str)
         self.activation = activation
