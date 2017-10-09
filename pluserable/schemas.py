@@ -62,6 +62,14 @@ def username_does_not_contain_at(node, value):
             request.registry).username_may_not_contain_at)
 
 
+def to_lower(text):
+    """Colander preparer that converts text to lower case."""
+    if isinstance(text, str):
+        return text.lower()
+    else:  # Handle the null case
+        return text
+
+
 # Schema fragments
 # ----------------
 # These functions reduce duplication in the schemas defined below,
@@ -80,6 +88,7 @@ def get_username_creation_node(
 def get_email_node(validator=None, description=None):
     return c.SchemaNode(
         c.String(), title=_('Email'), description=description,
+        preparer=to_lower,
         validator=validator or c.All(c.Email(), unique_email),
         widget=w.TextInputWidget(size=40, maxlength=260, type='email',
                                  placeholder=_("joe@example.com")))
