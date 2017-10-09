@@ -1,4 +1,4 @@
-"""This module contains views for Pyramid applications."""
+"""Views for Pyramid applications."""
 
 import logging
 import colander
@@ -13,9 +13,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from pluserable.actions import (
-    instantiate_action, ActivateUser, CheckCredentials,
-    require_activation_setting_value)
+from pluserable.actions import ActivateUser, require_activation_setting_value
 from pluserable import const
 from pluserable.interfaces import (
     IKerno, ILoginForm, ILoginSchema,
@@ -162,8 +160,9 @@ class AuthView(BaseView):
             self.schema, buttons=(get_strings(self.kerno).login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
+        request = self.request
         try:
-            cstruct = self.request.json_body
+            cstruct = request.json_body
         except ValueError as e:
             raise HTTPBadRequest({'invalid': str(e)})
 
@@ -173,19 +172,18 @@ class AuthView(BaseView):
             raise HTTPBadRequest({'invalid': e.asdict()})
 
         try:
-            check_credentials = instantiate_action(
-                CheckCredentials, self.request, payload={
+            kerno = request.registry.queryUtility(IKerno)
+            peto = kerno.run_operation(
+                'Log in', user=None, repo=request.repo, payload={
                     'handle': captured['handle'],
                     'password': captured['password'],
                 })
-            user = check_credentials()
         except AuthenticationFailure as e:
             raise HTTPBadRequest({
                 'status': 'failure',
                 'reason': e.message,
             })
-
-        return {'status': 'okay', 'user': user.to_dict()}
+        return {'status': 'okay', 'user': peto.user.to_dict()}
 
     def login(self):
         """Present the login form, or validate data and authenticate user."""

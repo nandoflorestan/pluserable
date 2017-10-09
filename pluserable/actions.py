@@ -12,7 +12,6 @@ from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
 from kerno.action import Action
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.interfaces import IKerno
 from pluserable.strings import get_strings
 
 
@@ -20,17 +19,6 @@ def register_operations(kerno):
     """At startup register our operations (made of actions) with kerno."""
     kerno.register_operation(name='Log in', actions=[CheckCredentials])
     kerno.register_operation(name='Activate user', actions=[ActivateUser])
-
-
-def instantiate_action(cls, request, payload: dict, user=None):  # TODO REMOVE
-    """Convenience function to be used from pluserable views."""
-    return cls(
-        repo=request.repo,
-        kerno=request.registry.getUtility(IKerno),
-        registry=request.registry,
-        user=user or getattr(request, 'user', None),
-        payload=payload,
-    )
 
 
 class PluserableAction(Action):
