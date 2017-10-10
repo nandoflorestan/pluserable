@@ -8,9 +8,8 @@ be thin.  Business rules must be decoupled from the web framework.
 """
 
 from bag.reify import reify
-from bag.settings import SettingsReader
-from pyramid.httpexceptions import HTTPNotFound
 from kerno.action import Action
+from kerno.state import MalbonaRezulto
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.strings import get_strings
 
@@ -72,16 +71,29 @@ class ActivateUser(PluserableAction):
     def __call__(self):
         peto = self.peto
         activation = peto.repo.q_activation_by_code(peto.dirty['code'])
+        # TODO Put these strings away
         if not activation:
-            raise HTTPNotFound()  # TODO Don't import pyramid in actions
+            raise MalbonaRezulto(
+                status_int=404, title='Code not found',
+                plain='That code cannot be found in the system. Maybe you '
+                'already used it -- in this case, just try logging in.')
 
         user = peto.repo.q_user_by_id(peto.dirty['user_id'])
         if not user:
-            raise HTTPNotFound()
+            raise MalbonaRezulto(
+                status_int=404, title='User not found',
+                plain='That user cannot be found in the system.')
 
         if user.activation is not activation:
-            raise HTTPNotFound()
+            raise MalbonaRezulto(
+                status_int=404, title='Code and user do not match',
+                plain='That code does not belong to that user.')
 
         peto.repo.delete_activation(user, activation)
         peto.user = user
         peto.activation = activation
+
+        # TODO My current flash messages do not display titles
+        # peto.rezulto.add_message(
+        #     title=self._strings.activation_email_verified_title,
+        #     plain=self._strings.activation_email_verified)

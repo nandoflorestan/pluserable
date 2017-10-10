@@ -3,10 +3,6 @@
 from zope.interface import Interface
 
 
-class IKerno(Interface):
-    """Marker interface for registering our Kerno instance."""
-
-
 class ILoginSchema(Interface):
     pass
 

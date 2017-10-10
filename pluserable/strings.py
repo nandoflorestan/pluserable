@@ -2,7 +2,7 @@
 
 from pyramid.i18n import TranslationStringFactory
 from pluserable import const
-from pluserable.interfaces import IKerno
+from kerno.web.pyramid import IKerno
 
 _ = TranslationStringFactory('pluserable')
 
@@ -27,6 +27,7 @@ class UIStringsBase(object):
     activation_email_plain = _(
         "Please validate your email and activate your account by visiting:\n"
         "ACTIVATION_LINK")
+    activation_email_verified_title = _('E-mail verified!')
     activation_email_verified = _("Your e-mail address has been verified. "
                                   "Thank you!")
 

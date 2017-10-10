@@ -1,11 +1,12 @@
 """Pluserable integration for the Pyramid web framework."""
 
 from bag.settings import SettingsReader
+from kerno.web.pyramid import IKerno
 from pyramid.security import unauthenticated_userid
 from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
-    IKerno, ILoginForm, ILoginSchema,
+    ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.data.repository import instantiate_repository
@@ -55,6 +56,7 @@ def setup_pluserable(config, ini_path):
     settings['pluserable'] = configurator(config)
 
     find_or_create_kerno(registry, ini_path)
+    config.include('kerno.web.pyramid')
 
     # SubmitForm is the default for all our forms
     for form in (ILoginForm, IRegisterForm, IForgotPasswordForm,

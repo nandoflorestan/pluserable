@@ -13,13 +13,13 @@ from pluserable.data.models import (
 
 
 class ActivationMixin(ActivationBase, MinimalBase, ID):
-    """Handles activations/password reset items for users.
+    """Handles email confirmation codes and password reset codes for users.
 
     The code should be a random hash that is valid only once.
     After the hash is used to access the site, it'll be removed.
 
-    The "created by" is a system: new user registration, password reset,
-    forgot password etc.
+    The "created by" value refers to a system:
+    new user registration, password reset, forgot password etc.
     """
 
     @declared_attr

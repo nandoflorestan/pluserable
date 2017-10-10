@@ -5,6 +5,7 @@ import colander
 import deform
 from bag.web.pyramid.flash_msg import add_flash
 from bag.reify import reify
+from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -16,7 +17,7 @@ from pyramid_mailer.message import Message
 from pluserable.actions import ActivateUser, require_activation_setting_value
 from pluserable import const
 from pluserable.interfaces import (
-    IKerno, ILoginForm, ILoginSchema,
+    ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.events import (
@@ -395,7 +396,8 @@ class RegisterView(BaseView):
         self.request.repo.store_user(user)
         return user
 
-    def activate(self):
+    @kerno_view
+    def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
         kerno = request.registry.queryUtility(IKerno)
         peto = kerno.run_operation(
@@ -407,7 +409,7 @@ class RegisterView(BaseView):
         add_flash(request,  # TODO Move into action
                   plain=get_strings(self.kerno).activation_email_verified,
                   kind='success')
-        request.registry.notify(  # TODO Move into action
+        request.registry.notify(  # send a Pyramid event
             RegistrationActivatedEvent(request, peto.user, peto.activation))
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self.after_activate_url)

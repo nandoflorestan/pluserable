@@ -9,7 +9,7 @@ from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable import const
 from pluserable.data.repository import instantiate_repository
-from pluserable.interfaces import IKerno
+from kerno.web.pyramid import IKerno
 from tests import AppTestCase, _get_ini_path
 
 

@@ -24,12 +24,6 @@ class HTTPInternalServerError(JSONError):
         super(HTTPInternalServerError, self).__init__(errors, status=500)
 
 
-class HTTPNotFound(JSONError):
-
-    def __init__(self, errors):
-        super(HTTPNotFound, self).__init__(errors, status=404)
-
-
 class HTTPBadRequest(JSONError):
 
     def __init__(self, errors):

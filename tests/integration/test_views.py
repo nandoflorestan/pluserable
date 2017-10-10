@@ -5,6 +5,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
+from kerno.state import MalbonaRezulto
 from pluserable.events import (
     NewRegistrationEvent, PasswordResetEvent, ProfileUpdatedEvent)
 from pluserable.interfaces import (
@@ -363,14 +364,14 @@ class TestRegisterView(IntegrationTestBase):
         request.matchdict.get = get
 
         view = RegisterView(request)
-        with self.assertRaises(HTTPNotFound):
+        with self.assertRaises(MalbonaRezulto):
             view.activate()
 
         the_user = request.repo.q_user_by_username(user.username)
         assert the_user is user
         assert not the_user.is_activated
 
-    def test_activate_invalid_user_raises_not_found(self):
+    def test_activate_invalid_user_raises(self):
         """One user tries to get activated with another's code."""
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
@@ -390,7 +391,7 @@ class TestRegisterView(IntegrationTestBase):
         request.matchdict.get = get
 
         view = RegisterView(request)
-        with self.assertRaises(HTTPNotFound):
+        with self.assertRaises(MalbonaRezulto):
             view.activate()
 
         for user in request.repo.q_users():

@@ -7,7 +7,7 @@ from pluserable import const
 
 
 class Repository(BaseSQLAlchemyRepository):
-    """This repository uses SQLAlchemy for storage.
+    """A repository that uses SQLAlchemy for storage.
 
     In the future other strategies can be developed (e. g. ZODB).
     """
@@ -71,8 +71,7 @@ class Repository(BaseSQLAlchemyRepository):
 
     def q_activation_by_code(self, code):
         """Return the Activation with ``code``, or None."""
-        return self.sas.query(self.Activation).filter(
-            self.Activation.code == code).first()
+        return self.sas.query(self.Activation).filter_by(code=code).first()
 
     def delete_activation(self, user, activation):
         """Delete the Activation instance from the database."""
