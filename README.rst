@@ -47,8 +47,8 @@ Minimal integration
         session factory = some.app.models:get_sqlalchemy_session
 
 - Above you are also pointing to a session factory. Just write a function that
-  returns a SQLAlchemy session, ready for use. It can be a scoped session or
-  a common session instance.
+  returns a SQLAlchemy session instance, ready for use. Alternatively,
+  it can be a scoped session.
 
 - You may write a function that returns a configuration for Pyramid routes and
   views (which is something you probably want to manipulate in code
