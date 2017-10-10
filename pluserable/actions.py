@@ -7,8 +7,8 @@ This is because MVC/MVT is insufficient for large apps. Views should
 be thin.  Business rules must be decoupled from the web framework.
 """
 
+from bag.reify import reify
 from bag.settings import SettingsReader
-from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
 from kerno.action import Action
 from pluserable.exceptions import AuthenticationFailure

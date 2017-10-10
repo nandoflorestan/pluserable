@@ -1,7 +1,7 @@
 """Use ZODB to retrieve and store models."""
 
 import ZODB
-from pyramid.decorator import reify
+from bag.reify import reify
 from pluserable import const
 
 # TODO: How is a unique "column" enforced in ZODB?

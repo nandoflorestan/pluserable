@@ -4,7 +4,7 @@ import logging
 import colander
 import deform
 from bag.web.pyramid.flash_msg import add_flash
-from pyramid.decorator import reify
+from bag.reify import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool

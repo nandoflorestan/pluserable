@@ -1,7 +1,7 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
-from pyramid.decorator import reify
+from bag.reify import reify
 from sqlalchemy import func
 from pluserable import const
 
