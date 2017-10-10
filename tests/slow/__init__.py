@@ -13,6 +13,7 @@ from pyramid.session import SignedCookieSessionFactory
 from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
+from pluserable import const
 from pluserable.data.repository import instantiate_repository
 from pluserable.interfaces import IKerno
 from tests import AppTestCase, _get_ini_path
@@ -64,7 +65,7 @@ class FunctionalTestBase(AppTestCase):
         self.app = TestApp(app)
 
         kerno = config.registry.queryUtility(IKerno)
-        kerno.register_utility('session factory', self.sas)
+        kerno.register_utility(const.SAS, self.sas)
         self.repo = instantiate_repository(config.registry)
 
     def tearDown(self):
