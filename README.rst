@@ -43,12 +43,12 @@ Minimal integration
         group class = some.app.models:Group
         user class = some.app.models:User
 
-- Let pluserable know where to find the SQLAlchemy session. This could be
-  a scoped session or a common session. Just write a function that returns
-  the session and then register it against the IDBSession interface::
+        # Give pluserable a SQLAlchemy session factory:
+        session factory = some.app.models:get_sqlalchemy_session
 
-    from pluserable.interfaces import IDBSession
-    config.registry.registerUtility(session_factory, IDBSession)
+- Above you are also pointing to a session factory. Just write a function that
+  returns a SQLAlchemy session, ready for use. It can be a scoped session or
+  a common session instance.
 
 - You may write a function that returns a configuration for Pyramid routes and
   views (which is something you probably want to manipulate in code

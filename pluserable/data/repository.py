@@ -1,9 +1,9 @@
-"""This namespace contains at least one Repository implementation.
+"""Repository implementations.
 
 Repositories are persistence strategies.
 """
 
-from pluserable.interfaces import IDBSession, IKerno
+from pluserable.interfaces import IKerno
 
 
 def instantiate_repository(registry):
@@ -12,5 +12,5 @@ def instantiate_repository(registry):
     This must be called only once per request.
     """
     kerno = registry.queryUtility(IKerno)
-    session_factory = registry.queryUtility(IDBSession)
+    session_factory = kerno.get_utility('session factory')
     return kerno.Repository(kerno, session_factory)

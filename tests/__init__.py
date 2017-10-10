@@ -6,7 +6,6 @@ from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 from pluserable.web.pyramid import find_or_create_kerno
 from tests.models import Activation, User
-from pluserable.interfaces import IDBSession
 
 
 class PluserableTestCase(TestCase):
@@ -47,10 +46,8 @@ class AppTestCase(PluserableTestCase):
     def _read_pyramid_settings(cls, kind=''):
         return appconfig('config:' + _get_ini_path(kind=kind))
 
-    def _initialize_config(self, settings, session_factory):
+    def _initialize_config(self, settings):
         config = testing.setUp(settings=settings)
-        registry = config.registry
-        registry.registerUtility(session_factory, IDBSession)
         return config
 
     run_once = False

@@ -8,6 +8,7 @@ from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable.data.repository import instantiate_repository
+from pluserable.interfaces import IKerno
 from tests import AppTestCase, _get_ini_path
 
 
@@ -23,9 +24,11 @@ class IntegrationTestBase(AppTestCase):
         def sas_factory():
             return self.subtransaction.sas
 
-        self.config = self._initialize_config(self.settings, sas_factory)
+        self.config = self._initialize_config(self.settings)
         self.config.include('pluserable')
         self.config.setup_pluserable(_get_ini_path())
+        kerno = self.config.registry.queryUtility(IKerno)
+        kerno.register_utility('session factory', sas_factory)
 
         self.repo = instantiate_repository(self.config.registry)
 

@@ -5,7 +5,7 @@ from pyramid.security import unauthenticated_userid
 from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
-    IDBSession, IKerno, ILoginForm, ILoginSchema,
+    IKerno, ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.data.repository import instantiate_repository
@@ -37,9 +37,6 @@ def setup_pluserable(config, ini_path):
     ``ini_path`` must be the path to an INI file.
     """
     registry = config.registry
-    # Ensure, at startup, that a SQLAlchemy session factory was configured:
-    assert registry.queryUtility(IDBSession), 'No SQLAlchemy session ' \
-        'factory has been configured before including pluserable!'
 
     settings = registry.settings
     config.add_request_method(get_user, 'user', reify=True)  # request.user

@@ -11,7 +11,6 @@ flexible and maintainable.
 Refactoring
 ===========
 
-- Instead of IDBSession we'll have another kerno utility.
 - Stop the configuration madness.
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document

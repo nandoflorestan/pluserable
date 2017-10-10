@@ -14,6 +14,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable.data.repository import instantiate_repository
+from pluserable.interfaces import IKerno
 from tests import AppTestCase, _get_ini_path
 
 
@@ -58,11 +59,12 @@ class FunctionalTestBase(AppTestCase):
         )
         self.sas = self.subtransaction.sas  # TODO REMOVE
 
-        config = self._initialize_config(self.settings, self.sas)
-
+        config = self._initialize_config(self.settings)
         app = self.main(config)
         self.app = TestApp(app)
 
+        kerno = config.registry.queryUtility(IKerno)
+        kerno.register_utility('session factory', self.sas)
         self.repo = instantiate_repository(config.registry)
 
     def tearDown(self):
