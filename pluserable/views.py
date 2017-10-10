@@ -72,13 +72,8 @@ def authenticated(request, userid):
     )
 
 
-def get_kerno(registry):
-    """Return the Kerno instance for this application."""
-    return registry.getUtility(IKerno)
-
-
 def create_activation(request, user):  # TODO Move to action
-    kerno = get_kerno(request.registry)
+    kerno = request.registry.getUtility(IKerno)
     Activation = kerno.get_utility(const.ACTIVATION_CLASS)
     activation = Activation()
 
@@ -134,7 +129,7 @@ class BaseView(object):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.kerno = get_kerno(request.registry)
+        self.kerno = request.registry.getUtility(IKerno)
         self.Activation = self.kerno.get_utility(const.ACTIVATION_CLASS)
         self.User = self.kerno.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
@@ -348,7 +343,7 @@ class RegisterView(BaseView):
             request)
 
         # TODO reify:
-        kerno = get_kerno(self.request.registry)
+        kerno = request.registry.getUtility(IKerno)
         self.require_activation = require_activation_setting_value(kerno)
 
     def register(self):
