@@ -1,6 +1,7 @@
 """Colander and Deform schemas."""
 
 import re
+from bag.text import to_lower
 import colander as c
 import deform.widget as w
 from .strings import get_strings, _
@@ -60,14 +61,6 @@ def username_does_not_contain_at(node, value):
     if '@' in value:
         raise c.Invalid(node, get_strings(
             request.registry).username_may_not_contain_at)
-
-
-def to_lower(text):
-    """Colander preparer that converts text to lower case."""
-    if isinstance(text, str):
-        return text.lower()
-    else:  # Handle the null case
-        return text
 
 
 # Schema fragments
