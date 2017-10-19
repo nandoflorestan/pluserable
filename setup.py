@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 
 
 requires = [
-    'bag >= 1.0.0',
+    'bag >= 1.2.0',
     'kerno',
     'sqlalchemy',       # TODO REMOVE when agnostic
     'zope.sqlalchemy',  # TODO REMOVE when agnostic
