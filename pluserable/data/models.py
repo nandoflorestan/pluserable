@@ -1,7 +1,6 @@
 """Base model classes for any backend (SQLAlchemy, ZODB etc.)."""
 
 from datetime import datetime, timedelta
-from urllib.parse import urlencode
 from bag.text.hash import random_hash
 from bag.web import gravatar_image
 import cryptacular.bcrypt
