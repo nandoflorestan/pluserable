@@ -1,7 +1,7 @@
 """Colander and Deform schemas."""
 
 import re
-from bag.text import to_lower
+from bag.text import strip_preparer, strip_lower_preparer
 import colander as c
 import deform.widget as w
 from .strings import get_strings, _
@@ -74,6 +74,7 @@ def get_username_creation_node(
         validator=None):
     return c.SchemaNode(
         c.String(), title=title, description=description,
+        preparer=strip_preparer,
         validator=validator or c.All(
             c.Length(max=30), unix_username, unique_username))
 
@@ -81,7 +82,7 @@ def get_username_creation_node(
 def get_email_node(validator=None, description=None):
     return c.SchemaNode(
         c.String(), title=_('Email'), description=description,
-        preparer=to_lower,
+        preparer=strip_lower_preparer,
         validator=validator or c.All(c.Email(), unique_email),
         widget=w.TextInputWidget(size=40, maxlength=260, type='email',
                                  placeholder=_("joe@example.com")))
@@ -101,7 +102,8 @@ def get_checked_password_node(description=_(
 
 class UsernameLoginSchema(c.Schema):
 
-    handle = c.SchemaNode(c.String(), title=_('User name'))
+    handle = c.SchemaNode(
+        c.String(), title=_('User name'), preparer=strip_preparer)
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
@@ -136,6 +138,7 @@ class UsernameResetPasswordSchema(c.Schema):
 
     username = c.SchemaNode(
         c.String(), title=_('User name'), missing=c.null,
+        preparer=strip_preparer,
         widget=w.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
@@ -144,6 +147,7 @@ class EmailResetPasswordSchema(c.Schema):
 
     email = c.SchemaNode(
         c.String(), title=_('Email'), missing=c.null,
+        preparer=strip_lower_preparer,
         widget=w.TextInputWidget(template='readonly/textinput'))
     password = get_checked_password_node()
 
@@ -153,6 +157,7 @@ class UsernameProfileSchema(c.Schema):
     username = c.SchemaNode(
         c.String(),
         widget=w.TextInputWidget(template='readonly/textinput'),
+        preparer=strip_preparer,
         missing=c.null)
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
