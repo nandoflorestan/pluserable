@@ -26,5 +26,4 @@ class UserFactory(RootFactory):
         if user:
             user.__parent__ = self
             user.__name__ = key
-
         return user

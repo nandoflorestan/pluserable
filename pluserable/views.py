@@ -499,8 +499,7 @@ def get_pyramid_views_config():
         'activate': {'view': RegisterView, 'attr': 'activate'},
         'login': {'view': AuthView, 'attr': 'login',
                   'renderer': 'pluserable:templates/login.mako'},
-        'logout': {'permission': 'view',
-                   'view': AuthView, 'attr': 'logout'},
+        'logout': {'view': AuthView, 'attr': 'logout'},
         'forgot_password': {
             'view': ForgotPasswordView, 'attr': 'forgot_password',
             'renderer': 'pluserable:templates/forgot_password.mako'},
