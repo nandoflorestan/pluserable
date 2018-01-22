@@ -11,6 +11,7 @@ class TestSchemas(IntegrationTestBase):
         request = self.get_request(post={
             'handle': 'sagan',
             'password': 'password',
+            'csrf_token': 'irrelevant but required',
         })
         schema = UsernameLoginSchema().bind(request=request)
 
@@ -27,8 +28,8 @@ class TestSchemas(IntegrationTestBase):
             try:
                 schema.deserialize({})
             except Invalid as exc:
-                assert len(exc.children) == 2
-                errors = ['handle', 'password']
+                assert len(exc.children) == 3
+                errors = ['handle', 'password', 'csrf_token']
                 for child in exc.children:
                     assert child.node.name in errors
                     assert child.msg == 'Required'
@@ -36,7 +37,12 @@ class TestSchemas(IntegrationTestBase):
         self.assertRaises(Invalid, deserialize_empty)
 
     def test_usernames_may_not_contain_at(self):
-        POST = dict(username='bru@haha', email='bru@haha.com', password='pass')
+        POST = {
+            'username': 'bru@haha',
+            'email': 'sagan@nasa.gov',
+            'password': 'pass',
+            'csrf_token': 'irrelevant but required',
+        }
         request = self.get_request(post=POST)
         schema = UsernameRegisterSchema().bind(request=request)
 
@@ -53,7 +59,12 @@ class TestSchemas(IntegrationTestBase):
 
     def test_usernames_may_contain_dot_dash_underline(self):
         handle = 'Sagan-was-a-GREAT_writer.'
-        POST = dict(username=handle, email='sagan@nasa.gov', password='pass')
+        POST = {
+            'username': handle,
+            'email': 'sagan@nasa.gov',
+            'password': 'pass',
+            'csrf_token': 'irrelevant but required',
+        }
         request = self.get_request(post=POST)
         schema = UsernameRegisterSchema().bind(request=request)
 

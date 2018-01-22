@@ -51,6 +51,7 @@ class TestViews(FunctionalTestBase):
                 'submit': True,
                 'handle': user.username,
                 'password': 'science',
+                'csrf_token': 'irrelevant but required',
             }
         )
         assert res.status_int == 302
@@ -67,6 +68,7 @@ class TestViews(FunctionalTestBase):
                 'submit': True,
                 'handle': user.username,
                 'password': 'science',
+                'csrf_token': 'irrelevant but required',
             }
         )
         assert b'Your account is not active; please check your e-mail.' \

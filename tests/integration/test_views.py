@@ -70,6 +70,7 @@ class TestAuthView(IntegrationTestBase):
 
         request = testing.DummyRequest(post={
             'submit': True,
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         view = AuthView(request)
@@ -91,6 +92,7 @@ class TestAuthView(IntegrationTestBase):
             'submit': True,
             'handle': 'admin',
             'password': 'test123',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         view = AuthView(request)
@@ -111,6 +113,7 @@ class TestAuthView(IntegrationTestBase):
                 'submit': True,
                 'handle': user.username,
                 'password': 'science',
+                'csrf_token': 'irrelevant but required',
             }, request_method='POST')
         view = AuthView(request)
         response = view.login()
@@ -130,6 +133,7 @@ class TestAuthView(IntegrationTestBase):
             'submit': True,
             'handle': user.username,
             'password': 'science',
+            'csrf_token': 'irrelevant but required',
             }, request_method='POST')
 
         view = AuthView(request)
@@ -202,7 +206,8 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.gov'
+            'email': 'carlsagan@nasa.gov',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
         request.user = Mock()
         view = RegisterView(request)
@@ -261,7 +266,8 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.gov'
+            'email': 'carlsagan@nasa.gov',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         request.user = Mock()
@@ -291,7 +297,8 @@ class TestRegisterView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
-            'email': 'carlsagan@nasa.gov'
+            'email': 'carlsagan@nasa.gov',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
         view = RegisterView(request)
 
@@ -428,7 +435,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.sas.flush()
 
         request = self.get_request(post={
-            'email': 'carlsagan1@nasa.gov'
+            'email': 'carlsagan1@nasa.gov',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         request.user = None
@@ -450,7 +458,8 @@ class TestForgotPasswordView(IntegrationTestBase):
         self.sas.flush()
 
         request = self.get_request(post={
-            'email': 'sagan'
+            'email': 'sagan',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         request.user = None
@@ -494,6 +503,7 @@ class TestForgotPasswordView(IntegrationTestBase):
                 'password': 'test123',
                 'password-confirm': 'test123',
             },
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         request.matchdict = Mock()
@@ -525,6 +535,7 @@ class TestForgotPasswordView(IntegrationTestBase):
                 'Password': 't',
                 'Password-confirm': 't',
             },
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
         request.matchdict = Mock()
@@ -653,6 +664,7 @@ class TestProfileView(IntegrationTestBase):
 
         request = self.get_request(post={
             'email': 'new_email@nasa.gov',
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
         request.user = user
         request.matchdict = Mock()
@@ -680,6 +692,7 @@ class TestProfileView(IntegrationTestBase):
                 'password': 'new password',
                 'password-confirm': 'new password',
             },
+            'csrf_token': 'irrelevant but required',
         }, request_method='POST')
         request.user = user
 

@@ -41,7 +41,7 @@ class IntegrationTestBase(AppTestCase):
     def get_request(self, post=None, request_method='GET'):
         """Return a dummy request for testing."""
         if post is None:
-            post = {}
+            post = {'csrf_token': 'irrelevant but required'}
         request = testing.DummyRequest(post)
         request.session = Mock()
         request.method = request_method
