@@ -50,7 +50,7 @@ class NoUsernameMixin(UserBase, MinimalBase, ID):
         return sa.Column(sa.Unicode(100), nullable=False, unique=True)
 
     @declared_attr
-    def last_login_date(self):  # TODO REMOVE OR MAKE WORK, TEST
+    def last_login_date(self):
         """Date of user's last login."""
         return sa.Column(
             sa.TIMESTAMP(timezone=False),

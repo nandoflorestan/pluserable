@@ -1,5 +1,6 @@
 """Tests for the views."""
 
+from datetime import datetime
 from mock import Mock, patch
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
@@ -119,6 +120,7 @@ class TestAuthView(IntegrationTestBase):
         response = view.login()
 
         assert response.status_int == 302
+        assert user.last_login_date > datetime(2018, 1, 1)
 
     def test_inactive_login_fails(self):
         """Ensure we can't log in with an inactive user."""

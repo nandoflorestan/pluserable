@@ -7,6 +7,7 @@ This is because MVC/MVT is insufficient for large apps. Views should
 be thin.  Business rules must be decoupled from the web framework.
 """
 
+from datetime import datetime
 from bag.reify import reify
 from kerno.action import Action
 from kerno.state import MalbonaRezulto
@@ -53,6 +54,7 @@ class CheckCredentials(PluserableAction):
         user = self.q_user(handle)  # IO
         self.peto.user = self._check_credentials(
             user, handle, self.peto.dirty['password'])
+        self.peto.user.last_login_date = datetime.utcnow()
 
     def _check_credentials(self, user, handle, password):
         """Pure method (no IO) that checks credentials against ``user``."""

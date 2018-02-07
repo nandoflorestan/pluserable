@@ -1,10 +1,10 @@
 """Tests for *pluserable*."""
 
+from datetime import datetime
 from unittest import TestCase
 from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
-from pluserable.web.pyramid import find_or_create_kerno
 from tests.models import Activation, User
 
 
@@ -17,7 +17,10 @@ class PluserableTestCase(TestCase):
         for index in range(1, count + 1):
             user = User(username='sagan{}'.format(index),
                         email='carlsagan{}@nasa.gov'.format(index),
-                        password='science')
+                        password='science',
+                        registered_date=datetime(2000, 1, 1),
+                        last_login_date=datetime(2000, 1, 1),
+                        )
             if activation:
                 user.activation = Activation()
             users.append(user)
