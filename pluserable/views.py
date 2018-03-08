@@ -299,6 +299,10 @@ class ForgotPasswordView(BaseView):
             return HTTPNotFound()
 
         user = request.repo.q_user_by_activation(activation)
+        if not user:
+            raise RuntimeError(
+                "How is it possible that I found the activation {} but not "
+                "a corresponding user?".format(activation.code))
 
         if request.method == 'GET':
             appstruct = {'username': user.username} if hasattr(
