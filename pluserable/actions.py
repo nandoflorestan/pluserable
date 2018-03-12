@@ -10,15 +10,16 @@ be thin.  Business rules must be decoupled from the web framework.
 from datetime import datetime
 from bag.reify import reify
 from kerno.action import Action
-from kerno.state import MalbonaRezulto
+from kerno.state import MalbonaRezulto, Rezulto
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.strings import get_strings
+from typing import Any
 
 
 def register_operations(kerno):
-    """At startup register our operations (made of actions) with kerno."""
-    kerno.register_operation(name='Log in', actions=[CheckCredentials])
-    kerno.register_operation(name='Activate user', actions=[ActivateUser])
+    """At startup register our actions with kerno."""
+    kerno.actions.add(name='Log in', action=CheckCredentials)
+    kerno.actions.add(name='Activate user', action=ActivateUser)
 
 
 class PluserableAction(Action):
@@ -26,7 +27,7 @@ class PluserableAction(Action):
 
     @reify
     def _strings(self):
-        return get_strings(self.peto.kerno)
+        return get_strings(self.kerno)
 
 
 def require_activation_setting_value(kerno):
@@ -39,22 +40,22 @@ class CheckCredentials(PluserableAction):
 
     @reify
     def _require_activation(self):
-        return require_activation_setting_value(self.peto.kerno)
+        return require_activation_setting_value(self.kerno)
 
-    def q_user(self, handle):
+    def q_user(self, handle: str) -> Any:
         """Fetch user. ``handle`` can be a username or an email."""
         if '@' in handle:
-            return self.peto.repo.q_user_by_email(handle)
+            return self.repo.q_user_by_email(handle)
         else:
-            return self.peto.repo.q_user_by_username(handle)
+            return self.repo.q_user_by_username(handle)
 
-    def __call__(self):
+    def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""
-        handle = self.peto.dirty['handle']
-        user = self.q_user(handle)  # IO
-        self.peto.user = self._check_credentials(
-            user, handle, self.peto.dirty['password'])
-        self.peto.user.last_login_date = datetime.utcnow()
+        r = Rezulto()
+        r.user = self.q_user(handle)  # IO
+        self._check_credentials(r.user, handle, password)  # might raise
+        r.user.last_login_date = datetime.utcnow()
+        return r
 
     def _check_credentials(self, user, handle, password):
         """Pure method (no IO) that checks credentials against ``user``."""
@@ -70,9 +71,9 @@ class CheckCredentials(PluserableAction):
 
 class ActivateUser(PluserableAction):
 
-    def __call__(self):
-        peto = self.peto
-        activation = peto.repo.q_activation_by_code(peto.dirty['code'])
+    def __call__(self, code: str, user_id: int) -> Rezulto:
+        """Find code, ensure belongs to user, delete activation instance."""
+        activation = self.repo.q_activation_by_code(code)
         # TODO Put these strings away
         if not activation:
             raise MalbonaRezulto(
@@ -80,7 +81,7 @@ class ActivateUser(PluserableAction):
                 plain='That code cannot be found in the system. Maybe you '
                 'already used it -- in this case, just try logging in.')
 
-        user = peto.repo.q_user_by_id(peto.dirty['user_id'])
+        user = self.repo.q_user_by_id(user_id)
         if not user:
             raise MalbonaRezulto(
                 status_int=404, title='User not found',
@@ -91,11 +92,13 @@ class ActivateUser(PluserableAction):
                 status_int=404, title='Code and user do not match',
                 plain='That code does not belong to that user.')
 
-        peto.repo.delete_activation(user, activation)
-        peto.user = user
-        peto.activation = activation
+        self.repo.delete_activation(user, activation)
+        ret = Rezulto()
+        ret.user = user
+        ret.activation = activation
 
         # TODO My current flash messages do not display titles
-        # peto.rezulto.add_message(
+        # ret.add_message(
         #     title=self._strings.activation_email_verified_title,
         #     plain=self._strings.activation_email_verified)
+        return ret

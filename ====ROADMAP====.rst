@@ -11,6 +11,7 @@ flexible and maintainable.
 Refactoring
 ===========
 
+- Add type hints for mypy.
 - Stop the configuration madness.
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document
@@ -22,7 +23,6 @@ Refactoring
 - Lose mako and pyramid_mako (at least as required dependencies)
 - Tests should use only the repository, never the session directly.
 - Document -- especially the Repository.
-- Demand Python 3.5 and use https://docs.python.org/3/library/typing.html
 - Keep our test coverage up.
 
 

@@ -5,7 +5,7 @@ from bag.sqlalchemy.tricks import MinimalBase
 from pluserable.data.sqlalchemy.models import (
     ActivationMixin, GroupMixin, UsernameMixin, UserGroupMixin)
 
-Base = declarative_base(cls=MinimalBase)
+Base = declarative_base(cls=MinimalBase)  # type: MinimalBase
 
 
 # Inherit from NoUsernameMixin instead if you do not want a username field.

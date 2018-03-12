@@ -34,6 +34,8 @@ logs
 .tox
 .cache/
 htmlcov/
+.mypy_cache/
+.pytest_cache/
 
 # Vim
 *.swp

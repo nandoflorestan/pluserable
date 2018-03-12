@@ -1,10 +1,9 @@
 language: python
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
-  # - "pypy3"
-# I have removed testing on pypy3 until it reaches 3.4.
+  - "pypy3"
+# Let's try testing on pypy3 since they have 3.5.3 now.
 
 # command to install dependencies
 install: "python setup.py develop"

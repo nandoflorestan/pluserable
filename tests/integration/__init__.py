@@ -46,4 +46,5 @@ class IntegrationTestBase(AppTestCase):
         request.session = Mock()
         request.method = request_method
         request.repo = self.repo
+        request.user = None
         return request

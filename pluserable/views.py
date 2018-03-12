@@ -3,9 +3,10 @@
 import logging
 import colander
 import deform
+from abc import ABCMeta
 from bag.web.pyramid.flash_msg import add_flash
-from bag.reify import reify
 from kerno.web.pyramid import kerno_view, IKerno
+from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -14,7 +15,7 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from pluserable.actions import ActivateUser, require_activation_setting_value
+from pluserable.actions import require_activation_setting_value
 from pluserable import const
 from pluserable.interfaces import (
     ILoginForm, ILoginSchema,
@@ -121,19 +122,29 @@ def validate_form(controls, form):
     return captured
 
 
-class BaseView(object):
+class BaseView(metaclass=ABCMeta):
+    """Base class for views."""
 
     @property
     def request(self):
+        """Return the current request."""
         # we defined this so that we can override the request in tests easily
         return self._request
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.kerno = request.registry.getUtility(IKerno)
         self.Activation = self.kerno.get_utility(const.ACTIVATION_CLASS)
         self.User = self.kerno.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
+
+    @reify
+    def kerno(self):
+        return self.request.registry.getUtility(IKerno)
+
+    def call_action(self, name: str, **kw):
+        """Conveniently execute the named action."""
+        return self.kerno.actions.run(
+            name=name, user=self.request.user, repo=self.request.repo, **kw)
 
 
 class AuthView(BaseView):
@@ -168,18 +179,17 @@ class AuthView(BaseView):
             raise HTTPBadRequest({'invalid': e.asdict()})
 
         try:
-            kerno = request.registry.queryUtility(IKerno)
-            peto = kerno.run_operation(
-                'Log in', user=None, repo=request.repo, payload={
-                    'handle': captured['handle'],
-                    'password': captured['password'],
-                })
+            ret = self.call_action(
+                name='Log in',
+                handle=captured['handle'],
+                password=captured['password'],
+            )
         except AuthenticationFailure as e:
             raise HTTPBadRequest({
                 'status': 'failure',
                 'reason': e.message,
             })
-        return {'status': 'okay', 'user': peto.user.to_dict()}
+        return {'status': 'okay', 'user': ret.user.to_dict()}
 
     def login(self):
         """Present the login form, or validate data and authenticate user."""
@@ -191,25 +201,23 @@ class AuthView(BaseView):
 
         elif request.method == 'POST':
             controls = request.POST.items()
-            try:  # TODO Move form validation to another action in this op
+            try:  # TODO Move form validation into action
                 captured = validate_form(controls, self.form)
             except FormValidationFailure as e:
                 return e.result(request)
 
             try:
-                kerno = request.registry.queryUtility(IKerno)
-                peto = kerno.run_operation(
-                    'Log in', user=None, repo=request.repo, payload={
-                        'handle': captured['handle'],
-                        'password': captured['password'],
-                    })
+                ret = self.call_action(
+                    name='Log in',
+                    handle=captured['handle'],
+                    password=captured['password'],
+                )
             except AuthenticationFailure as e:  # TODO View for this exception
                 add_flash(request, plain=str(e), kind='error')
                 return render_form(request, self.form, captured,
                                    errors=[e])
-
-            request.user = peto.user
-            return authenticated(request, peto.user.id)
+            request.user = ret.user
+            return authenticated(request, ret.user.id)
 
     def logout(self):
         """Remove the auth cookies and redirect...
@@ -403,18 +411,17 @@ class RegisterView(BaseView):
     @kerno_view
     def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        kerno = request.registry.queryUtility(IKerno)
-        peto = kerno.run_operation(
-            'Activate user', user=None, repo=request.repo, payload={
-                'code':    request.matchdict.get('code', None),
-                'user_id': request.matchdict.get('user_id', None),
-            })
+        ret = self.call_action(
+            name='Activate user',
+            code=request.matchdict.get('code', None),
+            user_id=request.matchdict.get('user_id', None),
+        )
 
         add_flash(request,  # TODO Move into action
                   plain=get_strings(self.kerno).activation_email_verified,
                   kind='success')
         request.registry.notify(  # send a Pyramid event
-            RegistrationActivatedEvent(request, peto.user, peto.activation))
+            RegistrationActivatedEvent(request, ret.user, ret.activation))
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self.after_activate_url)
 
