@@ -15,7 +15,8 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from pluserable.actions import require_activation_setting_value
+from pluserable.actions import (
+    ActivateUser, CheckCredentials, require_activation_setting_value)
 from pluserable import const
 from pluserable.interfaces import (
     ILoginForm, ILoginSchema,
@@ -141,10 +142,14 @@ class BaseView(metaclass=ABCMeta):
     def kerno(self):
         return self.request.registry.getUtility(IKerno)
 
-    def call_action(self, name: str, **kw):
-        """Conveniently execute the named action."""
-        return self.kerno.actions.run(
-            name=name, user=self.request.user, repo=self.request.repo, **kw)
+    @property
+    def action_args(self):
+        """Make it more convenient to call a kerno action."""
+        return {
+            'kerno': self.kerno,
+            'user': self.request.user,
+            'repo': self.request.repo,
+        }
 
 
 class AuthView(BaseView):
@@ -207,8 +212,7 @@ class AuthView(BaseView):
                 return e.result(request)
 
             try:
-                ret = self.call_action(
-                    name='Log in',
+                ret = CheckCredentials(**self.action_args)(
                     handle=captured['handle'],
                     password=captured['password'],
                 )
@@ -411,8 +415,7 @@ class RegisterView(BaseView):
     @kerno_view
     def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        ret = self.call_action(
-            name='Activate user',
+        ret = ActivateUser(**self.action_args)(
             code=request.matchdict.get('code', None),
             user_id=request.matchdict.get('user_id', None),
         )

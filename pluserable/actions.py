@@ -16,12 +16,6 @@ from pluserable.strings import get_strings
 from typing import Any
 
 
-def register_operations(kerno):
-    """At startup register our actions with kerno."""
-    kerno.actions.add(name='Log in', action=CheckCredentials)
-    kerno.actions.add(name='Activate user', action=ActivateUser)
-
-
 class PluserableAction(Action):
     """Base class for our actions."""
 

@@ -1,9 +1,8 @@
 """Pluserable is a user registration and login library."""
 
 from bag.settings import SettingsReader
-from kerno.core import Kerno
+from kerno.start import Eko
 from pluserable import const
-from pluserable.actions import register_operations
 from pluserable.interfaces import (
     ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
     IResetPasswordSchema, IProfileSchema)
@@ -58,29 +57,27 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def initialize_kerno(config_path, kerno=None):
-    """Initialize the core system, below the web framework."""
-    kerno = kerno or Kerno.from_ini(config_path)
+def initialize_kerno(config_path, eko=None):
+    """Initialize the core system, isolated from the web framework."""
+    eko = eko or Eko.from_ini(config_path)
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
-    kerno.set_default_utility(
+    eko.include('kerno.repository')  # adds add_repository_mixin() to eko
+    eko.set_default_utility(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
-    kerno.add_repository_mixin(kerno.get_utility(const.REPOSITORY))
+    eko.add_repository_mixin(mixin=eko.kerno.get_utility(const.REPOSITORY))
 
     # The UI text can be changed; by default we use UIStringsBase itself:
-    kerno.set_default_utility(const.STRING_CLASS,
-                              'pluserable.strings:UIStringsBase')
+    eko.set_default_utility(const.STRING_CLASS,
+                            'pluserable.strings:UIStringsBase')
 
     # Other settings are read from the [pluserable] section of the ini file:
     try:
-        section = kerno.settings['pluserable']
+        section = eko.kerno.settings['pluserable']
     except:
         section = {}
-    kerno.pluserable_settings = SettingsReader(section)
-
-    # Register our operations (made of actions) with kerno.
-    register_operations(kerno)
-    return kerno
+    eko.kerno.pluserable_settings = SettingsReader(section)
+    return eko
 
 
 def includeme(config):

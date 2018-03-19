@@ -15,7 +15,6 @@ from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
 from pluserable import const
 from pluserable.data.repository import instantiate_repository
-from kerno.web.pyramid import IKerno
 from tests import AppTestCase, _get_ini_path
 
 
@@ -52,7 +51,7 @@ class FunctionalTestBase(AppTestCase):
         return app
 
     def setUp(self):
-        """Called before each functional test."""
+        """Stuff called before each functional test."""
         self.subtransaction = SubtransactionTrick(
             engine=self.engine,
             sessionmaker=scoped_session(
@@ -64,8 +63,9 @@ class FunctionalTestBase(AppTestCase):
         app = self.main(config)
         self.app = TestApp(app)
 
-        kerno = config.registry.queryUtility(IKerno)
-        kerno.register_utility(const.SAS, self.sas)
+        eko = config.get_eko()
+        eko.register_utility(const.SAS, self.sas)
+
         self.repo = instantiate_repository(config.registry)
 
     def tearDown(self):

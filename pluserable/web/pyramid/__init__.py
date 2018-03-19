@@ -21,15 +21,17 @@ def get_user(request):
     return request.repo.q_user_by_id(userid)
 
 
-def find_or_create_kerno(registry, ini_path):
+def create_kerno(config, ini_path):
     """Return kerno -- either found in the registry, or initialized here."""
-    kerno = registry.queryUtility(IKerno, default=None)
-    if kerno:
-        initialize_kerno(ini_path, kerno)
-    else:  # Kerno is not yet registered, so let's create and register it:
-        kerno = initialize_kerno(ini_path)
-        registry.registerUtility(kerno, IKerno)
-    return kerno
+    eko = getattr(config, 'eko', None)
+    if eko:
+        eko = initialize_kerno(ini_path, eko=eko)
+    else:
+        eko = initialize_kerno(ini_path)
+        config.add_directive('get_eko', lambda config: eko)
+    # kerno = registry.queryUtility(IKerno, default=None)
+    config.registry.registerUtility(eko.kerno, IKerno)
+    return eko.kerno
 
 
 def setup_pluserable(config, ini_path):
@@ -55,7 +57,7 @@ def setup_pluserable(config, ini_path):
         default='pluserable.settings:get_default_pluserable_settings')
     settings['pluserable'] = configurator(config)
 
-    find_or_create_kerno(registry, ini_path)
+    create_kerno(config, ini_path)
     config.include('kerno.web.pyramid')
 
     # SubmitForm is the default for all our forms

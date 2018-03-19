@@ -9,7 +9,6 @@ from pyramid import testing
 from sqlalchemy.orm import sessionmaker
 from pluserable import const
 from pluserable.data.repository import instantiate_repository
-from kerno.web.pyramid import IKerno
 from tests import AppTestCase, _get_ini_path
 
 
@@ -28,9 +27,8 @@ class IntegrationTestBase(AppTestCase):
         self.config = self._initialize_config(self.settings)
         self.config.include('pluserable')
         self.config.setup_pluserable(_get_ini_path())
-        kerno = self.config.registry.queryUtility(IKerno)
-        kerno.register_utility(const.SAS, sas_factory)
-
+        eko = self.config.get_eko()
+        eko.register_utility(const.SAS, sas_factory)
         self.repo = instantiate_repository(self.config.registry)
 
     def tearDown(self):
