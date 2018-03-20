@@ -45,7 +45,7 @@ class CheckCredentials(PluserableAction):
 
     def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""
-        r = Rezulto()
+        r = Rezulto()  # type: Any
         r.user = self.q_user(handle)  # IO
         self._check_credentials(r.user, handle, password)  # might raise
         r.user.last_login_date = datetime.utcnow()
@@ -87,7 +87,7 @@ class ActivateUser(PluserableAction):
                 plain='That code does not belong to that user.')
 
         self.repo.delete_activation(user, activation)
-        ret = Rezulto()
+        ret = Rezulto()  # type: Any
         ret.user = user
         ret.activation = activation
 
