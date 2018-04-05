@@ -1,3 +1,6 @@
+"""Test groupfinder and request.user."""
+
+from datetime import datetime
 from mock import Mock, patch
 from pluserable import groupfinder
 from pluserable.web.pyramid import get_user
@@ -14,7 +17,10 @@ class TestInitCase(IntegrationTestBase):
         with patch('pluserable.web.pyramid.unauthenticated_userid') as unauth:
             unauth.return_value = 1
             request = self.get_request()
-            assert get_user(request) is the_user
+            got = get_user(request)
+            assert got is the_user
+            assert got.registered_date == datetime(2000, 1, 1)
+            assert got.last_login_date == datetime(2000, 1, 1)
 
     def test_groupfinder(self):
         user1 = self.create_users(count=1)

@@ -1,7 +1,7 @@
 from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
 
 
-class BaseFactory(object):
+class BaseFactory:
 
     def __init__(self, request):
         self.request = request

@@ -60,7 +60,7 @@ class NoUsernameMixin(UserBase, MinimalBase, ID):
         )
 
     @declared_attr
-    def registered_date(self):  # TODO REMOVE OR TEST
+    def registered_date(self):
         """Date of user's registration."""
         return sa.Column(
             sa.TIMESTAMP(timezone=False),
