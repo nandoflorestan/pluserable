@@ -23,6 +23,12 @@ class UIStringsBase(object):
     activation_check_email = \
         _("Thank you for registering! Please check your e-mail now. You can "
           "continue by clicking the activation link we have sent you.")
+    activation_code_not_found_title = _("Activation code not found")
+    activation_code_not_found = _(
+        "That code cannot be found in the system. Maybe you "
+        "already used it -- in this case, just try logging in.")
+    activation_code_not_match_title = _("Code and user do not match")
+    activation_code_not_match = _("That code does not belong to that user.")
     activation_email_subject = _("Please activate your account!")
     activation_email_plain = _(
         "Please validate your email and activate your account by visiting:\n"
@@ -71,4 +77,6 @@ Regards,
     reset_password_email_sent = _("Please check your e-mail to finish "
                                   "resetting your password.")
     username_may_not_contain_at = _("May not contain this character: @")
+    user_not_found_title = _("User not found")
+    user_not_found = _("That user cannot be found in the system.")
     unacceptable_characters = _("Contains unacceptable characters.")

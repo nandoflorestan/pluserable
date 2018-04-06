@@ -68,23 +68,23 @@ class ActivateUser(PluserableAction):
     def __call__(self, code: str, user_id: int) -> Rezulto:
         """Find code, ensure belongs to user, delete activation instance."""
         activation = self.repo.q_activation_by_code(code)
-        # TODO Put these strings away
         if not activation:
             raise MalbonaRezulto(
-                status_int=404, title='Code not found',
-                plain='That code cannot be found in the system. Maybe you '
-                'already used it -- in this case, just try logging in.')
+                status_int=404,
+                title=self._strings.activation_code_not_found_title,
+                plain=self._strings.activation_code_not_found)
 
         user = self.repo.q_user_by_id(user_id)
         if not user:
             raise MalbonaRezulto(
-                status_int=404, title='User not found',
-                plain='That user cannot be found in the system.')
+                status_int=404, title=self._strings.user_not_found_title,
+                plain=self._strings.user_not_found)
 
         if user.activation is not activation:
             raise MalbonaRezulto(
-                status_int=404, title='Code and user do not match',
-                plain='That code does not belong to that user.')
+                status_int=404,
+                title=self._strings.activation_code_not_match_title,
+                plain=self._strings.activation_code_not_match)
 
         self.repo.delete_activation(user, activation)
         ret = Rezulto()  # type: Any
