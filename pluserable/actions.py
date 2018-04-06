@@ -24,7 +24,7 @@ class PluserableAction(Action):
         return get_strings(self.kerno)
 
 
-def require_activation_setting_value(kerno):
+def require_activation_setting_value(kerno) -> bool:
     """Return the value of a certain setting."""
     return kerno.pluserable_settings.bool('require_activation', default=True)
 
@@ -51,7 +51,7 @@ class CheckCredentials(PluserableAction):
         r.user.last_login_date = datetime.utcnow()
         return r
 
-    def _check_credentials(self, user, handle, password):
+    def _check_credentials(self, user, handle: str, password: str):
         """Pure method (no IO) that checks credentials against ``user``."""
         if not user or not user.check_password(password):
             raise AuthenticationFailure(

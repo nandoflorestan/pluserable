@@ -250,7 +250,7 @@ class ForgotPasswordView(BaseView):
             self.settings.get('pluserable.reset_password_redirect', 'index'),
             request)
 
-    def forgot_password(self):
+    def forgot_password(self):  # TODO Extract action
         """Show or process the "forgot password" form."""
         request = self.request
         schema = request.registry.getUtility(IForgotPasswordSchema)
