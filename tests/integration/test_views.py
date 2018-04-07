@@ -73,6 +73,7 @@ class TestAuthView(IntegrationTestBase):
             'submit': True,
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
+        request.add_flash = Mock()
 
         view = AuthView(request)
         response = view.login()
@@ -95,12 +96,12 @@ class TestAuthView(IntegrationTestBase):
             'password': 'test123',
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
+        request.add_flash = Mock()
 
         view = AuthView(request)
-        with patch('pluserable.views.add_flash') as add_flash:
-            view.login()
-            add_flash.assert_called_with(
-                request, plain="Wrong username or password.", kind="danger")
+        view.login()
+        request.add_flash.assert_called_with(
+            plain="Wrong username or password.", kind="danger")
 
     def test_login_succeeds(self):
         """Make sure we can log in."""
@@ -116,6 +117,8 @@ class TestAuthView(IntegrationTestBase):
                 'password': 'science',
                 'csrf_token': 'irrelevant but required',
             }, request_method='POST')
+        request.add_flash = Mock()
+
         view = AuthView(request)
         response = view.login()
 
@@ -137,14 +140,13 @@ class TestAuthView(IntegrationTestBase):
             'password': 'science',
             'csrf_token': 'irrelevant but required',
             }, request_method='POST')
+        request.add_flash = Mock()
 
         view = AuthView(request)
-        with patch('pluserable.views.add_flash') as add_flash:
-            view.login()
-            add_flash.assert_called_with(
-                request,
-                plain='Your account is not active; please check your e-mail.',
-                kind='danger')
+        view.login()
+        request.add_flash.assert_called_with(
+            plain='Your account is not active; please check your e-mail.',
+            kind='danger')
 
     def test_logout(self):
         """User logs out successfully."""
@@ -154,6 +156,7 @@ class TestAuthView(IntegrationTestBase):
         request = self.get_request()
 
         invalidate = Mock()
+        request.add_flash = Mock()
         request.user = Mock()
         request.session = Mock()
         request.session.invalidate = invalidate
@@ -161,11 +164,10 @@ class TestAuthView(IntegrationTestBase):
         view = AuthView(request)
         with patch('pluserable.views.forget') as forget:
             with patch('pluserable.views.HTTPFound') as HTTPFound:
-                with patch('pluserable.views.add_flash') as add_flash:
-                    view.logout()
-                    add_flash.assert_called_with(
-                        request, plain=UIStringsBase.logout_done,
-                        kind="success")
+                view.logout()
+                request.add_flash.assert_called_with(
+                    plain=UIStringsBase.logout_done,
+                    kind="success")
 
                 forget.assert_called_with(request)
                 assert invalidate.called
@@ -211,6 +213,7 @@ class TestRegisterView(IntegrationTestBase):
             'email': 'carlsagan@nasa.gov',
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
+        request.add_flash = Mock()
         request.user = Mock()
         view = RegisterView(request)
         response = view.register()
@@ -272,13 +275,13 @@ class TestRegisterView(IntegrationTestBase):
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
 
+        request.add_flash = Mock()
         request.user = Mock()
 
         view = RegisterView(request)
-        with patch('pluserable.views.add_flash') as add_flash:
-            response = view.register()
-            add_flash.assert_called_with(
-                request, plain=UIStringsBase.registration_done, kind="success")
+        response = view.register()
+        request.add_flash.assert_called_with(
+            plain=UIStringsBase.registration_done, kind="success")
         assert response.status_int == 302
         user = request.repo.q_user_by_username('admin')
         assert user.is_activated is True
@@ -314,6 +317,7 @@ class TestRegisterView(IntegrationTestBase):
         self.sas.flush()
 
         request = self.get_request()
+        request.add_flash = Mock()
         request.matchdict = Mock()
 
         def get(key, default):
@@ -347,6 +351,7 @@ class TestRegisterView(IntegrationTestBase):
                 return user1.id
 
         request = self.get_request()
+        request.add_flash = Mock()
         request.matchdict = Mock()
         request.matchdict.get = get
         view = RegisterView(request)
@@ -367,6 +372,7 @@ class TestRegisterView(IntegrationTestBase):
         self.sas.flush()
 
         request = self.get_request()
+        request.add_flash = Mock()
         request.matchdict = Mock()
         get = Mock()
         get.return_value = 'invalid'
@@ -440,16 +446,15 @@ class TestForgotPasswordView(IntegrationTestBase):
             'email': 'carlsagan1@nasa.gov',
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
-
+        request.add_flash = Mock()
         request.user = None
 
         view = ForgotPasswordView(request)
+        response = view.forgot_password()
 
-        with patch('pluserable.views.add_flash') as add_flash:
-            response = view.forgot_password()
-            add_flash.assert_called_with(
-                request, plain=UIStringsBase.reset_password_email_sent,
-                kind="success")
+        request.add_flash.assert_called_with(
+            plain=UIStringsBase.reset_password_email_sent,
+            kind="success")
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
@@ -507,7 +512,7 @@ class TestForgotPasswordView(IntegrationTestBase):
             },
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
-
+        request.add_flash = Mock()
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.activation.code
@@ -668,6 +673,7 @@ class TestProfileView(IntegrationTestBase):
             'email': 'new_email@nasa.gov',
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
+        request.add_flash = Mock()
         request.user = user
         request.matchdict = Mock()
         get = Mock()
@@ -696,6 +702,7 @@ class TestProfileView(IntegrationTestBase):
             },
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')
+        request.add_flash = Mock()
         request.user = user
 
         request.matchdict = Mock()
