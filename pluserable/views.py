@@ -4,7 +4,7 @@ import logging
 import colander
 import deform
 from abc import ABCMeta
-from kerno.state import UIMessage
+from kerno.state import UIMessage, to_dict
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -203,7 +203,7 @@ class AuthView(BaseView):
                 'status': 'failure',
                 'reason': e.message,
             })
-        return {'status': 'okay', 'user': ret.user.to_dict()}
+        return {'status': 'okay', 'user': to_dict(ret.user)}
 
     def login(self):
         """Present the login form, or validate data and authenticate user."""
