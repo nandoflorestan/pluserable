@@ -29,8 +29,8 @@ def create_kerno(config, ini_path):
     else:
         eko = initialize_kerno(ini_path)
         config.add_directive('get_eko', lambda config: eko)
-    # kerno = registry.queryUtility(IKerno, default=None)
     config.registry.registerUtility(eko.kerno, IKerno)
+    # kerno = registry.queryUtility(IKerno, default=None)
     return eko.kerno
 
 
@@ -77,7 +77,7 @@ def setup_pluserable(config, ini_path):
             'Invalid config value for pluserable.handle: {}'.format(
                 handle_config))
 
-    config.include('bag.web.pyramid.flash_msg')
+    config.include('kerno.web.msg_to_html')
     config.include('pluserable.views')
 
 

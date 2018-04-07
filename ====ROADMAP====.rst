@@ -11,13 +11,16 @@ flexible and maintainable.
 Refactoring
 ===========
 
-- Add type hints for mypy.
+- Use kerno.state instead of bag's add_flash(). Document.
+- Use kerno.event instead of pyramid events. Document.
+- Add @kerno_page and use it instead of @kerno_view.
+- Use kerno.to_dict
 - Stop the configuration madness.
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document
 - Go through the TODOs on the code
-- Extract actions from views
-- Move views into web/pyramid/. What about events and exceptions?
+- Extract more actions from views
+- Move views into web/pyramid/. What about exceptions?
 - Remove FormValidationFailure exception
 - Refactor sending emails with the strategy pattern
 - Lose mako and pyramid_mako (at least as required dependencies)

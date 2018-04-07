@@ -4,7 +4,7 @@ import logging
 import colander
 import deform
 from abc import ABCMeta
-from bag.web.pyramid.flash_msg import add_flash
+from kerno.state import UIMessage
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -54,6 +54,15 @@ def get_config_route(request, config_key):
         return request.route_url(settings[config_key])
     except KeyError:
         return settings[config_key]
+
+
+def add_flash(
+    request, plain: str, kind: str='danger', allow_duplicate: bool=False,
+) -> UIMessage:
+    """Add a flash message to the user's session. For convenience."""
+    msg = UIMessage(kind=kind, plain=plain)
+    request.session.flash(msg, allow_duplicate=allow_duplicate)
+    return msg
 
 
 def authenticated(request, userid):
@@ -231,8 +240,7 @@ class AuthView(BaseView):
         """
         msg = get_strings(self.kerno).logout_done
         if msg:
-            add_flash(
-                self.request, plain=msg, kind='success')
+            add_flash(self.request, plain=msg, kind='success')
         self.request.session.invalidate()
         return HTTPFound(
             location=self.logout_redirect_view, headers=forget(self.request))
