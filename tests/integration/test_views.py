@@ -100,7 +100,7 @@ class TestAuthView(IntegrationTestBase):
         with patch('pluserable.views.add_flash') as add_flash:
             view.login()
             add_flash.assert_called_with(
-                request, plain="Wrong username or password.", kind="error")
+                request, plain="Wrong username or password.", kind="danger")
 
     def test_login_succeeds(self):
         """Make sure we can log in."""
@@ -144,7 +144,7 @@ class TestAuthView(IntegrationTestBase):
             add_flash.assert_called_with(
                 request,
                 plain='Your account is not active; please check your e-mail.',
-                kind='error')
+                kind='danger')
 
     def test_logout(self):
         """User logs out successfully."""
