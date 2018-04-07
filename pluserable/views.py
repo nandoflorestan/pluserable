@@ -4,7 +4,7 @@ import logging
 import colander
 import deform
 from abc import ABCMeta
-from kerno.state import UIMessage, to_dict
+from kerno.state import to_dict
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -56,15 +56,6 @@ def get_config_route(request, config_key):
         return settings[config_key]
 
 
-def add_flash(
-    request, plain: str, kind: str='danger', allow_duplicate: bool=False,
-) -> UIMessage:
-    """Add a flash message to the user's session. For convenience."""
-    msg = UIMessage(kind=kind, plain=plain)
-    request.session.flash(msg, allow_duplicate=allow_duplicate)
-    return msg
-
-
 def authenticated(request, userid):
     """Set the auth cookies and redirect.
 
@@ -76,7 +67,7 @@ def authenticated(request, userid):
         'pluserable.autologin', False))
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
-        add_flash(request, plain=msg, kind='success')
+        request.add_flash(plain=msg, kind='success')
     return HTTPFound(
         headers=remember(request, userid),
         location=request.params.get('next')
@@ -224,7 +215,7 @@ class AuthView(BaseView):
                     password=captured['password'],
                 )
             except AuthenticationFailure as e:  # TODO View for this exception
-                add_flash(request, plain=str(e), kind='danger')
+                request.add_flash(plain=str(e), kind='danger')
                 return render_form(request, self.form, captured,
                                    errors=[e])
             request.user = ret.user
@@ -238,7 +229,7 @@ class AuthView(BaseView):
         """
         msg = get_strings(self.kerno).logout_done
         if msg:
-            add_flash(self.request, plain=msg, kind='success')
+            self.request.add_flash(plain=msg, kind='success')
         self.request.session.invalidate()
         return HTTPFound(
             location=self.logout_redirect_view, headers=forget(self.request))
@@ -299,8 +290,9 @@ class ForgotPasswordView(BaseView):
         message = Message(subject=subject, recipients=[user.email], body=body)
         mailer.send(message)
 
-        add_flash(self.request, plain=Str.reset_password_email_sent,
-                  kind='success')
+        request.add_flash(
+            plain=Str.reset_password_email_sent,
+            kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
@@ -339,9 +331,9 @@ class ForgotPasswordView(BaseView):
             user.password = password
             request.repo.delete_activation(user, activation)
 
-            add_flash(request,
-                      plain=get_strings(self.kerno).reset_password_done,
-                      kind='success')
+            request.add_flash(
+                plain=get_strings(self.kerno).reset_password_done,
+                kind='success')
             request.registry.notify(PasswordResetEvent(
                 request, user, password))
             location = self.reset_password_redirect_view
@@ -370,22 +362,23 @@ class RegisterView(BaseView):
         self.require_activation = require_activation_setting_value(kerno)
 
     def register(self):
-        if self.request.method == 'GET':
-            if self.request.user:
+        request = self.request
+        if request.method == 'GET':
+            if request.user:
                 return HTTPFound(location=self.after_register_url)
 
-            return render_form(self.request, self.form)
+            return render_form(request, self.form)
 
-        elif self.request.method != 'POST':
+        elif request.method != 'POST':
             return
 
         # If the request is a POST:
-        controls = self.request.POST.items()
+        controls = request.POST.items()
 
         try:
             captured = validate_form(controls, self.form)
         except FormValidationFailure as e:
-            return e.result(self.request)
+            return e.result(request)
 
         # With the form validated, we know email and username are unique.
         user = self.persist_user(captured)
@@ -393,20 +386,20 @@ class RegisterView(BaseView):
         autologin = asbool(self.settings.get('pluserable.autologin', False))
 
         if self.require_activation:
-            create_activation(self.request, user)  # send activation email
-            add_flash(self.request,
-                      plain=get_strings(self.kerno).activation_check_email,
-                      kind='success')
+            create_activation(request, user)  # send activation email
+            request.add_flash(
+                plain=get_strings(self.kerno).activation_check_email,
+                kind='success')
         elif not autologin:
-            add_flash(self.request,
-                      plain=get_strings(self.kerno).registration_done,
-                      kind='success')
+            request.add_flash(
+                plain=get_strings(self.kerno).registration_done,
+                kind='success')
 
-        self.request.registry.notify(NewRegistrationEvent(
-            self.request, user, None, controls))
+        request.registry.notify(NewRegistrationEvent(
+            request, user, None, controls))
         if autologin:
-            self.request.repo.flush()  # in order to get the id
-            return authenticated(self.request, user.id)
+            request.repo.flush()  # in order to get the id
+            return authenticated(request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)
 
@@ -426,9 +419,9 @@ class RegisterView(BaseView):
             user_id=request.matchdict.get('user_id', None),
         )
 
-        add_flash(request,  # TODO Move into action
-                  plain=get_strings(self.kerno).activation_email_verified,
-                  kind='success')
+        request.add_flash(  # TODO Move into action
+            plain=get_strings(self.kerno).activation_email_verified,
+            kind='success')
         request.registry.notify(  # send a Pyramid event
             RegistrationActivatedEvent(request, ret.user, ret.activation))
         # If an exception is raised in an event subscriber, this never runs:
@@ -485,12 +478,11 @@ class ProfileView(BaseView):
                 email_user = request.repo.q_user_by_email(email)
                 if email_user and email_user.id != user.id:
                     # TODO This should be a validation error, not add_flash
-                    add_flash(
-                        request,
+                    request.add_flash(
                         plain=get_strings(
                             self.kerno).edit_profile_email_present.format(
                             email=email),
-                        kind='error')
+                        kind='danger')
                     return HTTPFound(location=request.url)
                 if email != user.email:
                     user.email = email
@@ -502,9 +494,9 @@ class ProfileView(BaseView):
                 changed = True
 
             if changed:
-                add_flash(request,
-                          plain=get_strings(self.kerno).edit_profile_done,
-                          kind='success')
+                request.add_flash(
+                    plain=get_strings(self.kerno).edit_profile_done,
+                    kind='success')
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)
                 )
