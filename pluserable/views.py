@@ -181,9 +181,8 @@ class AuthView(BaseView):
             self.schema, buttons=(get_strings(self.kerno).login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
-        request = self.request
         try:
-            cstruct = request.json_body
+            cstruct = self.request.json_body
         except ValueError as e:
             raise HTTPBadRequest({'invalid': str(e)})
 
@@ -193,8 +192,7 @@ class AuthView(BaseView):
             raise HTTPBadRequest({'invalid': e.asdict()})
 
         try:
-            ret = self.call_action(
-                name='Log in',
+            ret = CheckCredentials(**self.action_args)(
                 handle=captured['handle'],
                 password=captured['password'],
             )
@@ -226,7 +224,7 @@ class AuthView(BaseView):
                     password=captured['password'],
                 )
             except AuthenticationFailure as e:  # TODO View for this exception
-                add_flash(request, plain=str(e), kind='error')
+                add_flash(request, plain=str(e), kind='danger')
                 return render_form(request, self.form, captured,
                                    errors=[e])
             request.user = ret.user
