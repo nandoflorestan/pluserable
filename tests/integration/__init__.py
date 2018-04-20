@@ -3,7 +3,6 @@
 It accesses a database, so it is slower than a unit test.
 """
 
-from mock import Mock
 from bag.sqlalchemy.tricks import SubtransactionTrick
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
@@ -27,22 +26,9 @@ class IntegrationTestBase(AppTestCase):
         self.config = self._initialize_config(self.settings)
         self.config.include('pluserable')
         self.config.setup_pluserable(_get_ini_path())
-        eko = self.config.get_eko()
-        eko.register_utility(const.SAS, sas_factory)
-        self.repo = instantiate_repository(self.config.registry)
+        self.start_kerno(self.config, sas_factory=sas_factory)
 
     def tearDown(self):
-        """Executed after each test."""
+        """Clean up after each test."""
         testing.tearDown()
         self.subtransaction.close()
-
-    def get_request(self, post=None, request_method='GET'):
-        """Return a dummy request for testing."""
-        if post is None:
-            post = {'csrf_token': 'irrelevant but required'}
-        request = testing.DummyRequest(post)
-        request.session = Mock()
-        request.method = request_method
-        request.repo = self.repo
-        request.user = None
-        return request

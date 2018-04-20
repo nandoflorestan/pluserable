@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from mock import Mock, patch
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
@@ -69,7 +68,7 @@ class TestAuthView(IntegrationTestBase):
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
 
-        request = testing.DummyRequest(post={
+        request = self.get_request(post={
             'submit': True,
             'csrf_token': 'irrelevant but required',
         }, request_method='POST')

@@ -22,7 +22,7 @@ class TestViews(FunctionalTestBase):
         self.assertEqual(res.status_int, 200)
 
     def test_login_redirects_if_logged_in(self):
-        request = testing.DummyRequest()
+        request = self.get_request()
         from pluserable.views import AuthView
         with patch.object(AuthView, 'request', request) as request:
             request.user = Mock()

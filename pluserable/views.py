@@ -1,10 +1,12 @@
 """Views for Pyramid applications."""
 
+from abc import ABCMeta
 import logging
 import colander
 import deform
 from kerno.state import to_dict
-from kerno.web.pyramid import kerno_view, IKerno, KernoBaseView
+from kerno.web.pyramid import kerno_view, IKerno
+from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -121,8 +123,8 @@ def validate_form(controls, form):
     return captured
 
 
-class BaseView(KernoBaseView):
-    """Base class for views."""
+class BaseView(metaclass=ABCMeta):
+    """Base class for pluserable views."""
 
     @property
     def request(self):
@@ -132,9 +134,14 @@ class BaseView(KernoBaseView):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.Activation = self.kerno.get_utility(const.ACTIVATION_CLASS)
-        self.User = self.kerno.get_utility(const.USER_CLASS)
+        self.Activation = request.kerno.get_utility(const.ACTIVATION_CLASS)
+        self.User = request.kerno.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
+
+    @reify
+    def strings(self):
+        """Keep the strings class memoized."""
+        return get_strings(self.request.kerno)
 
 
 class AuthView(BaseView):
@@ -154,7 +161,7 @@ class AuthView(BaseView):
 
         form = request.registry.getUtility(ILoginForm)
         self.form = form(
-            self.schema, buttons=(get_strings(self.kerno).login_button,))
+            self.schema, buttons=(self.strings.login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
         try:
@@ -168,7 +175,7 @@ class AuthView(BaseView):
             raise HTTPBadRequest({'invalid': e.asdict()})
 
         try:
-            ret = CheckCredentials(**self.action_args)(
+            ret = CheckCredentials.from_pyramid(self.request)(
                 handle=captured['handle'],
                 password=captured['password'],
             )
@@ -195,7 +202,7 @@ class AuthView(BaseView):
                 return e.result(request)
 
             try:
-                ret = CheckCredentials(**self.action_args)(
+                ret = CheckCredentials.from_pyramid(request)(
                     handle=captured['handle'],
                     password=captured['password'],
                 )
@@ -212,12 +219,13 @@ class AuthView(BaseView):
         ...to the view defined in the ``pluserable.logout_redirect`` setting,
         which defaults to a view named 'index'.
         """
-        msg = get_strings(self.kerno).logout_done
+        request = self.request
+        msg = self.strings.logout_done
         if msg:
-            self.request.add_flash(plain=msg, kind='success')
-        self.request.session.invalidate()
+            request.add_flash(plain=msg, kind='success')
+        request.session.invalidate()
         return HTTPFound(
-            location=self.logout_redirect_view, headers=forget(self.request))
+            location=self.logout_redirect_view, headers=forget(request))
 
 
 class ForgotPasswordView(BaseView):
@@ -261,22 +269,20 @@ class ForgotPasswordView(BaseView):
         user.activation = activation
         repo.flush()  # initialize activation.code
 
-        Str = get_strings(self.kerno)
-
         # TODO: Generate msg in a separate method so subclasses can override
         mailer = get_mailer(request)
         username = getattr(user, 'short_name', '') or \
             getattr(user, 'full_name', '') or \
             getattr(user, 'username', '') or user.email
-        body = Str.reset_password_email_body.format(
+        body = self.strings.reset_password_email_body.format(
             link=route_url('reset_password', request, code=activation.code),
             username=username, domain=request.application_url)
-        subject = Str.reset_password_email_subject
+        subject = self.strings.reset_password_email_subject
         message = Message(subject=subject, recipients=[user.email], body=body)
         mailer.send(message)
 
         request.add_flash(
-            plain=Str.reset_password_email_sent,
+            plain=self.strings.reset_password_email_sent,
             kind='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
@@ -317,7 +323,7 @@ class ForgotPasswordView(BaseView):
             request.repo.delete_activation(user, activation)
 
             request.add_flash(
-                plain=get_strings(self.kerno).reset_password_done,
+                plain=self.strings.reset_password_done,
                 kind='success')
             request.registry.notify(PasswordResetEvent(
                 request, user, password))
@@ -373,11 +379,11 @@ class RegisterView(BaseView):
         if self.require_activation:
             create_activation(request, user)  # send activation email
             request.add_flash(
-                plain=get_strings(self.kerno).activation_check_email,
+                plain=self.strings.activation_check_email,
                 kind='success')
         elif not autologin:
             request.add_flash(
-                plain=get_strings(self.kerno).registration_done,
+                plain=self.strings.registration_done,
                 kind='success')
 
         request.registry.notify(NewRegistrationEvent(
@@ -399,13 +405,13 @@ class RegisterView(BaseView):
     @kerno_view
     def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        ret = ActivateUser(**self.action_args)(
+        ret = ActivateUser.from_pyramid(request)(
             code=request.matchdict.get('code', None),
             user_id=request.matchdict.get('user_id', None),
         )
 
         request.add_flash(  # TODO Move into action
-            plain=get_strings(self.kerno).activation_email_verified,
+            plain=self.strings.activation_email_verified,
             kind='success')
         request.registry.notify(  # send a Pyramid event
             RegistrationActivatedEvent(request, ret.user, ret.activation))
@@ -465,7 +471,7 @@ class ProfileView(BaseView):
                     # TODO This should be a validation error, not add_flash
                     request.add_flash(
                         plain=get_strings(
-                            self.kerno).edit_profile_email_present.format(
+                            request.kerno).edit_profile_email_present.format(
                             email=email),
                         kind='danger')
                     return HTTPFound(location=request.url)
@@ -480,7 +486,7 @@ class ProfileView(BaseView):
 
             if changed:
                 request.add_flash(
-                    plain=get_strings(self.kerno).edit_profile_done,
+                    plain=self.strings.edit_profile_done,
                     kind='success')
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)

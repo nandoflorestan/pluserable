@@ -1,10 +1,14 @@
 """Tests for *pluserable*."""
 
 from datetime import datetime
+from mock import Mock
 from unittest import TestCase
 from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
+
+from pluserable import const
+from pluserable.data.repository import instantiate_repository
 from tests.models import Activation, User
 
 
@@ -75,3 +79,25 @@ class AppTestCase(PluserableTestCase):
             print('Creating the tables on the test database:\n%s' % cls.engine)
             Base.metadata.drop_all(cls.engine)
             Base.metadata.create_all(cls.engine)
+
+    def start_kerno(self, config, sas_factory=None):
+        eko = config.get_eko()
+        eko.register_utility(const.SAS, sas_factory or self.sas)
+        self.repo = instantiate_repository(config.registry)
+        self.kerno = eko.kerno
+
+    def get_request(self, post=None, request_method='GET'):
+        """Return a dummy request for testing."""
+        if post is None:
+            post = {'csrf_token': 'irrelevant but required'}
+        request = testing.DummyRequest(post)
+        request.session = Mock()
+        request.method = request_method
+        request.repo = self.repo
+        request.user = None
+        request.kerno = self.kerno
+
+        # from tests.fast import FakeKerno
+        # request.kerno = FakeKerno()
+
+        return request
