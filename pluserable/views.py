@@ -3,10 +3,8 @@
 import logging
 import colander
 import deform
-from abc import ABCMeta
 from kerno.state import to_dict
-from kerno.web.pyramid import kerno_view, IKerno
-from pyramid.decorator import reify
+from kerno.web.pyramid import kerno_view, IKerno, KernoBaseView
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
@@ -123,7 +121,7 @@ def validate_form(controls, form):
     return captured
 
 
-class BaseView(metaclass=ABCMeta):
+class BaseView(KernoBaseView):
     """Base class for views."""
 
     @property
@@ -137,19 +135,6 @@ class BaseView(metaclass=ABCMeta):
         self.Activation = self.kerno.get_utility(const.ACTIVATION_CLASS)
         self.User = self.kerno.get_utility(const.USER_CLASS)
         self.settings = request.registry.settings
-
-    @reify
-    def kerno(self):
-        return self.request.registry.getUtility(IKerno)
-
-    @property
-    def action_args(self):
-        """Make it more convenient to call a kerno action."""
-        return {
-            'kerno': self.kerno,
-            'user': self.request.user,
-            'repo': self.request.repo,
-        }
 
 
 class AuthView(BaseView):
