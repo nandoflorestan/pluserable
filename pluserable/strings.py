@@ -14,7 +14,7 @@ def get_strings(reg):
     return reg.get_utility(const.STRING_CLASS)
 
 
-class UIStringsBase(object):
+class UIStringsBase:
     """A class containing all GUI strings in the application.
 
     User apps can simply subclass and change whatever text they want.

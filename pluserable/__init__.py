@@ -24,7 +24,7 @@ def groupfinder(userid, request):
     return groups
 
 
-class BaseStrategy(object):
+class BaseStrategy:
 
     defaults = [
         (IForgotPasswordSchema, ForgotPasswordSchema),
@@ -74,7 +74,7 @@ def initialize_kerno(config_path, eko=None):
     # Other settings are read from the [pluserable] section of the ini file:
     try:
         section = eko.kerno.settings['pluserable']
-    except:
+    except Exception:
         section = {}
     eko.kerno.pluserable_settings = SettingsReader(section)
     return eko
