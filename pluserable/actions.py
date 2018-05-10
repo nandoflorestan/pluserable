@@ -8,19 +8,21 @@ be thin.  Business rules must be decoupled from the web framework.
 """
 
 from datetime import datetime
+from typing import Any
+
 from bag.reify import reify
 from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
+
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.strings import get_strings
-from typing import Any
+from pluserable.strings import get_strings, UIStringsBase
 
 
 class PluserableAction(Action):
     """Base class for our actions."""
 
     @reify
-    def _strings(self):
+    def _strings(self) -> UIStringsBase:
         return get_strings(self.kerno)
 
 

@@ -2,10 +2,12 @@ from pyramid.settings import asbool
 
 
 class AuthenticationFailure(Exception):
+
     pass
 
 
 class FormValidationFailure(Exception):  # TODO REMOVE
+
     def __init__(self, form, exc):
         Exception.__init__(self)
         self.form = form

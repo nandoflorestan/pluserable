@@ -1,12 +1,10 @@
 """Base models for apps that use SQLAlchemy and pluserable."""
 
-# from pyramid.security import Allow
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declared_attr
-
 from bag.sqlalchemy.tricks import MinimalBase, ID
 from bag.text import pluralize
 from bag.text.hash import random_hash
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declared_attr
 
 from pluserable.data.models import (
     three_days_from_now, ActivationBase, GroupBase, UserBase)
