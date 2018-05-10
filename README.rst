@@ -9,10 +9,11 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-*pluserable* 0.6+ requires Python >= 3.5.
-The last version of *pluserable* that supported Python 2 was 0.2.0.
-
 The documentation is at http://docs.nando.audio/pluserable/latest/
+
+- The last version of *pluserable* that supported Python 2 was 0.2.0.
+- *pluserable* 0.5 requires Python >= 3.4.
+- *pluserable* 0.6 requires Python >= 3.5 and has (some) type annotations.
 
 
 Minimal integration
