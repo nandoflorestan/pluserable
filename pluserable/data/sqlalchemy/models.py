@@ -34,7 +34,7 @@ class ActivationMixin(ActivationBase, MinimalBase, ID):
                          default=thirty_days_from_now)
 
     @declared_attr
-    def created_by(self):
+    def created_by(self):  # TODO Use according to doc above
         """The system that generated the activation key."""
         return sa.Column(sa.Unicode(30), nullable=False,
                          default='web')
