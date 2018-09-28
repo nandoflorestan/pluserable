@@ -241,7 +241,10 @@ class ForgotPasswordView(BaseView):
             request)
 
     def forgot_password(self):  # TODO Extract action
-        """Show or process the "forgot password" form."""
+        """Show or process the "forgot password" form.
+
+        Create a token and send email for user to click link.
+        """
         request = self.request
         schema = request.registry.getUtility(IForgotPasswordSchema)
         schema = schema().bind(request=request)
@@ -287,6 +290,10 @@ class ForgotPasswordView(BaseView):
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
+        """Show or process the "reset password" form.
+
+        After user clicked link on email message.
+        """
         request = self.request
         schema = request.registry.getUtility(IResetPasswordSchema)
         schema = schema().bind(request=request)

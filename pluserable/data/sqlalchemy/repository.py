@@ -1,8 +1,11 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
-from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
+from datetime import datetime
+
 from bag.reify import reify
+from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
 from sqlalchemy import func
+
 from pluserable import const
 
 
@@ -25,7 +28,7 @@ class Repository(BaseSQLAlchemyRepository):
         return self.kerno.get_utility(const.GROUP_CLASS)
 
     def q_user_by_activation(self, activation):
-        """Return the Activation with ``activation``, or None."""
+        """Return the user with ``activation``, or None."""
         return self.sas.query(self.User).filter(
             self.User.activation_id == activation.id).first()
 
@@ -78,3 +81,13 @@ class Repository(BaseSQLAlchemyRepository):
         assert isinstance(activation, self.Activation)
         user.activation = None
         self.sas.delete(activation)
+
+    def delete_expired_activations(self, now=None):
+        """Delete all old activations."""
+        now = now or datetime.utcnow()
+        oldies = self.sas.query(self.Activation).filter(
+            self.Activation.valid_until < now)
+        count = oldies.count()
+        for old in oldies:
+            self.sas.delete(old)
+        return count

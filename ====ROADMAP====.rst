@@ -11,11 +11,13 @@ flexible and maintainable.
 Refactoring
 ===========
 
+- Remove ZODB and the dream of supporting anything other than SQLAlchemy.
 - Use kerno.state instead of bag's add_flash(). Document.
 - Use kerno.event instead of pyramid events. Document.
 - Add @kerno_page and use it instead of @kerno_view.
 - Use kerno.to_dict
 - Stop the configuration madness.
+- Rename NoUsernameMixin to BasicUserMixin and UsernameMixin to NamedUserMixin.
 - Require Python 3.6 and use the pydantic library to validate configuration
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document
@@ -34,6 +36,5 @@ Features
 ========
 
 - Integrate velruse so we will have login via Facebook, Google etc.
-- Create a ZODB repository in order to validate the interfaces.
 - Support Mozilla Persona?
 - New git repo

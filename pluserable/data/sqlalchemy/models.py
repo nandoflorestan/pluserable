@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 
 from pluserable.data.models import (
-    three_days_from_now, ActivationBase, GroupBase, UserBase)
+    thirty_days_from_now, ActivationBase, GroupBase, UserBase)
 
 
 class ActivationMixin(ActivationBase, MinimalBase, ID):
@@ -31,7 +31,7 @@ class ActivationMixin(ActivationBase, MinimalBase, ID):
     def valid_until(self):
         """How long will the activation key last."""
         return sa.Column(sa.DateTime, nullable=False,
-                         default=three_days_from_now)
+                         default=thirty_days_from_now)
 
     @declared_attr
     def created_by(self):

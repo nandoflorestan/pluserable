@@ -8,8 +8,10 @@ import cryptacular.bcrypt
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 
 
-def three_days_from_now():
-    return datetime.utcnow() + timedelta(days=3)
+def thirty_days_from_now(now=None):
+    """Return a datetime pointing to exactly 30 days in the future."""
+    now = now or datetime.utcnow()
+    return now + timedelta(days=30)
 
 
 class ActivationBase:
@@ -27,7 +29,7 @@ class ActivationBase:
     def __init__(self, code=None, valid_until=None, created_by='web'):
         """Usually call with the ``created_by`` system, or no arguments."""
         self.code = code or random_hash()
-        self.valid_until = valid_until or three_days_from_now()
+        self.valid_until = valid_until or thirty_days_from_now()
         assert isinstance(self.valid_until, datetime)
         self.created_by = created_by
 
