@@ -186,13 +186,14 @@ class AuthView(BaseView):
             })
         return {'status': 'okay', 'user': to_dict(ret.user)}
 
-    def login(self):
+    def login(self, handle=None):
         """Present the login form, or validate data and authenticate user."""
         request = self.request
         if request.method == 'GET':
             if request.user:
                 return HTTPFound(location=self.login_redirect_view)
-            return render_form(request, self.form)
+            return render_form(request, self.form,
+                               appstruct={'handle': handle} if handle else {})
 
         elif request.method == 'POST':
             controls = request.POST.items()
