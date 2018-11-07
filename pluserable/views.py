@@ -67,7 +67,7 @@ def authenticated(request, userid):
         'pluserable.autologin', False))
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
-        request.add_flash(plain=msg, kind='success')
+        request.add_flash(plain=msg, level='success')
     return HTTPFound(
         headers=remember(request, userid),
         location=request.params.get('next')
@@ -208,7 +208,7 @@ class AuthView(BaseView):
                     password=captured['password'],
                 )
             except AuthenticationFailure as e:  # TODO View for this exception
-                request.add_flash(plain=str(e), kind='danger')
+                request.add_flash(plain=str(e), level='danger')
                 return render_form(request, self.form, captured,
                                    errors=[e])
             request.user = ret.user
@@ -223,7 +223,7 @@ class AuthView(BaseView):
         request = self.request
         msg = self.strings.logout_done
         if msg:
-            request.add_flash(plain=msg, kind='success')
+            request.add_flash(plain=msg, level='success')
         request.session.invalidate()
         return HTTPFound(
             location=self.logout_redirect_view, headers=forget(request))
@@ -287,7 +287,7 @@ class ForgotPasswordView(BaseView):
 
         request.add_flash(
             plain=self.strings.reset_password_email_sent,
-            kind='success')
+            level='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):
@@ -332,7 +332,7 @@ class ForgotPasswordView(BaseView):
 
             request.add_flash(
                 plain=self.strings.reset_password_done,
-                kind='success')
+                level='success')
             request.registry.notify(PasswordResetEvent(
                 request, user, password))
             location = self.reset_password_redirect_view
@@ -388,11 +388,11 @@ class RegisterView(BaseView):
             create_activation(request, user)  # send activation email
             request.add_flash(
                 plain=self.strings.activation_check_email,
-                kind='success')
+                level='success')
         elif not autologin:
             request.add_flash(
                 plain=self.strings.registration_done,
-                kind='success')
+                level='success')
 
         request.registry.notify(NewRegistrationEvent(
             request, user, None, controls))
@@ -420,7 +420,7 @@ class RegisterView(BaseView):
 
         request.add_flash(  # TODO Move into action
             plain=self.strings.activation_email_verified,
-            kind='success')
+            level='success')
         request.registry.notify(  # send a Pyramid event
             RegistrationActivatedEvent(request, ret.user, ret.activation))
         # If an exception is raised in an event subscriber, this never runs:
@@ -481,7 +481,7 @@ class ProfileView(BaseView):
                         plain=get_strings(
                             request.kerno).edit_profile_email_present.format(
                             email=email),
-                        kind='danger')
+                        level='danger')
                     return HTTPFound(location=request.url)
                 if email != user.email:
                     user.email = email
@@ -495,7 +495,7 @@ class ProfileView(BaseView):
             if changed:
                 request.add_flash(
                     plain=self.strings.edit_profile_done,
-                    kind='success')
+                    level='success')
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)
                 )

@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from mock import Mock, patch
-from pyramid import testing
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
 from kerno.state import MalbonaRezulto
@@ -100,7 +99,7 @@ class TestAuthView(IntegrationTestBase):
         view = AuthView(request)
         view.login()
         request.add_flash.assert_called_with(
-            plain="Wrong username or password.", kind="danger")
+            plain="Wrong username or password.", level="danger")
 
     def test_login_succeeds(self):
         """Make sure we can log in."""
@@ -145,7 +144,7 @@ class TestAuthView(IntegrationTestBase):
         view.login()
         request.add_flash.assert_called_with(
             plain='Your account is not active; please check your e-mail.',
-            kind='danger')
+            level='danger')
 
     def test_logout(self):
         """User logs out successfully."""
@@ -166,7 +165,7 @@ class TestAuthView(IntegrationTestBase):
                 view.logout()
                 request.add_flash.assert_called_with(
                     plain=UIStringsBase.logout_done,
-                    kind="success")
+                    level="success")
 
                 forget.assert_called_with(request)
                 assert invalidate.called
@@ -280,7 +279,7 @@ class TestRegisterView(IntegrationTestBase):
         view = RegisterView(request)
         response = view.register()
         request.add_flash.assert_called_with(
-            plain=UIStringsBase.registration_done, kind="success")
+            plain=UIStringsBase.registration_done, level="success")
         assert response.status_int == 302
         user = request.repo.q_user_by_username('admin')
         assert user.is_activated is True
@@ -453,7 +452,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         request.add_flash.assert_called_with(
             plain=UIStringsBase.reset_password_email_sent,
-            kind="success")
+            level="success")
         assert response.status_int == 302
 
     def test_forgot_password_invalid_password(self):
