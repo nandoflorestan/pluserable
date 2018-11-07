@@ -2,6 +2,7 @@ language: python
 python:
   - "3.5"
   - "3.6"
+  - "3.7"
   - "pypy3"
 # Let's try testing on pypy3 since they have 3.5.3 now.
 
