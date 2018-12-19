@@ -30,7 +30,7 @@ class Repository(BaseSQLAlchemyRepository):
     def q_user_by_activation(self, activation):
         """Return the user with ``activation``, or None."""
         return self.sas.query(self.User).filter(
-            self.User.activation_id == activation.id).first()
+            self.User.activation == activation).first()
 
     def q_user_by_id(self, id):
         """Return a user with ``id``, or None."""
