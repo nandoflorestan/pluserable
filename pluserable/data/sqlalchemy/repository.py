@@ -1,8 +1,10 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from datetime import datetime
+from typing import Any, Dict
 
 from bag.reify import reify
+from bag.text import random_string
 from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
 from sqlalchemy import func
 
@@ -37,7 +39,7 @@ class Repository(BaseSQLAlchemyRepository):
         # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 
-    def q_user_by_email(self, email):
+    def q_user_by_email(self, email):  # TODO Rename to get_user_by_email
         """Return a user with ``email``, or None."""
         return self.sas.query(self.User).filter(
             func.lower(self.User.email) == email.lower()).first()
@@ -91,3 +93,21 @@ class Repository(BaseSQLAlchemyRepository):
         for old in oldies:
             self.sas.delete(old)
         return count
+
+    def get_or_create_user_by_email(self, email: str, details: Dict[str, Any]):
+        """Return User if ``email`` exists, else create User with ``details``.
+
+        The returned User instance has a transient ``is_new`` flag.
+        If the user is new, they need to go through password recovery.
+        # TODO No access to tmp_password, create activation, send email
+        """
+        user = self.q_user_by_email(email)
+        if user is None:
+            tmp_password = random_string(length=8)
+            user = self.User(email=email, password=tmp_password, **details)
+            self.add(user)
+            self.flush()
+            user.is_new = tmp_password
+        else:
+            user.is_new = False
+        return user
