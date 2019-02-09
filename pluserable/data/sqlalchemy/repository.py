@@ -44,15 +44,15 @@ class Repository(BaseSQLAlchemyRepository):
         return self.sas.query(self.User).filter(
             func.lower(self.User.email) == email.lower())
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str):
         """Return a user with ``email``, or None."""
         return self.q_user_by_email(email).first()
 
-    def one_user_by_email(self, email: str) -> User:
+    def one_user_by_email(self, email: str):
         """Return a user with ``email``, or raise."""
         return self.q_user_by_email(email).one()
 
-    def q_user_by_username(self, username):
+    def q_user_by_username(self, username: str):
         """Return a user with ``username``, or None. Case-insensitive."""
         return self.sas.query(self.User).filter(
             # self.User.username == username
@@ -102,9 +102,7 @@ class Repository(BaseSQLAlchemyRepository):
             self.sas.delete(old)
         return count
 
-    def get_or_create_user_by_email(
-        self, email: str, details: Dict[str, Any],
-    ) -> User:
+    def get_or_create_user_by_email(self, email: str, details: Dict[str, Any]):
         """Return User if ``email`` exists, else create User with ``details``.
 
         The returned User instance has a transient ``is_new`` flag.
