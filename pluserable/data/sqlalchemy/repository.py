@@ -1,7 +1,7 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from bag.reify import reify
 from bag.text import random_string
@@ -39,10 +39,18 @@ class Repository(BaseSQLAlchemyRepository):
         # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 
-    def q_user_by_email(self, email):  # TODO Rename to get_user_by_email
-        """Return a user with ``email``, or None."""
+    def q_user_by_email(self, email: str):
+        """Return a query for a user with ``email``."""
         return self.sas.query(self.User).filter(
-            func.lower(self.User.email) == email.lower()).first()
+            func.lower(self.User.email) == email.lower())
+
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        """Return a user with ``email``, or None."""
+        return self.q_user_by_email(email).first()
+
+    def one_user_by_email(self, email: str) -> User:
+        """Return a user with ``email``, or raise."""
+        return self.q_user_by_email(email).one()
 
     def q_user_by_username(self, username):
         """Return a user with ``username``, or None. Case-insensitive."""
@@ -94,7 +102,9 @@ class Repository(BaseSQLAlchemyRepository):
             self.sas.delete(old)
         return count
 
-    def get_or_create_user_by_email(self, email: str, details: Dict[str, Any]):
+    def get_or_create_user_by_email(
+        self, email: str, details: Dict[str, Any],
+    ) -> User:
         """Return User if ``email`` exists, else create User with ``details``.
 
         The returned User instance has a transient ``is_new`` flag.

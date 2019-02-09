@@ -11,7 +11,7 @@ from .strings import get_strings, _
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
     request = node.bindings['request']
-    user = request.repo.q_user_by_email(val)
+    user = request.repo.get_user_by_email(val)
     if not user:
         raise c.Invalid(node, get_strings(
             request.registry).reset_password_email_must_exist.format(val))
@@ -20,7 +20,7 @@ def email_exists(node, val):
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
     request = node.bindings['request']
-    other = request.repo.q_user_by_email(val)
+    other = request.repo.get_user_by_email(val)
     if other:
         raise c.Invalid(node, get_strings(
             request.registry).registration_email_exists.format(other.email))

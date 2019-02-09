@@ -41,7 +41,7 @@ class CheckCredentials(PluserableAction):
     def q_user(self, handle: str) -> Any:
         """Fetch user. ``handle`` can be a username or an email."""
         if '@' in handle:
-            return self.repo.q_user_by_email(handle)
+            return self.repo.get_user_by_email(handle)
         else:
             return self.repo.q_user_by_username(handle)
 

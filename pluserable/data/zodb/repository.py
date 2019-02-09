@@ -49,7 +49,7 @@ class Repository:
         # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 
-    def q_user_by_email(self, email):
+    def get_user_by_email(self, email):
         """Return a user with ``email``, or None."""
         return self.sas.query(self.User).filter(
             func.lower(self.User.email) == email.lower()).first()

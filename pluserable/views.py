@@ -2,6 +2,7 @@
 
 from abc import ABCMeta
 import logging
+
 import colander
 import deform
 from kerno.state import to_dict
@@ -11,7 +12,6 @@ from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
 from pyramid.url import route_url
-
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
@@ -268,7 +268,7 @@ class ForgotPasswordView(BaseView):
             return e.result(request)
 
         repo = request.repo
-        user = repo.q_user_by_email(captured['email'])
+        user = repo.get_user_by_email(captured['email'])
         activation = self.Activation()
         user.activation = activation
         repo.flush()  # initialize activation.code
@@ -474,7 +474,7 @@ class ProfileView(BaseView):
             changed = False
             email = captured.get('email', None)
             if email:
-                email_user = request.repo.q_user_by_email(email)
+                email_user = request.repo.get_user_by_email(email)
                 if email_user and email_user.id != user.id:
                     # TODO This should be a validation error, not add_flash
                     request.add_flash(

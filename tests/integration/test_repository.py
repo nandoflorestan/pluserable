@@ -81,22 +81,22 @@ class TestRepository(IntegrationTestBase):
         ret = repo.q_user_by_id(2)
         assert ret is None
 
-    def test_q_user_by_email(self):
-        """q_user_by_email() called with valid email returns the user."""
+    def test_get_user_by_email(self):
+        """get_user_by_email() called with valid email returns the user."""
         user = self.create_users(count=1)
         self.sas.flush()
 
         repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_email(user.email)
+        ret = repo.get_user_by_email(user.email)
         assert ret is user
 
-    def test_q_user_by_email_invalid(self):
-        """q_user_by_email() called with invalid email returns None."""
+    def test_get_user_by_email_invalid(self):
+        """get_user_by_email() called with invalid email returns None."""
         self.create_users(count=1)
         self.sas.flush()
 
         repo = instantiate_repository(self.config.registry)
-        new_user = repo.q_user_by_email('someone@else.com')
+        new_user = repo.get_user_by_email('someone@else.com')
 
         assert new_user is None
 
