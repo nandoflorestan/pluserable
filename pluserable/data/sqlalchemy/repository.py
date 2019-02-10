@@ -109,7 +109,7 @@ class Repository(BaseSQLAlchemyRepository):
         If the user is new, they need to go through password recovery.
         # TODO No access to tmp_password, create activation, send email
         """
-        user = self.q_user_by_email(email)
+        user = self.get_user_by_email(email)
         if user is None:
             tmp_password = random_string(length=8)
             user = self.User(email=email, password=tmp_password, **details)
