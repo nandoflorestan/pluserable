@@ -18,6 +18,23 @@ from pluserable.exceptions import AuthenticationFailure
 from pluserable.strings import get_strings, UIStringsBase
 
 
+def get_activation_link(request, user_id: int, code: str) -> str:
+    """Return the link for the user to click on an email message.
+
+    ``route_url()`` uses the protocol and domain detected from the
+    current request.  Unfortunately in production, that's usually
+    https for the load balancer, but http for a backend Pyramid server.
+    So we take advantage of a ``scheme_domain_port`` configuration
+    setting if provided.
+    """
+    scheme_domain_port: str = request.registry.settings.get(
+        'scheme_domain_port', '')
+    return scheme_domain_port + request.route_path(
+        'activate', user_id=user_id, code=code
+    ) if scheme_domain_port else request.route_url(
+        'activate', user_id=user_id, code=code)
+
+
 class PluserableAction(Action):
     """Base class for our actions."""
 

@@ -15,9 +15,10 @@ from pyramid.url import route_url
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from pluserable.actions import (
-    ActivateUser, CheckCredentials, require_activation_setting_value)
 from pluserable import const
+from pluserable.actions import (
+    ActivateUser, CheckCredentials, require_activation_setting_value,
+    get_activation_link)
 from pluserable.interfaces import (
     ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
@@ -85,13 +86,13 @@ def create_activation(request, user):  # TODO Move to action
     user.activation = activation
     repo.flush()
 
-    link = request.route_url('activate', user_id=user.id,
-                             code=user.activation.code)
     strings = get_strings(kerno)
     message = Message(
         subject=strings.activation_email_subject,
         recipients=[user.email],
-        body=strings.activation_email_plain.replace('ACTIVATION_LINK', link),
+        body=strings.activation_email_plain.replace(
+            'ACTIVATION_LINK', get_activation_link(
+                request, user_id=user.id, code=user.activation.code)),
     )
     mailer = get_mailer(request)
     mailer.send(message)
