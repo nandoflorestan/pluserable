@@ -65,20 +65,20 @@ class AppTestCase(PluserableTestCase):
         if AppTestCase.run_once:
             return  # Only create tables once per test suite run
         AppTestCase.run_once = True
+        cls.create_test_database()
 
-        from py.test import config
+    @classmethod
+    def create_test_database(cls):
+        """Create tables once to run all the tests."""
+        from sqlalchemy import engine_from_config
+        from tests.models import Base
 
-        # Only run database setup on master (in case of xdist/multiproc mode)
-        if not hasattr(config, 'slaveinput'):
-            from sqlalchemy import engine_from_config
-            from tests.models import Base
-
-            cls = AppTestCase  # set class variables on superclass
-            cls.settings = cls._read_pyramid_settings()
-            cls.engine = engine_from_config(cls.settings, prefix='sqlalchemy.')
-            print('Creating the tables on the test database:\n%s' % cls.engine)
-            Base.metadata.drop_all(cls.engine)
-            Base.metadata.create_all(cls.engine)
+        cls = AppTestCase  # set class variables on superclass
+        cls.settings = cls._read_pyramid_settings()
+        cls.engine = engine_from_config(cls.settings, prefix='sqlalchemy.')
+        print('Creating the tables on the test database:\n%s' % cls.engine)
+        Base.metadata.drop_all(cls.engine)
+        Base.metadata.create_all(cls.engine)
 
     def start_kerno(self, config, sas_factory=None):
         eko = config.get_eko()

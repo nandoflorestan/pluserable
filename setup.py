@@ -26,7 +26,7 @@ class PyTest(TestCommand):
         # self.test_suite = True
 
     def run_tests(self):
-        # Import here, because outside the eggs aren't loaded
+        # Import here, because outside requirements aren't installed
         import pytest
         result = pytest.main(self.test_args)
         sys.exit(result)
