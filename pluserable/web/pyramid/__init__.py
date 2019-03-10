@@ -2,7 +2,6 @@
 
 from bag.settings import SettingsReader
 from kerno.web.pyramid import IKerno
-from pyramid.security import unauthenticated_userid
 from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
@@ -15,7 +14,7 @@ from .resources import RootFactory
 
 def get_user(request):
     """Return the user making the current request, or None."""
-    userid = unauthenticated_userid(request)
+    userid = request.unauthenticated_userid
     if userid is None:
         return None
     return request.repo.q_user_by_id(userid)
