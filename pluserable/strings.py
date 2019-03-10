@@ -32,7 +32,8 @@ class UIStringsBase:
     activation_email_subject = _("Please activate your account!")
     activation_email_plain = _(
         "Please validate your email and activate your account by visiting:\n"
-        "ACTIVATION_LINK")
+        "ACTIVATION_LINK\n\nThe above link is only valid for one use, so "
+        "after this process you can delete this email message.")
     activation_email_verified_title = _('E-mail verified!')
     activation_email_verified = _("Your e-mail address has been verified. "
                                   "Thank you!")
