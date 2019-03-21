@@ -26,7 +26,9 @@ class UIStringsBase:
     activation_code_not_found_title = _("Activation code not found")
     activation_code_not_found = _(
         "That code cannot be found in the system. Maybe you "
-        "already used it -- in this case, just try logging in.")
+        "already used it -- in this case, just try logging in. If you cannot, "
+        '(from the login page) click on "Forgot password" to set a password '
+        'and activate your user.')
     activation_code_not_match_title = _("Code and user do not match")
     activation_code_not_match = _("That code does not belong to that user.")
     activation_email_subject = _("Please activate your account!")
