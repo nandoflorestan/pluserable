@@ -2,16 +2,19 @@
 
 from datetime import datetime
 from mock import Mock, patch
+
+from kerno.state import MalbonaRezulto
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.mailer import DummyMailer
-from kerno.state import MalbonaRezulto
+from pyramid.httpexceptions import HTTPNotFound
+
 from pluserable.events import (
     NewRegistrationEvent, PasswordResetEvent, ProfileUpdatedEvent)
-from pluserable.interfaces import (
-    ILoginForm, ILoginSchema, IRegisterSchema, IRegisterForm)
+from pluserable.interfaces import ILoginForm, ILoginSchema
 from pluserable.strings import UIStringsBase
 from pluserable.views import (
     AuthView, ForgotPasswordView, ProfileView, RegisterView)
+
 from tests.models import User
 from . import IntegrationTestBase
 
@@ -589,9 +592,8 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         request.user = None  # nobody is logged in
         view = ForgotPasswordView(request)
-        ret = view.reset_password()
-
-        assert ret.status_int == 404
+        with self.assertRaises(HTTPNotFound):
+            view.reset_password()
 
 
 class TestProfileView(IntegrationTestBase):
@@ -631,9 +633,8 @@ class TestProfileView(IntegrationTestBase):
         request.matchdict.get = get
 
         view = ProfileView(request)
-        response = view.profile()
-
-        assert response.status_int == 404
+        with self.assertRaises(HTTPNotFound):
+            view.profile()
 
     def test_profile_update_profile_invalid(self):
         from pluserable.interfaces import IProfileSchema

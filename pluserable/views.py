@@ -306,7 +306,7 @@ class ForgotPasswordView(BaseView):
         code = request.matchdict.get('code', None)
         activation = request.repo.q_activation_by_code(code)
         if not activation:
-            return HTTPNotFound()
+            raise HTTPNotFound()
 
         user = request.repo.q_user_by_activation(activation)
         if user is None:
@@ -435,7 +435,7 @@ class ProfileView(BaseView):
         user_id = self.request.matchdict.get('user_id', None)
         user = self.request.repo.q_user_by_id(user_id)
         if not user:
-            return HTTPNotFound()
+            raise HTTPNotFound()
         return {'user': user}
 
     def _get_form(self):
@@ -450,7 +450,7 @@ class ProfileView(BaseView):
         request = self.request
         user = request.user
         # if not user:  # substitute with effective_principals=Authenticated
-        #     return HTTPNotFound()
+        #     raise HTTPNotFound()
 
         form = self._get_form()
 
