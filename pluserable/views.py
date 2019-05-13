@@ -291,7 +291,7 @@ class ForgotPasswordView(BaseView):
             level='success')
         return HTTPFound(location=self.reset_password_redirect_view)
 
-    def reset_password(self):
+    def reset_password(self):  # TODO Extract action
         """Show or process the "reset password" form.
 
         After user clicked link on email message.
@@ -306,7 +306,7 @@ class ForgotPasswordView(BaseView):
         code = request.matchdict.get('code', None)
         activation = request.repo.q_activation_by_code(code)
         if not activation:
-            raise HTTPNotFound()
+            raise HTTPNotFound(self.strings.activation_code_not_found)
 
         user = request.repo.q_user_by_activation(activation)
         if user is None:
@@ -504,7 +504,7 @@ class ProfileView(BaseView):
 
 
 def get_pyramid_views_config():
-    """A dictionary for registering Pyramid views."""
+    """Return a dictionary for registering Pyramid views."""
     return {  # route_name: view_kwargs
         'register': {'view': RegisterView, 'attr': 'register',
                      'renderer': 'pluserable:templates/register.mako'},

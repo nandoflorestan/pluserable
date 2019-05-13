@@ -25,7 +25,7 @@ class UIStringsBase:
           "continue by clicking the activation link we have sent you.")
     activation_code_not_found_title = _("Activation code not found")
     activation_code_not_found = _(
-        "That code cannot be found in the system. Maybe you "
+        "That activation code cannot be found in the system. Maybe you "
         "already used it -- in this case, just try logging in. If you cannot, "
         '(from the login page) click on "Forgot password" to set a password '
         'and activate your user.')
