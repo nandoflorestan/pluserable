@@ -1,7 +1,9 @@
 """Pluserable integration for the Pyramid web framework."""
 
 from bag.settings import SettingsReader
+from kerno.kerno import Kerno
 from kerno.web.pyramid import IKerno
+
 from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
@@ -9,7 +11,7 @@ from pluserable.interfaces import (
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
 from pluserable.data.repository import instantiate_repository
-from .resources import RootFactory
+from pluserable.web.pyramid.resources import RootFactory
 
 
 def get_user(request):
@@ -20,23 +22,23 @@ def get_user(request):
     return request.repo.q_user_by_id(userid)
 
 
-def create_kerno(config, ini_path):
+def create_kerno(config, *ini_paths: str) -> Kerno:
     """Return kerno -- either found in the registry, or initialized here."""
     eko = getattr(config, 'eko', None)
     if eko:
-        eko = initialize_kerno(ini_path, eko=eko)
+        eko = initialize_kerno(*ini_paths, eko=eko)
     else:
-        eko = initialize_kerno(ini_path)
+        eko = initialize_kerno(*ini_paths)
         config.add_directive('get_eko', lambda config: eko)
     config.registry.registerUtility(eko.kerno, IKerno)
     # kerno = registry.queryUtility(IKerno, default=None)
     return eko.kerno
 
 
-def setup_pluserable(config, ini_path):
+def setup_pluserable(config, *ini_paths: str) -> None:
     """Integrate pluserable into a Pyramid web app.
 
-    ``ini_path`` must be the path to an INI file.
+    ``ini_paths`` must be the path to at least one INI file.
     """
     registry = config.registry
 
@@ -56,7 +58,7 @@ def setup_pluserable(config, ini_path):
         default='pluserable.settings:get_default_pluserable_settings')
     settings['pluserable'] = configurator(config)
 
-    create_kerno(config, ini_path)
+    create_kerno(config, *ini_paths)
     config.include('kerno.web.pyramid')
 
     # SubmitForm is the default for all our forms
@@ -80,6 +82,6 @@ def setup_pluserable(config, ini_path):
     config.include('pluserable.views')
 
 
-def includeme(config):
+def includeme(config) -> None:
     """Pyramid integration. Add a configurator directive to be used next."""
     config.add_directive('setup_pluserable', setup_pluserable)

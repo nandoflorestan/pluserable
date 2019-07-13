@@ -57,9 +57,9 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def initialize_kerno(config_path, eko=None):
+def initialize_kerno(*ini_paths, eko=None):
     """Initialize the core system, isolated from the web framework."""
-    eko = eko or Eko.from_ini(config_path)
+    eko = eko or Eko.from_ini(*ini_paths)
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     eko.include('kerno.repository')  # adds add_repository_mixin() to eko
