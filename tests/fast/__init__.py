@@ -3,21 +3,12 @@
 Unit tests go through only one function and they do not hit the database.
 """
 
+from unittest.mock import Mock
+
 from pyramid.registry import Registry
 from pluserable import const
 from pluserable.strings import UIStringsBase
 from .. import UnitTestCase
-
-
-class FakeKerno:
-    """Mock object for tests."""
-
-    def get_utility(self, name):
-        """Return the default utility."""
-        if name == const.STRING_CLASS:
-            return UIStringsBase
-        else:
-            raise RuntimeError('Unknown utility: {}'.format(name))
 
 
 class FastTestCase(UnitTestCase):
@@ -27,3 +18,10 @@ class FastTestCase(UnitTestCase):
         r = Registry('testing')
         r.settings = kw
         return r
+
+    def _fake_kerno(self, utilities={}):
+        kerno = Mock()
+        kerno.utilities = {
+            const.STRING_CLASS: UIStringsBase,
+            **utilities
+        }

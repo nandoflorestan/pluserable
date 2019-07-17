@@ -78,7 +78,7 @@ def authenticated(request, userid):
 
 def create_activation(request, user):  # TODO Move to action
     kerno = request.registry.getUtility(IKerno)
-    Activation = kerno.get_utility(const.ACTIVATION_CLASS)
+    Activation = kerno.utilities[const.ACTIVATION_CLASS]
     activation = Activation()
 
     repo = request.repo
@@ -135,8 +135,8 @@ class BaseView(metaclass=ABCMeta):
 
     def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.Activation = request.kerno.get_utility(const.ACTIVATION_CLASS)
-        self.User = request.kerno.get_utility(const.USER_CLASS)
+        self.Activation = request.kerno.utilities[const.ACTIVATION_CLASS]
+        self.User = request.kerno.utilities[const.USER_CLASS]
         self.settings = request.registry.settings
 
     @reify

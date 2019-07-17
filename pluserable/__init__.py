@@ -62,15 +62,15 @@ def eki(eko: Eko):
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     eko.include('kerno.repository')  # adds add_repository_mixin() to eko
-    eko.set_default_utility(
+    eko.utilities.set_default(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
     eko.add_repository_mixin(  # type: ignore
-        mixin=eko.kerno.get_utility(const.REPOSITORY),  # type: ignore
+        mixin=eko.kerno.utilities[const.REPOSITORY],
     )
 
     # The UI text can be changed; by default we use UIStringsBase itself:
-    eko.set_default_utility(const.STRING_CLASS,
-                            'pluserable.strings:UIStringsBase')
+    eko.utilities.set_default(const.STRING_CLASS,
+                              'pluserable.strings:UIStringsBase')
 
     # Other settings are read from the [pluserable] configuration section:
     try:

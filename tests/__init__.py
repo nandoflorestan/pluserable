@@ -51,17 +51,17 @@ def _make_eko(sas_factory=None):
     from kerno.start import Eko
     eko = Eko.from_ini(_get_ini_path())
     if sas_factory:
-        eko.register_utility(BaseSQLAlchemyRepository.SAS, sas_factory)
+        eko.utilities.register(BaseSQLAlchemyRepository.SAS, sas_factory)
 
     eko.include('kerno.repository')  # adds add_repository_mixin() to eko
     eko.kerno.pluserable_settings = SettingsReader(
         get_default_pluserable_settings())
     # eko.include('pluserable')
 
-    eko.set_default_utility(
+    eko.utilities.set_default(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
     eko.add_repository_mixin(  # type: ignore
-        mixin=eko.kerno.get_utility(const.REPOSITORY),  # type: ignore
+        mixin=eko.kerno.utilities[const.REPOSITORY],  # type: ignore
     )
 
     return eko
@@ -114,8 +114,4 @@ class AppTestCase(UnitTestCase):
         request.repo = self.repo
         request.user = None
         request.kerno = self.kerno
-
-        # from tests.fast import FakeKerno
-        # request.kerno = FakeKerno()
-
         return request

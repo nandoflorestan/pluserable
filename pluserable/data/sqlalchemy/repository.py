@@ -1,7 +1,7 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from bag.reify import reify
 from bag.text import random_string
@@ -18,16 +18,16 @@ class Repository(BaseSQLAlchemyRepository):
     """
 
     @reify
-    def User(self):
-        return self.kerno.get_utility(const.USER_CLASS)
+    def User(self):  # noqa
+        return self.kerno.utilities[const.USER_CLASS]
 
     @reify
-    def Activation(self):
-        return self.kerno.get_utility(const.ACTIVATION_CLASS)
+    def Activation(self):  # noqa
+        return self.kerno.utilities[const.ACTIVATION_CLASS]
 
     @reify
-    def Group(self):
-        return self.kerno.get_utility(const.GROUP_CLASS)
+    def Group(self):  # noqa
+        return self.kerno.utilities[const.GROUP_CLASS]
 
     def q_user_by_activation(self, activation):
         """Return the user with ``activation``, or None."""

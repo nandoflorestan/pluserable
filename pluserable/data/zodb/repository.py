@@ -22,15 +22,15 @@ class Repository:
 
     @reify
     def User(self):
-        return self.kerno.get_utility(const.USER_CLASS)
+        return self.kerno.utilities[const.USER_CLASS]
 
     @reify
     def Activation(self):
-        return self.kerno.get_utility(const.ACTIVATION_CLASS)
+        return self.kerno.utilities[const.ACTIVATION_CLASS]
 
     @reify
     def Group(self):
-        return self.kerno.get_utility(const.GROUP_CLASS)
+        return self.kerno.utilities[const.GROUP_CLASS]
 
     @reify
     def root(self):

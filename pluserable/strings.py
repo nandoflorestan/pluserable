@@ -11,7 +11,7 @@ def get_strings(reg):
     """Return the configured Strings class."""
     if hasattr(reg, 'getUtility'):  # reg must be a Zope/Pyramid registry
         reg = reg.getUtility(IKerno)  # otherwise reg gotta be the Kerno:
-    return reg.get_utility(const.STRING_CLASS)
+    return reg.utilities[const.STRING_CLASS]
 
 
 class UIStringsBase:
