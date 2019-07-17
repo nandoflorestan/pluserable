@@ -1,9 +1,11 @@
+"""Pyramid resources for an app that integrates pluserable."""
+
 from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
 
 
 class BaseFactory:
 
-    def __init__(self, request):
+    def __init__(self, request):  # noqa
         self.request = request
 
 

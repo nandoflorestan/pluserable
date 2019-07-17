@@ -1,3 +1,5 @@
+"""Custom exceptions raised by pluserable."""
+
 from pyramid.settings import asbool
 
 

@@ -1,6 +1,8 @@
 """Base model classes for any backend (SQLAlchemy, ZODB etc.)."""
 
 from datetime import datetime, timedelta
+from typing import Optional
+
 from bag.text.hash import random_hash
 from bag.web import gravatar_image
 import cryptacular.bcrypt
@@ -8,7 +10,7 @@ import cryptacular.bcrypt
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 
 
-def thirty_days_from_now(now=None):
+def thirty_days_from_now(now: Optional[datetime]=None) -> datetime:
     """Return a datetime pointing to exactly 30 days in the future."""
     now = now or datetime.utcnow()
     return now + timedelta(days=30)
@@ -26,7 +28,10 @@ class ActivationBase:
     forgot password etc.
     """
 
-    def __init__(self, code=None, valid_until=None, created_by='web'):
+    def __init__(
+        self, code=None, valid_until: Optional[datetime]=None,
+        created_by: str='web',
+    ):
         """Usually call with the ``created_by`` system, or no arguments."""
         self.code = code or random_hash()
         self.valid_until = valid_until or thirty_days_from_now()
@@ -37,8 +42,9 @@ class ActivationBase:
 class UserBase:
     """Base class for a User model."""
 
-    def __init__(self, email, password, salt=None, activation=None, **kw):
-        """User constructor."""
+    def __init__(
+        self, email: str, password: str, salt=None, activation=None, **kw
+    ):  # noqa
         # print('User constructor: {} / {} / {} / {}'.format(
         #     email, password, salt, activation))
         self.email = email
@@ -80,7 +86,7 @@ class UserBase:
         """
         return random_hash(chars)
 
-    def check_password(self, password):
+    def check_password(self, password: str) -> bool:
         """Check the ``password`` and return a boolean."""
         if not password:
             return False
@@ -88,7 +94,7 @@ class UserBase:
 
     @property
     def is_activated(self):
-        """False if this user needs to confirm her email address."""
+        """Return False if this user needs to confirm her email address."""
         return self.activation is None
 
     # @property

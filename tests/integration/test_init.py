@@ -1,14 +1,16 @@
 """Test groupfinder and request.user."""
 
 from datetime import datetime
-from mock import Mock
+from unittest.mock import Mock
+
 from pluserable import groupfinder
 from pluserable.web.pyramid import get_user
+
 from tests.models import Group
-from . import IntegrationTestBase
+from tests.integration import IntegrationTestBase
 
 
-class TestInitCase(IntegrationTestBase):
+class TestInitCase(IntegrationTestBase):  # noqa
 
     def test_get_user_fetches_existing_user(self):
         """Fake an authenticated user and see if it appears as request.user."""
@@ -22,7 +24,7 @@ class TestInitCase(IntegrationTestBase):
         assert user.registered_date == datetime(2000, 1, 1)
         assert user.last_login_date == datetime(2000, 1, 1)
 
-    def test_groupfinder(self):
+    def test_groupfinder(self):  # noqa
         user1 = self.create_users(count=1)
         group = Group(name='foo', description='bar')
         group.users.append(user1)
@@ -37,7 +39,7 @@ class TestInitCase(IntegrationTestBase):
         assert 'user:%s' % (user1.id) in results
         assert len(results) == 2
 
-    def test_groupfinder_no_groups(self):
+    def test_groupfinder_no_groups(self):  # noqa
         user1, user2 = self.create_users(count=2)
         group = Group(name='foo', description='bar')
         group.users.append(user1)

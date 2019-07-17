@@ -14,6 +14,7 @@ The documentation is at http://docs.nando.audio/pluserable/latest/
 - The last version of *pluserable* that supported Python 2 was 0.2.0.
 - *pluserable* 0.5 requires Python >= 3.4.
 - *pluserable* 0.6 requires Python >= 3.5 and has (some) type annotations.
+- *pluserable* 0.7 requires Python >= 3.6 and has (more) type annotations.
 
 
 Minimal integration

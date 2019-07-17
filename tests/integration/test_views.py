@@ -16,12 +16,12 @@ from pluserable.views import (
     AuthView, ForgotPasswordView, ProfileView, RegisterView)
 
 from tests.models import User
-from . import IntegrationTestBase
+from tests.integration import IntegrationTestBase
 
 
-class TestAuthView(IntegrationTestBase):
+class TestAuthView(IntegrationTestBase):  # noqa
 
-    def test_auth_view_extensions(self):
+    def test_auth_view_extensions(self):  # noqa
         request = self.get_request()
 
         getUtility = Mock()
@@ -36,7 +36,7 @@ class TestAuthView(IntegrationTestBase):
         assert schema.called
         assert form.called
 
-    def test_login_loads(self):
+    def test_login_loads(self):  # noqa
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.add_route('index', '/')
@@ -48,7 +48,7 @@ class TestAuthView(IntegrationTestBase):
 
         assert response.get('form', None)
 
-    def test_login_redirects_if_logged_in(self):
+    def test_login_redirects_if_logged_in(self):  # noqa
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.add_route('index', '/')
@@ -171,9 +171,9 @@ class TestAuthView(IntegrationTestBase):
                 assert HTTPFound.called
 
 
-class TestRegisterView(IntegrationTestBase):
+class TestRegisterView(IntegrationTestBase):  # noqa
 
-    def test_register_loads_not_logged_in(self):
+    def test_register_loads_not_logged_in(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -184,7 +184,7 @@ class TestRegisterView(IntegrationTestBase):
 
         assert response.get('form', None)
 
-    def test_register_redirects_if_logged_in(self):
+    def test_register_redirects_if_logged_in(self):  # noqa
         self.config.registry.settings['pluserable.login_redirect'] = 'index'
         self.config.registry.settings['pluserable.logout_redirect'] = 'index'
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -197,7 +197,7 @@ class TestRegisterView(IntegrationTestBase):
 
         assert response.status_int == 302
 
-    def test_register_creates_inactive_user(self):
+    def test_register_creates_inactive_user(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -220,7 +220,7 @@ class TestRegisterView(IntegrationTestBase):
         assert isinstance(user, User)
         assert not user.is_activated
 
-    def test_register_validation(self):
+    def test_register_validation(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -232,7 +232,7 @@ class TestRegisterView(IntegrationTestBase):
         assert len(response['errors']) == 3
         assert 'There was a problem with your submission' in response['form']
 
-    def test_register_existing_user(self):
+    def test_register_existing_user(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
         user = self.create_users(count=1)
@@ -283,7 +283,7 @@ class TestRegisterView(IntegrationTestBase):
         user = request.repo.q_user_by_username('admin')
         assert user.is_activated is True
 
-    def test_registration_craps_out(self):
+    def test_registration_craps_out(self):  # noqa
         self.config.add_route('index', '/')
 
         def send(message):
@@ -306,7 +306,7 @@ class TestRegisterView(IntegrationTestBase):
 
         self.assertRaises(Exception, view.register)
 
-    def test_activate(self):
+    def test_activate(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -334,7 +334,7 @@ class TestRegisterView(IntegrationTestBase):
         assert the_user.is_activated
         assert response.status_int == 302
 
-    def test_activation_works(self):
+    def test_activation_works(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -360,7 +360,7 @@ class TestRegisterView(IntegrationTestBase):
         assert user1.is_activated
         assert response.status_int == 302
 
-    def test_activate_invalid_code_raises(self):
+    def test_activate_invalid_code_raises(self):  # noqa
         self.config.add_route('index', '/')
 
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -410,9 +410,9 @@ class TestRegisterView(IntegrationTestBase):
             assert not user.is_activated
 
 
-class TestForgotPasswordView(IntegrationTestBase):
+class TestForgotPasswordView(IntegrationTestBase):  # noqa
 
-    def test_forgot_password_loads(self):
+    def test_forgot_password_loads(self):  # noqa
         self.config.add_route('index', '/')
 
         request = self.get_request()
@@ -422,7 +422,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert response.get('form', None)
 
-    def test_forgot_password_logged_in_redirects(self):
+    def test_forgot_password_logged_in_redirects(self):  # noqa
         self.config.add_route('index', '/')
 
         request = self.get_request()
@@ -432,7 +432,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert response.status_int == 302
 
-    def test_forgot_password_valid_user_succeeds(self):
+    def test_forgot_password_valid_user_succeeds(self):  # noqa
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
@@ -454,7 +454,7 @@ class TestForgotPasswordView(IntegrationTestBase):
             level="success")
         assert response.status_int == 302
 
-    def test_forgot_password_invalid_password(self):
+    def test_forgot_password_invalid_password(self):  # noqa
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
@@ -473,7 +473,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert len(response['errors']) == 1
 
-    def test_reset_password_loads(self):
+    def test_reset_password_loads(self):  # noqa
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
@@ -495,7 +495,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert response.get('form', None)
         assert 'sagan' in response['form']
 
-    def test_reset_password_valid_user(self):
+    def test_reset_password_valid_user(self):  # noqa
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
@@ -527,7 +527,7 @@ class TestForgotPasswordView(IntegrationTestBase):
         assert user.check_password('test123')
         assert response.status_int == 302
 
-    def test_reset_password_invalid_password(self):
+    def test_reset_password_invalid_password(self):  # noqa
         self.config.add_route('index', '/')
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
@@ -554,7 +554,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert len(response['errors']) == 1
 
-    def test_reset_password_empty_password(self):
+    def test_reset_password_empty_password(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -573,7 +573,7 @@ class TestForgotPasswordView(IntegrationTestBase):
 
         assert len(response['errors']) == 1
 
-    def test_invalid_reset_gets_404(self):
+    def test_invalid_reset_gets_404(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route('index', '/')
 
@@ -592,9 +592,9 @@ class TestForgotPasswordView(IntegrationTestBase):
             view.reset_password()
 
 
-class TestProfileView(IntegrationTestBase):
+class TestProfileView(IntegrationTestBase):  # noqa
 
-    def test_profile_loads(self):
+    def test_profile_loads(self):  # noqa
         self.config.add_route('index', '/')
 
         user = self.create_users(count=1)
@@ -614,7 +614,7 @@ class TestProfileView(IntegrationTestBase):
 
         assert response.get('user', None) == user
 
-    def test_profile_bad_id(self):
+    def test_profile_bad_id(self):  # noqa
         self.config.add_route('index', '/')
 
         self.create_users(count=1)
@@ -632,7 +632,7 @@ class TestProfileView(IntegrationTestBase):
         with self.assertRaises(HTTPNotFound):
             view.profile()
 
-    def test_profile_update_profile_invalid(self):
+    def test_profile_update_profile_invalid(self):  # noqa
         from pluserable.interfaces import IProfileSchema
         from tests.schemas import ProfileSchema
         self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
@@ -654,7 +654,7 @@ class TestProfileView(IntegrationTestBase):
 
         assert len(response['errors']) == 3
 
-    def test_profile_update_email(self):
+    def test_profile_update_email(self):  # noqa
         self.config.add_route('index', '/')
 
         user = self.create_users(count=1)
@@ -684,7 +684,7 @@ class TestProfileView(IntegrationTestBase):
         assert the_user.email == 'new_email@nasa.gov'
         assert user.check_password('science')
 
-    def test_profile_update_password(self):  # Happy
+    def test_profile_update_password(self):  # noqa  # Happy
         self.config.add_route('index', '/')
         user = self.create_users(count=1)
         self.sas.flush()

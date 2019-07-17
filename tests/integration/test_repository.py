@@ -1,8 +1,7 @@
 """Tests for the SQLAlchemy repository."""
 
-from pluserable.data.repository import instantiate_repository
 from tests.models import Activation, Group
-from . import IntegrationTestBase
+from tests.integration import IntegrationTestBase
 
 
 class TestRepository(IntegrationTestBase):
@@ -19,7 +18,7 @@ class TestRepository(IntegrationTestBase):
         assert len(groups) == 1
         assert len(groups[0].users) == 1
 
-    def test_q_group_by_id(self):
+    def test_q_group_by_id(self):  # noqa
         group = Group(name='admin', description='group for admins')
         group2 = Group(name='employees', description='group for employees')
         self.sas.add(group)

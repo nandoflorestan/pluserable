@@ -4,23 +4,18 @@ import deform
 
 
 class SubmitForm(deform.Form):
-    def __init__(self, *args, **kwargs):
+    """By default include a "submit" button on a form."""
+
+    def __init__(self, *args, **kwargs):  # noqa
         if not kwargs.get('buttons'):
             kwargs['buttons'] = ('submit',)
         super(SubmitForm, self).__init__(*args, **kwargs)
 
 
-class BaseForm(deform.Form):
-    def __init__(self, *args, **kwargs):
-        if not kwargs.get('buttons'):
-            kwargs['buttons'] = ('submit',)
-        super(BaseForm, self).__init__(*args, **kwargs)
+class BootstrapForm(SubmitForm):
+    """Renders out forms using twitter bootstrap templates."""
 
-
-class BootstrapForm(BaseForm):
-    """This form renders out twitter bootstrap templates."""
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa
         super(BootstrapForm, self).__init__(*args, **kwargs)
 
         for child in self.children:
@@ -36,6 +31,6 @@ class BootstrapForm(BaseForm):
 
 class PluserableForm(BootstrapForm):
     """The standard form we should use throughout our code.
+
     If we decide to swap our rendering later, we only have to do it in 1 place.
     """
-    pass

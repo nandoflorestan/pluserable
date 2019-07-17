@@ -1,10 +1,12 @@
+# noqa
+
 from mock import Mock, patch
 from pyramid import testing
 from pyramid.compat import PY3
 from tests.slow import FunctionalTestBase
 
 
-class TestViews(FunctionalTestBase):
+class TestViews(FunctionalTestBase):  # noqa
 
     def test_index(self):
         """Call the index view; make sure routes are working."""
@@ -21,7 +23,7 @@ class TestViews(FunctionalTestBase):
         res = self.app.get('/login')
         self.assertEqual(res.status_int, 200)
 
-    def test_login_redirects_if_logged_in(self):
+    def test_login_redirects_if_logged_in(self):  # noqa
         request = self.get_request()
         from pluserable.views import AuthView
         with patch.object(AuthView, 'request', request) as request:
@@ -31,8 +33,7 @@ class TestViews(FunctionalTestBase):
             # dashboard
             assert b'index' in res.body
 
-    def test_empty_login(self):
-        """Empty login fails."""
+    def test_empty_login_fails(self):  # noqa
         res = self.app.post('/login', {'submit': True})
 
         assert b"There was a problem with your submission" in res.body

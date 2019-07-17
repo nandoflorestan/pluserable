@@ -1,8 +1,6 @@
 """Pluserable integration for the Pyramid web framework."""
 
 from bag.settings import SettingsReader
-from kerno.kerno import Kerno
-from kerno.web.pyramid import IKerno
 
 from pluserable import EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
@@ -10,7 +8,6 @@ from pluserable.interfaces import (
     ILoginForm, ILoginSchema,
     IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
     IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
-from pluserable.data.repository import instantiate_repository
 from pluserable.web.pyramid.resources import RootFactory
 
 

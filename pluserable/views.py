@@ -33,7 +33,7 @@ from pluserable.strings import get_strings
 LOG = logging.getLogger(__name__)
 
 
-def includeme(config):
+def includeme(config) -> None:
     """Set up pluserable routes and views in Pyramid."""
     settings = config.registry.settings['pluserable']
     routes = settings['routes']
@@ -48,7 +48,7 @@ def includeme(config):
             renderer='json', view=AuthView, attr='login_ajax')
 
 
-def get_config_route(request, config_key):
+def get_config_route(request, config_key: str) -> str:
     """Resolve ``config_key`` to a URL, usually for redirection."""
     settings = request.registry.settings
     try:
@@ -57,7 +57,7 @@ def get_config_route(request, config_key):
         return settings[config_key]
 
 
-def authenticated(request, userid):
+def authenticated(request, userid) -> HTTPFound:
     """Set the auth cookies and redirect.
 
     ...either to the URL indicated in the "next" request parameter,
@@ -148,7 +148,7 @@ class BaseView(metaclass=ABCMeta):
 class AuthView(BaseView):
     """View that does login and logout."""
 
-    def __init__(self, request):
+    def __init__(self, request):  # noqa
         super(AuthView, self).__init__(request)
 
         # TODO These shouldn't be computed every time... But run tests
@@ -232,7 +232,7 @@ class AuthView(BaseView):
 
 class ForgotPasswordView(BaseView):
 
-    def __init__(self, request):
+    def __init__(self, request):  # noqa
         super(ForgotPasswordView, self).__init__(request)
 
         self.forgot_password_redirect_view = route_url(
@@ -342,7 +342,7 @@ class ForgotPasswordView(BaseView):
 
 class RegisterView(BaseView):
 
-    def __init__(self, request):
+    def __init__(self, request):  # noqa
         super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
         self.schema = schema().bind(request=self.request)

@@ -1,7 +1,10 @@
 """Pluserable is a user registration and login library."""
 
+from typing import List
+
 from bag.settings import SettingsReader
 from kerno.start import Eko
+
 from pluserable import const
 from pluserable.interfaces import (
     ILoginSchema, IRegisterSchema, IForgotPasswordSchema,
@@ -12,7 +15,7 @@ from pluserable.schemas import (
     EmailRegisterSchema, EmailResetPasswordSchema, EmailProfileSchema)
 
 
-def groupfinder(userid, request):
+def groupfinder(userid, request) -> List[str]:
     """Return the main principals of the current user."""
     user = request.user
     groups = None
@@ -57,9 +60,8 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def eki(eko: Eko):
+def eki(eko: Eko) -> None:
     """Initialize the Pluserable core (isolated from any web framework)."""
-
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     eko.include('kerno.repository')  # adds add_repository_mixin() to eko
     eko.utilities.set_default(
@@ -78,9 +80,8 @@ def eki(eko: Eko):
     except Exception:
         section = {}
     eko.kerno.pluserable_settings = SettingsReader(section)  # type: ignore
-    return eko
 
 
 def includeme(config):
-    """Integrate pluserable into a Pyramid web app."""
+    """Integrate pluserable with a Pyramid web app."""
     config.include('pluserable.web.pyramid')

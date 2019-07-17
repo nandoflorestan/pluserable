@@ -1,12 +1,13 @@
-from pyramid import testing
-from pluserable.data.repository import instantiate_repository
+# noqa
+
 from pluserable.web.pyramid.resources import UserFactory
-from . import IntegrationTestBase
+
+from tests.integration import IntegrationTestBase
 
 
-class TestResources(IntegrationTestBase):
+class TestResources(IntegrationTestBase):  # noqa
 
-    def test_user_factory(self):
+    def test_user_factory(self):  # noqa
         user = self.create_users(count=1)
         self.sas.flush()  # so the user has an id
         request = self.get_request()

@@ -17,14 +17,14 @@ class TestCheckCredentials(FastTestCase):
             self=action, user=user, handle=user.username,
             password=password or 'science')
 
-    def test_with_bad_password_raises(self):
+    def test_with_bad_password_raises(self):  # noqa
         with self.assertRaises(AuthenticationFailure):
             self._test(password='wrong')
 
-    def test_with_ok_password_returns_user(self):
+    def test_with_ok_password_returns_user(self):  # noqa
         user, ret = self._test()
         assert ret is user
 
-    def test_with_pending_activation_raises(self):
+    def test_with_pending_activation_raises(self):  # noqa
         with self.assertRaises(AuthenticationFailure):
             self._test(activation=True)

@@ -1,11 +1,13 @@
 """Colander and Deform schemas."""
 
 import re
+
 from bag.text import strip_preparer, strip_lower_preparer
 import colander as c
 from deform.schema import CSRFSchema
 import deform.widget as w
-from .strings import get_strings, _
+
+from pluserable.strings import get_strings, _
 
 
 def email_exists(node, val):

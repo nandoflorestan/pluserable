@@ -82,7 +82,7 @@ class CheckCredentials(PluserableAction):
         return user
 
 
-class ActivateUser(PluserableAction):
+class ActivateUser(PluserableAction):  # noqa
 
     def __call__(self, code: str, user_id: int) -> Rezulto:
         """Find code, ensure belongs to user, delete activation instance."""

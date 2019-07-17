@@ -2,12 +2,13 @@
 
 from colander import Invalid
 from pluserable.schemas import UsernameLoginSchema, UsernameRegisterSchema
-from . import IntegrationTestBase
+
+from tests.integration import IntegrationTestBase
 
 
-class TestSchemas(IntegrationTestBase):
+class TestSchemas(IntegrationTestBase):  # noqa
 
-    def test_valid_login_schema(self):
+    def test_valid_login_schema(self):  # noqa
         request = self.get_request(post={
             'handle': 'sagan',
             'password': 'password',
@@ -20,7 +21,7 @@ class TestSchemas(IntegrationTestBase):
         assert result['handle'] == 'sagan'
         assert result['password'] == 'password'
 
-    def test_invalid_login_schema(self):
+    def test_invalid_login_schema(self):  # noqa
         request = self.get_request()
         schema = UsernameLoginSchema().bind(request=request)
 
@@ -36,7 +37,7 @@ class TestSchemas(IntegrationTestBase):
                 raise
         self.assertRaises(Invalid, deserialize_empty)
 
-    def test_usernames_may_not_contain_at(self):
+    def test_usernames_may_not_contain_at(self):  # noqa
         POST = {
             'username': 'bru@haha',
             'email': 'sagan@nasa.gov',
@@ -57,7 +58,7 @@ class TestSchemas(IntegrationTestBase):
                 raise
         self.assertRaises(Invalid, run)
 
-    def test_usernames_may_contain_dot_dash_underline(self):
+    def test_usernames_may_contain_dot_dash_underline(self):  # noqa
         handle = 'Sagan-was-a-GREAT_writer.'
         POST = {
             'username': handle,
