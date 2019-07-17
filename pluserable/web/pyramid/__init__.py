@@ -4,7 +4,7 @@ from bag.settings import SettingsReader
 from kerno.kerno import Kerno
 from kerno.web.pyramid import IKerno
 
-from pluserable import initialize_kerno, EmailStrategy, UsernameStrategy
+from pluserable import EmailStrategy, UsernameStrategy
 from pluserable.forms import SubmitForm
 from pluserable.interfaces import (
     ILoginForm, ILoginSchema,
@@ -22,43 +22,29 @@ def get_user(request):
     return request.repo.q_user_by_id(userid)
 
 
-def create_kerno(config, *ini_paths: str) -> Kerno:
-    """Return kerno -- either found in the registry, or initialized here."""
-    eko = getattr(config, 'eko', None)
-    if eko:
-        eko = initialize_kerno(*ini_paths, eko=eko)
-    else:
-        eko = initialize_kerno(*ini_paths)
-        config.add_directive('get_eko', lambda config: eko)
-    config.registry.registerUtility(eko.kerno, IKerno)
-    # kerno = registry.queryUtility(IKerno, default=None)
-    return eko.kerno
-
-
-def setup_pluserable(config, *ini_paths: str) -> None:
+def includeme(config) -> None:
     """Integrate pluserable into a Pyramid web app.
 
-    ``ini_paths`` must be the path to at least one INI file.
+    - Make ``request.user`` available.
+    - Set our root factory for Pyramid URL traversal.
+    - Call the ``pluserable_configurator`` indicated in
+      the settings (or the default one).
+    - Include other initializers from kerno and from pluserable.
     """
     registry = config.registry
-
     settings = registry.settings
-    config.add_request_method(get_user, 'user', reify=True)  # request.user
-    config.set_root_factory(RootFactory)
     settings_reader = SettingsReader(settings)
 
-    config.add_request_method(  # request.repo
-        lambda request: instantiate_repository(request.registry),
-        'repo', reify=True)
+    config.add_request_method(get_user, 'user', reify=True)  # request.user
+    config.set_root_factory(RootFactory)
 
     # User code may create a setting "pluserable_configurator" that points
     # to a callable that we call here:
     configurator = settings_reader.resolve(
         key='pluserable_configurator',
         default='pluserable.settings:get_default_pluserable_settings')
-    settings['pluserable'] = configurator(config)
+    settings['pluserable'] = configurator()
 
-    create_kerno(config, *ini_paths)
     config.include('kerno.web.pyramid')
 
     # SubmitForm is the default for all our forms
@@ -80,8 +66,3 @@ def setup_pluserable(config, *ini_paths: str) -> None:
 
     config.include('kerno.web.msg_to_html')
     config.include('pluserable.views')
-
-
-def includeme(config) -> None:
-    """Pyramid integration. Add a configurator directive to be used next."""
-    config.add_directive('setup_pluserable', setup_pluserable)

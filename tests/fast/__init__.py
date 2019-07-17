@@ -6,7 +6,7 @@ Unit tests go through only one function and they do not hit the database.
 from pyramid.registry import Registry
 from pluserable import const
 from pluserable.strings import UIStringsBase
-from .. import PluserableTestCase
+from .. import UnitTestCase
 
 
 class FakeKerno:
@@ -20,7 +20,7 @@ class FakeKerno:
             raise RuntimeError('Unknown utility: {}'.format(name))
 
 
-class FastTestCase(PluserableTestCase):
+class FastTestCase(UnitTestCase):
     """Base for unit test cases."""
 
     def _make_registry(self, **kw):

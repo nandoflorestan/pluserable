@@ -57,26 +57,27 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def initialize_kerno(*ini_paths, eko=None):
-    """Initialize the core system, isolated from the web framework."""
-    eko = eko or Eko.from_ini(*ini_paths)
+def eki(eko: Eko):
+    """Initialize the Pluserable core (isolated from any web framework)."""
 
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     eko.include('kerno.repository')  # adds add_repository_mixin() to eko
     eko.set_default_utility(
         const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
-    eko.add_repository_mixin(mixin=eko.kerno.get_utility(const.REPOSITORY))
+    eko.add_repository_mixin(  # type: ignore
+        mixin=eko.kerno.get_utility(const.REPOSITORY),  # type: ignore
+    )
 
     # The UI text can be changed; by default we use UIStringsBase itself:
     eko.set_default_utility(const.STRING_CLASS,
                             'pluserable.strings:UIStringsBase')
 
-    # Other settings are read from the [pluserable] section of the ini file:
+    # Other settings are read from the [pluserable] configuration section:
     try:
         section = eko.kerno.settings['pluserable']
     except Exception:
         section = {}
-    eko.kerno.pluserable_settings = SettingsReader(section)
+    eko.kerno.pluserable_settings = SettingsReader(section)  # type: ignore
     return eko
 
 

@@ -22,10 +22,6 @@ from . import IntegrationTestBase
 class TestAuthView(IntegrationTestBase):
 
     def test_auth_view_extensions(self):
-        self.config.registry.settings['pluserable.login_redirect'] = 'index'
-        self.config.registry.settings['pluserable.logout_redirect'] = 'index'
-        self.config.add_route('index', '/')
-
         request = self.get_request()
 
         getUtility = Mock()

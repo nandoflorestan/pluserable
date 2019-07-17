@@ -5,15 +5,17 @@ it also generates the content of a response. It passes through all layers.
 """
 
 from bag.sqlalchemy.tricks import SubtransactionTrick
+from kerno.web.pyramid import IKerno
 from pyramid import testing
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.response import Response
 from pyramid.session import SignedCookieSessionFactory
 from sqlalchemy.orm import scoped_session, sessionmaker
-from zope.sqlalchemy import ZopeTransactionExtension
 from webtest import TestApp
-from tests import AppTestCase, _get_ini_path
+from zope.sqlalchemy import ZopeTransactionExtension
+
+from tests import AppTestCase, _make_eko
 
 
 class FunctionalTestBase(AppTestCase):
@@ -43,7 +45,6 @@ class FunctionalTestBase(AppTestCase):
 
         config.include('pyramid_mako')
         config.include('pluserable')
-        config.setup_pluserable(_get_ini_path())
 
         app = config.make_wsgi_app()
         return app
@@ -57,10 +58,14 @@ class FunctionalTestBase(AppTestCase):
         )
         self.sas = self.subtransaction.sas  # TODO REMOVE
 
-        config = self._initialize_config(self.settings)
+        self.kerno = _make_eko(sas_factory=self.sas).kerno
+        self.repo = self.kerno.new_repo()
+
+        config = testing.setUp(settings=self.settings)
+        config.registry.registerUtility(self.kerno, IKerno)
+
         app = self.main(config)
         self.app = TestApp(app)
-        self.start_kerno(config)
 
     def tearDown(self):
         """Roll back the Session (including calls to commit())."""

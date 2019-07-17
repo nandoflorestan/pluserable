@@ -4,11 +4,11 @@ It accesses a database, so it is slower than a unit test.
 """
 
 from bag.sqlalchemy.tricks import SubtransactionTrick
+from kerno.web.pyramid import IKerno
 from pyramid import testing
 from sqlalchemy.orm import sessionmaker
-from pluserable import const
-from pluserable.data.repository import instantiate_repository
-from tests import AppTestCase, _get_ini_path
+
+from tests import AppTestCase, _make_eko
 
 
 class IntegrationTestBase(AppTestCase):
@@ -23,10 +23,13 @@ class IntegrationTestBase(AppTestCase):
         def sas_factory():
             return self.subtransaction.sas
 
-        self.config = self._initialize_config(self.settings)
-        self.config.include('pluserable')
-        self.config.setup_pluserable(_get_ini_path())
-        self.start_kerno(self.config, sas_factory=sas_factory)
+        self.kerno = _make_eko(sas_factory=sas_factory).kerno
+        self.repo = self.kerno.new_repo()
+
+        config = testing.setUp(settings=self.settings)
+        config.registry.registerUtility(self.kerno, IKerno)
+        config.include('pluserable')
+        self.config = config
 
     def tearDown(self):
         """Clean up after each test."""

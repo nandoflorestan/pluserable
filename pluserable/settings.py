@@ -1,8 +1,12 @@
+"""Provides a default pluserable configuration."""
+
+from kerno.typing import DictStr
+
 from pluserable.web.pyramid.resources import UserFactory
-from .views import get_pyramid_views_config
+from pluserable.views import get_pyramid_views_config
 
 
-def get_default_pluserable_settings(config):
+def get_default_pluserable_settings() -> DictStr:
     """Return default pluserable setings.
 
     In order to customize Pluserable to its purpose, user code calls this

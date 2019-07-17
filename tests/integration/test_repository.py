@@ -15,8 +15,7 @@ class TestRepository(IntegrationTestBase):
         group.users.append(user)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        groups = list(repo.q_groups())
+        groups = list(self.repo.q_groups())
         assert len(groups) == 1
         assert len(groups[0].users) == 1
 
@@ -27,8 +26,7 @@ class TestRepository(IntegrationTestBase):
         self.sas.add(group2)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_group_by_id(group2.id)
+        ret = self.repo.q_group_by_id(group2.id)
         assert ret is group2
 
     def test_q_activation_by_code(self):
@@ -37,8 +35,7 @@ class TestRepository(IntegrationTestBase):
         self.sas.add(activation)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        new_activation = repo.q_activation_by_code(activation.code)
+        new_activation = self.repo.q_activation_by_code(activation.code)
 
         assert activation is new_activation
 
@@ -49,9 +46,8 @@ class TestRepository(IntegrationTestBase):
         user2.activation = activation
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        new_user = repo.q_user_by_username('sagan2')
-        new_activation = repo.q_activation_by_code(activation.code)
+        new_user = self.repo.q_user_by_username('sagan2')
+        new_activation = self.repo.q_activation_by_code(activation.code)
 
         assert activation is new_activation
         assert new_user.activation is new_activation
@@ -68,8 +64,7 @@ class TestRepository(IntegrationTestBase):
         users = self.create_users(count=2)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_id(users[1].id)
+        ret = self.repo.q_user_by_id(users[1].id)
         assert ret is users[1]
 
     def test_q_user_by_id_invalid(self):
@@ -77,8 +72,7 @@ class TestRepository(IntegrationTestBase):
         self.create_users(count=1)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_id(2)
+        ret = self.repo.q_user_by_id(2)
         assert ret is None
 
     def test_get_user_by_email(self):
@@ -86,8 +80,7 @@ class TestRepository(IntegrationTestBase):
         user = self.create_users(count=1)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.get_user_by_email(user.email)
+        ret = self.repo.get_user_by_email(user.email)
         assert ret is user
 
     def test_get_user_by_email_invalid(self):
@@ -95,8 +88,7 @@ class TestRepository(IntegrationTestBase):
         self.create_users(count=1)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        new_user = repo.get_user_by_email('someone@else.com')
+        new_user = self.repo.get_user_by_email('someone@else.com')
 
         assert new_user is None
 
@@ -105,8 +97,7 @@ class TestRepository(IntegrationTestBase):
         user = self.create_users(count=1)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_username(user.username)
+        ret = self.repo.q_user_by_username(user.username)
         assert ret is user
 
     def test_get_user_by_username_invalid(self):
@@ -114,8 +105,7 @@ class TestRepository(IntegrationTestBase):
         self.create_users(count=1)
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_username('wrong')
+        ret = self.repo.q_user_by_username('wrong')
         assert ret is None
 
     def test_get_user_by_activation(self):
@@ -125,6 +115,5 @@ class TestRepository(IntegrationTestBase):
         users[1].activation = activation
         self.sas.flush()
 
-        repo = instantiate_repository(self.config.registry)
-        ret = repo.q_user_by_activation(activation)
+        ret = self.repo.q_user_by_activation(activation)
         assert ret is users[1]

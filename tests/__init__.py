@@ -3,16 +3,18 @@
 from datetime import datetime
 from mock import Mock
 from unittest import TestCase
+
 from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 
 from pluserable import const
-from pluserable.data.repository import instantiate_repository
+from pluserable.settings import get_default_pluserable_settings
+
 from tests.models import Activation, User
 
 
-class PluserableTestCase(TestCase):
+class UnitTestCase(TestCase):
     """Base class for all our tests, especially unit tests."""
 
     def create_users(self, count=1, activation=False):
@@ -43,7 +45,29 @@ def _get_ini_path(kind=''):
     return path
 
 
-class AppTestCase(PluserableTestCase):
+def _make_eko(sas_factory=None):
+    from bag.settings import SettingsReader
+    from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
+    from kerno.start import Eko
+    eko = Eko.from_ini(_get_ini_path())
+    if sas_factory:
+        eko.register_utility(BaseSQLAlchemyRepository.SAS, sas_factory)
+
+    eko.include('kerno.repository')  # adds add_repository_mixin() to eko
+    eko.kerno.pluserable_settings = SettingsReader(
+        get_default_pluserable_settings())
+    # eko.include('pluserable')
+
+    eko.set_default_utility(
+        const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
+    eko.add_repository_mixin(  # type: ignore
+        mixin=eko.kerno.get_utility(const.REPOSITORY),  # type: ignore
+    )
+
+    return eko
+
+
+class AppTestCase(UnitTestCase):
     """Base class providing a configured Pyramid app.
 
     For integration tests and slow functional tests.
@@ -52,10 +76,6 @@ class AppTestCase(PluserableTestCase):
     @classmethod
     def _read_pyramid_settings(cls, kind=''):
         return appconfig('config:' + _get_ini_path(kind=kind))
-
-    def _initialize_config(self, settings):
-        config = testing.setUp(settings=settings)
-        return config
 
     run_once = False
 
@@ -80,11 +100,9 @@ class AppTestCase(PluserableTestCase):
         Base.metadata.drop_all(cls.engine)
         Base.metadata.create_all(cls.engine)
 
-    def start_kerno(self, config, sas_factory=None):
-        eko = config.get_eko()
-        eko.register_utility(const.SAS, sas_factory or self.sas)
-        self.repo = instantiate_repository(config.registry)
-        self.kerno = eko.kerno
+    def setUp(self):
+        """Prepare for each individual test."""
+        self.kerno = _make_eko().kerno
 
     def get_request(self, post=None, request_method='GET'):
         """Return a dummy request for testing."""
