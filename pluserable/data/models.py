@@ -29,8 +29,8 @@ class ActivationBase:
     """
 
     def __init__(
-        self, code=None, valid_until: Optional[datetime]=None,
-        created_by: str='web',
+        self, code: str = '', valid_until: Optional[datetime] = None,
+        created_by: str = 'web',
     ):
         """Usually call with the ``created_by`` system, or no arguments."""
         self.code = code or random_hash()
@@ -43,7 +43,7 @@ class UserBase:
     """Base class for a User model."""
 
     def __init__(
-        self, email: str, password: str, salt=None, activation=None, **kw
+        self, email: str, password: str, salt: str = '', activation=None, **kw
     ):  # noqa
         # print('User constructor: {} / {} / {} / {}'.format(
         #     email, password, salt, activation))
