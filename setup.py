@@ -36,13 +36,13 @@ requires = [
     'bag >= 3.0.0.dev1',
     'kerno >= 0.3.0',
     'sqlalchemy',
-    'zope.sqlalchemy',
     'transaction',
     'cryptacular',
     'deform',
     'pyramid',          # TODO REMOVE when agnostic
     'pyramid_mailer',
     'pyramid_mako',
+    'zope.interface',
 ]
 
 setup(

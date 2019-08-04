@@ -13,7 +13,6 @@ from pyramid.response import Response
 from pyramid.session import SignedCookieSessionFactory
 from sqlalchemy.orm import scoped_session, sessionmaker
 from webtest import TestApp
-from zope.sqlalchemy import ZopeTransactionExtension
 
 from tests import AppTestCase, _make_eko
 
@@ -53,8 +52,7 @@ class FunctionalTestBase(AppTestCase):
         """Stuff called before each functional test."""
         self.subtransaction = SubtransactionTrick(
             engine=self.engine,
-            sessionmaker=scoped_session(
-                sessionmaker(extension=ZopeTransactionExtension()))
+            sessionmaker=scoped_session(sessionmaker())
         )
         self.sas = self.subtransaction.sas  # TODO REMOVE
 
