@@ -98,14 +98,19 @@ def authenticated(request, userid) -> HTTPFound:
 
 
 def create_activation(request, user):  # TODO Move to action
-    kerno = request.registry.getUtility(IKerno)
-    Activation = kerno.utilities[const.ACTIVATION_CLASS]
-    activation = Activation()
+    """Associate ``user`` with a new activation or keep the existing one.
 
-    repo = request.repo
-    repo.store_activation(activation)
-    user.activation = activation
-    repo.flush()
+    Also send an email message to ``user`` with the link for her to click.
+    """
+    if user.activation is None:
+        kerno = request.registry.getUtility(IKerno)
+        Activation = kerno.utilities[const.ACTIVATION_CLASS]
+        activation = Activation()
+
+        repo = request.repo
+        repo.store_activation(activation)
+        user.activation = activation
+        repo.flush()
 
     strings = get_strings(kerno)
     message = Message(
@@ -266,7 +271,7 @@ class ForgotPasswordView(BaseView):
             request,
         )
 
-    def forgot_password(self):  # TODO Extract action
+    def forgot_password(self) -> HTTPFound:  # TODO Extract action
         """Show or process the "forgot password" form.
 
         Create a token and send email for user to click link.
@@ -294,9 +299,10 @@ class ForgotPasswordView(BaseView):
 
         repo = request.repo
         user = repo.get_user_by_email(captured["email"])
-        activation = self.Activation()
-        user.activation = activation
-        repo.flush()  # initialize activation.code
+        if user.activation is None:  # If user already has activation, reuse it
+            activation = self.Activation()  # TODO add test for this condition
+            user.activation = activation
+            repo.flush()  # initialize activation.code
 
         # TODO: Generate msg in a separate method so subclasses can override
         mailer = get_mailer(request)
@@ -307,7 +313,9 @@ class ForgotPasswordView(BaseView):
             or user.email
         )
         body = self.strings.reset_password_email_body.format(
-            link=route_url("reset_password", request, code=activation.code),
+            link=route_url(
+                "reset_password", request, code=user.activation.code
+            ),
             username=username,
             domain=request.application_url,
         )
@@ -526,6 +534,7 @@ class ProfileView(BaseView):
                         level="danger",
                     )
                     return HTTPFound(location=request.url)
+                # TODO When user changes email, she must activate again
                 if email != user.email:
                     user.email = email
                     changed = True

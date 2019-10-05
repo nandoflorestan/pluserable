@@ -18,7 +18,7 @@ class ActivationMixin(ActivationBase, MinimalBase, ID):
     """Handles email confirmation codes and password reset codes for users.
 
     The code should be a random hash that is valid only once.
-    After the hash is used to access the site, it'll be removed.
+    After the code is used to access the site, it gets removed.
 
     The "created by" value refers to a system:
     new user registration, password reset, forgot password etc.

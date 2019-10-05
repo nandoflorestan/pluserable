@@ -11,7 +11,7 @@ from sqlalchemy import func
 from pluserable import const
 
 
-class Repository(BaseSQLAlchemyRepository):
+class Repository(BaseSQLAlchemyRepository):  # TODO fix method names
     """A repository that uses SQLAlchemy for storage.
 
     In the future other strategies can be developed (e. g. ZODB).
