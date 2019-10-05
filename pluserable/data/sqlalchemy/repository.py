@@ -31,8 +31,11 @@ class Repository(BaseSQLAlchemyRepository):
 
     def q_user_by_activation(self, activation):
         """Return the user with ``activation``, or None."""
-        return self.sas.query(self.User).filter(
-            self.User.activation == activation).first()
+        return (
+            self.sas.query(self.User)
+            .filter(self.User.activation == activation)
+            .first()
+        )
 
     def q_user_by_id(self, id):
         """Return a user with ``id``, or None."""
@@ -42,7 +45,8 @@ class Repository(BaseSQLAlchemyRepository):
     def q_user_by_email(self, email: str):
         """Return a query for a user with ``email``."""
         return self.sas.query(self.User).filter(
-            func.lower(self.User.email) == email.lower())
+            func.lower(self.User.email) == email.lower()
+        )
 
     def get_user_by_email(self, email: str):
         """Return a user with ``email``, or None."""
@@ -54,9 +58,15 @@ class Repository(BaseSQLAlchemyRepository):
 
     def q_user_by_username(self, username: str):
         """Return a user with ``username``, or None. Case-insensitive."""
-        return self.sas.query(self.User).filter(
-            # self.User.username == username
-            func.lower(self.User.username) == username.lower()).first()
+        return (
+            self.sas.query(self.User)
+            .filter(
+                # self.User.username == username
+                func.lower(self.User.username)
+                == username.lower()
+            )
+            .first()
+        )
 
     def q_users(self):
         """Return an iterator on all users."""
@@ -96,7 +106,8 @@ class Repository(BaseSQLAlchemyRepository):
         """Delete all old activations."""
         now = now or datetime.utcnow()
         oldies = self.sas.query(self.Activation).filter(
-            self.Activation.valid_until < now)
+            self.Activation.valid_until < now
+        )
         count = oldies.count()
         for old in oldies:
             self.sas.delete(old)

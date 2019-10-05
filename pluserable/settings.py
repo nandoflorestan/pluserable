@@ -15,19 +15,23 @@ def get_default_pluserable_settings() -> DictStr:
     """
     return {
         # Pyramid routes
-        'routes': {  # route_name: route_kwargs
-            'login': {'pattern': '/login'},
-            'logout': {'pattern': '/logout'},
-            'register': {'pattern': '/register'},
-            'activate': {'pattern': '/activate/{user_id}/{code}',
-                         'factory': UserFactory},
-            'forgot_password': {'pattern': '/forgot_password'},
-            'reset_password': {'pattern': '/reset_password/{code}'},
-
-            'profile': {'pattern': '/profile/{user_id}',
-                        'factory': UserFactory, 'traverse': "/{user_id}"},
-            'edit_profile': {'pattern': '/edit_profile'},
+        "routes": {  # route_name: route_kwargs
+            "login": {"pattern": "/login"},
+            "logout": {"pattern": "/logout"},
+            "register": {"pattern": "/register"},
+            "activate": {
+                "pattern": "/activate/{user_id}/{code}",
+                "factory": UserFactory,
+            },
+            "forgot_password": {"pattern": "/forgot_password"},
+            "reset_password": {"pattern": "/reset_password/{code}"},
+            "profile": {
+                "pattern": "/profile/{user_id}",
+                "factory": UserFactory,
+                "traverse": "/{user_id}",
+            },
+            "edit_profile": {"pattern": "/edit_profile"},
         },
         # Pyramid views
-        'views': get_pyramid_views_config(),
+        "views": get_pyramid_views_config(),
     }

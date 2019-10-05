@@ -17,15 +17,29 @@ from pyramid_mailer.message import Message
 
 from pluserable import const
 from pluserable.actions import (
-    ActivateUser, CheckCredentials, require_activation_setting_value,
-    get_activation_link)
+    ActivateUser,
+    CheckCredentials,
+    require_activation_setting_value,
+    get_activation_link,
+)
 from pluserable.interfaces import (
-    ILoginForm, ILoginSchema,
-    IRegisterForm, IRegisterSchema, IForgotPasswordForm, IForgotPasswordSchema,
-    IResetPasswordForm, IResetPasswordSchema, IProfileForm, IProfileSchema)
+    ILoginForm,
+    ILoginSchema,
+    IRegisterForm,
+    IRegisterSchema,
+    IForgotPasswordForm,
+    IForgotPasswordSchema,
+    IResetPasswordForm,
+    IResetPasswordSchema,
+    IProfileForm,
+    IProfileSchema,
+)
 from pluserable.events import (
-    NewRegistrationEvent, RegistrationActivatedEvent, PasswordResetEvent,
-    ProfileUpdatedEvent)
+    NewRegistrationEvent,
+    RegistrationActivatedEvent,
+    PasswordResetEvent,
+    ProfileUpdatedEvent,
+)
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
 from pluserable.strings import get_strings
@@ -35,17 +49,22 @@ LOG = logging.getLogger(__name__)
 
 def includeme(config) -> None:
     """Set up pluserable routes and views in Pyramid."""
-    settings = config.registry.settings['pluserable']
-    routes = settings['routes']
+    settings = config.registry.settings["pluserable"]
+    routes = settings["routes"]
     for name, kw in routes.items():
         config.add_route(name, **kw)
-    for route_name, kw in settings['views'].items():
+    for route_name, kw in settings["views"].items():
         if route_name in routes:
             config.add_view(route_name=route_name, **kw)
-    if 'login' in routes:
+    if "login" in routes:
         config.add_view(
-            route_name='login', xhr=True, accept="application/json",
-            renderer='json', view=AuthView, attr='login_ajax')
+            route_name="login",
+            xhr=True,
+            accept="application/json",
+            renderer="json",
+            view=AuthView,
+            attr="login_ajax",
+        )
 
 
 def get_config_route(request, config_key: str) -> str:
@@ -64,15 +83,16 @@ def authenticated(request, userid) -> HTTPFound:
     or to the page defined in pluserable.login_redirect,
     which defaults to a view named 'index'.
     """
-    autologin = asbool(request.registry.settings.get(
-        'pluserable.autologin', False))
+    autologin = asbool(
+        request.registry.settings.get("pluserable.autologin", False)
+    )
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
-        request.add_flash(plain=msg, level='success')
+        request.add_flash(plain=msg, level="success")
     return HTTPFound(
         headers=remember(request, userid),
-        location=request.params.get('next')
-        or get_config_route(request, 'pluserable.login_redirect'),
+        location=request.params.get("next")
+        or get_config_route(request, "pluserable.login_redirect"),
     )
 
 
@@ -91,8 +111,11 @@ def create_activation(request, user):  # TODO Move to action
         subject=strings.activation_email_subject,
         recipients=[user.email],
         body=strings.activation_email_plain.replace(
-            'ACTIVATION_LINK', get_activation_link(
-                request, user_id=user.id, code=user.activation.code)),
+            "ACTIVATION_LINK",
+            get_activation_link(
+                request, user_id=user.id, code=user.activation.code
+            ),
+        ),
     )
     mailer = get_mailer(request)
     mailer.send(message)
@@ -100,7 +123,7 @@ def create_activation(request, user):  # TODO Move to action
 
 def render_form(request, form, appstruct=None, **kw):
     settings = request.registry.settings
-    retail = asbool(settings.get('pluserable.deform_retail', False))
+    retail = asbool(settings.get("pluserable.deform_retail", False))
 
     if appstruct is not None:
         form.set_appstruct(appstruct)
@@ -108,7 +131,7 @@ def render_form(request, form, appstruct=None, **kw):
     if not retail:
         form = form.render()
 
-    result = {'form': form}
+    result = {"form": form}
     result.update(kw)
     return result
 
@@ -119,7 +142,7 @@ def validate_form(controls, form):
     except deform.ValidationFailure as e:
         # NOTE(jkoelker) normally this is superfluous, but if the app is
         #                debug logging, then log that we "ate" the exception
-        LOG.debug('Form validation failed', exc_info=True)
+        LOG.debug("Form validation failed", exc_info=True)
         raise FormValidationFailure(form, e)
     return captured
 
@@ -153,50 +176,50 @@ class AuthView(BaseView):
 
         # TODO These shouldn't be computed every time... But run tests
         self.login_redirect_view = get_config_route(
-            request, 'pluserable.login_redirect')
+            request, "pluserable.login_redirect"
+        )
         self.logout_redirect_view = get_config_route(
-            request, 'pluserable.logout_redirect')
+            request, "pluserable.logout_redirect"
+        )
 
         schema = request.registry.getUtility(ILoginSchema)
         self.schema = schema().bind(request=request)
 
         form = request.registry.getUtility(ILoginForm)
-        self.form = form(
-            self.schema, buttons=(self.strings.login_button,))
+        self.form = form(self.schema, buttons=(self.strings.login_button,))
 
     def login_ajax(self):  # TODO ADD TESTS FOR THIS!
         try:
             cstruct = self.request.json_body
         except ValueError as e:
-            raise HTTPBadRequest({'invalid': str(e)})
+            raise HTTPBadRequest({"invalid": str(e)})
 
         try:
             captured = self.schema.deserialize(cstruct)
         except colander.Invalid as e:
-            raise HTTPBadRequest({'invalid': e.asdict()})
+            raise HTTPBadRequest({"invalid": e.asdict()})
 
         try:
             ret = CheckCredentials.from_pyramid(self.request)(
-                handle=captured['handle'],
-                password=captured['password'],
+                handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:
-            raise HTTPBadRequest({
-                'status': 'failure',
-                'reason': e.message,
-            })
-        return {'status': 'okay', 'user': to_dict(ret.user)}
+            raise HTTPBadRequest({"status": "failure", "reason": e.message})
+        return {"status": "okay", "user": to_dict(ret.user)}
 
     def login(self, handle=None):
         """Present the login form, or validate data and authenticate user."""
         request = self.request
-        if request.method == 'GET':
+        if request.method == "GET":
             if request.user:
                 return HTTPFound(location=self.login_redirect_view)
-            return render_form(request, self.form,
-                               appstruct={'handle': handle} if handle else {})
+            return render_form(
+                request,
+                self.form,
+                appstruct={"handle": handle} if handle else {},
+            )
 
-        elif request.method == 'POST':
+        elif request.method == "POST":
             controls = request.POST.items()
             try:  # TODO Move form validation into action
                 captured = validate_form(controls, self.form)
@@ -205,13 +228,11 @@ class AuthView(BaseView):
 
             try:
                 ret = CheckCredentials.from_pyramid(request)(
-                    handle=captured['handle'],
-                    password=captured['password'],
+                    handle=captured["handle"], password=captured["password"]
                 )
             except AuthenticationFailure as e:  # TODO View for this exception
-                request.add_flash(plain=str(e), level='danger')
-                return render_form(request, self.form, captured,
-                                   errors=[e])
+                request.add_flash(plain=str(e), level="danger")
+                return render_form(request, self.form, captured, errors=[e])
             request.user = ret.user
             return authenticated(request, ret.user.id)
 
@@ -224,23 +245,25 @@ class AuthView(BaseView):
         request = self.request
         msg = self.strings.logout_done
         if msg:
-            request.add_flash(plain=msg, level='success')
+            request.add_flash(plain=msg, level="success")
         request.session.invalidate()
         return HTTPFound(
-            location=self.logout_redirect_view, headers=forget(request))
+            location=self.logout_redirect_view, headers=forget(request)
+        )
 
 
 class ForgotPasswordView(BaseView):
-
     def __init__(self, request):  # noqa
         super(ForgotPasswordView, self).__init__(request)
 
         self.forgot_password_redirect_view = route_url(
-            self.settings.get('pluserable.forgot_password_redirect', 'index'),
-            request)
+            self.settings.get("pluserable.forgot_password_redirect", "index"),
+            request,
+        )
         self.reset_password_redirect_view = route_url(
-            self.settings.get('pluserable.reset_password_redirect', 'index'),
-            request)
+            self.settings.get("pluserable.reset_password_redirect", "index"),
+            request,
+        )
 
     def forgot_password(self):  # TODO Extract action
         """Show or process the "forgot password" form.
@@ -254,7 +277,7 @@ class ForgotPasswordView(BaseView):
         form = request.registry.getUtility(IForgotPasswordForm)
         form = form(schema)
 
-        if request.method == 'GET':
+        if request.method == "GET":
             if request.user:
                 return HTTPFound(location=self.forgot_password_redirect_view)
             else:
@@ -269,26 +292,31 @@ class ForgotPasswordView(BaseView):
             return e.result(request)
 
         repo = request.repo
-        user = repo.get_user_by_email(captured['email'])
+        user = repo.get_user_by_email(captured["email"])
         activation = self.Activation()
         user.activation = activation
         repo.flush()  # initialize activation.code
 
         # TODO: Generate msg in a separate method so subclasses can override
         mailer = get_mailer(request)
-        username = getattr(user, 'short_name', '') or \
-            getattr(user, 'full_name', '') or \
-            getattr(user, 'username', '') or user.email
+        username = (
+            getattr(user, "short_name", "")
+            or getattr(user, "full_name", "")
+            or getattr(user, "username", "")
+            or user.email
+        )
         body = self.strings.reset_password_email_body.format(
-            link=route_url('reset_password', request, code=activation.code),
-            username=username, domain=request.application_url)
+            link=route_url("reset_password", request, code=activation.code),
+            username=username,
+            domain=request.application_url,
+        )
         subject = self.strings.reset_password_email_subject
         message = Message(subject=subject, recipients=[user.email], body=body)
         mailer.send(message)
 
         request.add_flash(
-            plain=self.strings.reset_password_email_sent,
-            level='success')
+            plain=self.strings.reset_password_email_sent, level="success"
+        )
         return HTTPFound(location=self.reset_password_redirect_view)
 
     def reset_password(self):  # TODO Extract action
@@ -303,7 +331,7 @@ class ForgotPasswordView(BaseView):
         form = request.registry.getUtility(IResetPasswordForm)
         form = form(schema)
 
-        code = request.matchdict.get('code', None)
+        code = request.matchdict.get("code", None)
         activation = request.repo.q_activation_by_code(code)
         if not activation:
             raise HTTPNotFound(self.strings.activation_code_not_found)
@@ -312,36 +340,40 @@ class ForgotPasswordView(BaseView):
         if user is None:
             raise RuntimeError(
                 "How is it possible that I found the activation {} but not "
-                "a corresponding user?".format(activation.code))
+                "a corresponding user?".format(activation.code)
+            )
 
-        if request.method == 'GET':
-            appstruct = {'username': user.username} if hasattr(
-                user, 'username') else {'email': user.email}
+        if request.method == "GET":
+            appstruct = (
+                {"username": user.username}
+                if hasattr(user, "username")
+                else {"email": user.email}
+            )
             return render_form(request, form, appstruct)
 
-        elif request.method == 'POST':
+        elif request.method == "POST":
             controls = request.POST.items()
             try:
                 captured = validate_form(controls, form)
             except FormValidationFailure as e:
                 return e.result(request)
 
-            password = captured['password']
+            password = captured["password"]
 
             user.password = password
             request.repo.delete_activation(user, activation)
 
             request.add_flash(
-                plain=self.strings.reset_password_done,
-                level='success')
-            request.registry.notify(PasswordResetEvent(
-                request, user, password))
+                plain=self.strings.reset_password_done, level="success"
+            )
+            request.registry.notify(
+                PasswordResetEvent(request, user, password)
+            )
             location = self.reset_password_redirect_view
             return HTTPFound(location=location)
 
 
 class RegisterView(BaseView):
-
     def __init__(self, request):  # noqa
         super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
@@ -351,11 +383,11 @@ class RegisterView(BaseView):
         self.form = form(self.schema)
 
         self.after_register_url = route_url(
-            self.settings.get('pluserable.register_redirect', 'index'),
-            request)
+            self.settings.get("pluserable.register_redirect", "index"), request
+        )
         self.after_activate_url = route_url(
-            self.settings.get('pluserable.activate_redirect', 'index'),
-            request)
+            self.settings.get("pluserable.activate_redirect", "index"), request
+        )
 
         # TODO reify:
         kerno = request.registry.getUtility(IKerno)
@@ -363,13 +395,13 @@ class RegisterView(BaseView):
 
     def register(self):
         request = self.request
-        if request.method == 'GET':
+        if request.method == "GET":
             if request.user:
                 return HTTPFound(location=self.after_register_url)
 
             return render_form(request, self.form)
 
-        elif request.method != 'POST':
+        elif request.method != "POST":
             return
 
         # If the request is a POST:
@@ -383,20 +415,21 @@ class RegisterView(BaseView):
         # With the form validated, we know email and username are unique.
         user = self.persist_user(captured)
 
-        autologin = asbool(self.settings.get('pluserable.autologin', False))
+        autologin = asbool(self.settings.get("pluserable.autologin", False))
 
         if self.require_activation:
             create_activation(request, user)  # send activation email
             request.add_flash(
-                plain=self.strings.activation_check_email,
-                level='success')
+                plain=self.strings.activation_check_email, level="success"
+            )
         elif not autologin:
             request.add_flash(
-                plain=self.strings.registration_done,
-                level='success')
+                plain=self.strings.registration_done, level="success"
+            )
 
-        request.registry.notify(NewRegistrationEvent(
-            request, user, None, controls))
+        request.registry.notify(
+            NewRegistrationEvent(request, user, None, controls)
+        )
         if autologin:
             request.repo.flush()  # in order to get the id
             return authenticated(request, user.id)
@@ -415,28 +448,28 @@ class RegisterView(BaseView):
     def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
         ret = ActivateUser.from_pyramid(request)(
-            code=request.matchdict.get('code', None),
-            user_id=request.matchdict.get('user_id', None),
+            code=request.matchdict.get("code", None),
+            user_id=request.matchdict.get("user_id", None),
         )
 
         request.add_flash(  # TODO Move into action
-            plain=self.strings.activation_email_verified,
-            level='success')
+            plain=self.strings.activation_email_verified, level="success"
+        )
         request.registry.notify(  # send a Pyramid event
-            RegistrationActivatedEvent(request, ret.user, ret.activation))
+            RegistrationActivatedEvent(request, ret.user, ret.activation)
+        )
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self.after_activate_url)
 
 
 class ProfileView(BaseView):
-
     def profile(self):
         """Display a user profile."""
-        user_id = self.request.matchdict.get('user_id', None)
+        user_id = self.request.matchdict.get("user_id", None)
         user = self.request.repo.q_user_by_id(user_id)
         if not user:
             raise HTTPNotFound()
-        return {'user': user}
+        return {"user": user}
 
     def _get_form(self):
         schema = self.request.registry.getUtility(IProfileSchema)
@@ -454,49 +487,50 @@ class ProfileView(BaseView):
 
         form = self._get_form()
 
-        if request.method == 'GET':
-            appstruct = {'email': user.email or ''}
-            if hasattr(user, 'username'):
-                appstruct['username'] = user.username
+        if request.method == "GET":
+            appstruct = {"email": user.email or ""}
+            if hasattr(user, "username"):
+                appstruct["username"] = user.username
             return render_form(request, form, appstruct)
 
-        elif request.method == 'POST':
+        elif request.method == "POST":
             controls = request.POST.items()
 
             try:
                 captured = validate_form(controls, form)
             except FormValidationFailure as e:
-                if hasattr(user, 'username'):
+                if hasattr(user, "username"):
                     # We pre-populate username
                     return e.result(request, username=user.username)
                 else:
                     return e.result(request)
 
             changed = False
-            email = captured.get('email', None)
+            email = captured.get("email", None)
             if email:
                 email_user = request.repo.get_user_by_email(email)
                 if email_user and email_user.id != user.id:
                     # TODO This should be a validation error, not add_flash
                     request.add_flash(
                         plain=get_strings(
-                            request.kerno).edit_profile_email_present.format(
-                            email=email),
-                        level='danger')
+                            request.kerno
+                        ).edit_profile_email_present.format(email=email),
+                        level="danger",
+                    )
                     return HTTPFound(location=request.url)
                 if email != user.email:
                     user.email = email
                     changed = True
 
-            password = captured.get('password')
+            password = captured.get("password")
             if password:
                 user.password = password
                 changed = True
 
             if changed:
                 request.add_flash(
-                    plain=self.strings.edit_profile_done,
-                    level='success')
+                    plain=self.strings.edit_profile_done, level="success"
+                )
                 request.registry.notify(
                     ProfileUpdatedEvent(request, user, captured)
                 )
@@ -506,21 +540,37 @@ class ProfileView(BaseView):
 def get_pyramid_views_config():
     """Return a dictionary for registering Pyramid views."""
     return {  # route_name: view_kwargs
-        'register': {'view': RegisterView, 'attr': 'register',
-                     'renderer': 'pluserable:templates/register.mako'},
-        'activate': {'view': RegisterView, 'attr': 'activate'},
-        'login': {'view': AuthView, 'attr': 'login',
-                  'renderer': 'pluserable:templates/login.mako'},
-        'logout': {'view': AuthView, 'attr': 'logout'},
-        'forgot_password': {
-            'view': ForgotPasswordView, 'attr': 'forgot_password',
-            'renderer': 'pluserable:templates/forgot_password.mako'},
-        'reset_password': {
-            'view': ForgotPasswordView, 'attr': 'reset_password',
-            'renderer': 'pluserable:templates/reset_password.mako'},
-        'profile': {'view': ProfileView, 'attr': 'profile',
-                    'renderer': 'pluserable:templates/profile.mako'},
-        'edit_profile': {'view': ProfileView, 'attr': 'edit_profile',
-                         'effective_principals': Authenticated,
-                         'renderer': 'pluserable:templates/edit_profile.mako'},
+        "register": {
+            "view": RegisterView,
+            "attr": "register",
+            "renderer": "pluserable:templates/register.mako",
+        },
+        "activate": {"view": RegisterView, "attr": "activate"},
+        "login": {
+            "view": AuthView,
+            "attr": "login",
+            "renderer": "pluserable:templates/login.mako",
+        },
+        "logout": {"view": AuthView, "attr": "logout"},
+        "forgot_password": {
+            "view": ForgotPasswordView,
+            "attr": "forgot_password",
+            "renderer": "pluserable:templates/forgot_password.mako",
+        },
+        "reset_password": {
+            "view": ForgotPasswordView,
+            "attr": "reset_password",
+            "renderer": "pluserable:templates/reset_password.mako",
+        },
+        "profile": {
+            "view": ProfileView,
+            "attr": "profile",
+            "renderer": "pluserable:templates/profile.mako",
+        },
+        "edit_profile": {
+            "view": ProfileView,
+            "attr": "edit_profile",
+            "effective_principals": Authenticated,
+            "renderer": "pluserable:templates/edit_profile.mako",
+        },
     }

@@ -28,11 +28,14 @@ def get_activation_link(request, user_id: int, code: str) -> str:
     setting if provided.
     """
     scheme_domain_port: str = request.registry.settings.get(
-        'scheme_domain_port', '')
-    return scheme_domain_port + request.route_path(
-        'activate', user_id=user_id, code=code
-    ) if scheme_domain_port else request.route_url(
-        'activate', user_id=user_id, code=code)
+        "scheme_domain_port", ""
+    )
+    return (
+        scheme_domain_port
+        + request.route_path("activate", user_id=user_id, code=code)
+        if scheme_domain_port
+        else request.route_url("activate", user_id=user_id, code=code)
+    )
 
 
 class PluserableAction(Action):
@@ -45,7 +48,7 @@ class PluserableAction(Action):
 
 def require_activation_setting_value(kerno) -> bool:
     """Return the value of a certain setting."""
-    return kerno.pluserable_settings.bool('require_activation', default=True)
+    return kerno.pluserable_settings.bool("require_activation", default=True)
 
 
 class CheckCredentials(PluserableAction):
@@ -57,7 +60,7 @@ class CheckCredentials(PluserableAction):
 
     def q_user(self, handle: str) -> Any:
         """Fetch user. ``handle`` can be a username or an email."""
-        if '@' in handle:
+        if "@" in handle:
             return self.repo.get_user_by_email(handle)
         else:
             return self.repo.q_user_by_username(handle)
@@ -74,8 +77,10 @@ class CheckCredentials(PluserableAction):
         """Pure method (no IO) that checks credentials against ``user``."""
         if not user or not user.check_password(password):
             raise AuthenticationFailure(
-                self._strings.wrong_email if '@' in handle
-                else self._strings.wrong_username)
+                self._strings.wrong_email
+                if "@" in handle
+                else self._strings.wrong_username
+            )
 
         if self._require_activation and not user.is_activated:
             raise AuthenticationFailure(self._strings.inactive_account)
@@ -83,7 +88,6 @@ class CheckCredentials(PluserableAction):
 
 
 class ActivateUser(PluserableAction):  # noqa
-
     def __call__(self, code: str, user_id: int) -> Rezulto:
         """Find code, ensure belongs to user, delete activation instance."""
         activation = self.repo.q_activation_by_code(code)
@@ -91,19 +95,23 @@ class ActivateUser(PluserableAction):  # noqa
             raise MalbonaRezulto(
                 status_int=404,
                 title=self._strings.activation_code_not_found_title,
-                plain=self._strings.activation_code_not_found)
+                plain=self._strings.activation_code_not_found,
+            )
 
         user = self.repo.q_user_by_id(user_id)
         if not user:
             raise MalbonaRezulto(
-                status_int=404, title=self._strings.user_not_found_title,
-                plain=self._strings.user_not_found)
+                status_int=404,
+                title=self._strings.user_not_found_title,
+                plain=self._strings.user_not_found,
+            )
 
         if user.activation is not activation:
             raise MalbonaRezulto(
                 status_int=404,
                 title=self._strings.activation_code_not_match_title,
-                plain=self._strings.activation_code_not_match)
+                plain=self._strings.activation_code_not_match,
+            )
 
         self.repo.delete_activation(user, activation)
         ret = Rezulto()  # type: Any

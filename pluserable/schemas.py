@@ -12,40 +12,50 @@ from pluserable.strings import get_strings, _
 
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
-    request = node.bindings['request']
+    request = node.bindings["request"]
     user = request.repo.get_user_by_email(val)
     if not user:
-        raise c.Invalid(node, get_strings(
-            request.registry).reset_password_email_must_exist.format(val))
+        raise c.Invalid(
+            node,
+            get_strings(
+                request.registry
+            ).reset_password_email_must_exist.format(val),
+        )
 
 
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
-    request = node.bindings['request']
+    request = node.bindings["request"]
     other = request.repo.get_user_by_email(val)
     if other:
-        raise c.Invalid(node, get_strings(
-            request.registry).registration_email_exists.format(other.email))
+        raise c.Invalid(
+            node,
+            get_strings(request.registry).registration_email_exists.format(
+                other.email
+            ),
+        )
 
 
 def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
-    request = node.bindings['request']
+    request = node.bindings["request"]
     user = request.repo.q_user_by_username(val)
     if user is not None:
-        raise c.Invalid(node, get_strings(
-            request.registry).registration_username_exists)
+        raise c.Invalid(
+            node, get_strings(request.registry).registration_username_exists
+        )
 
 
 def unix_username(node, value):
     """Colander validator that ensures the username is alphanumeric."""
-    request = node.bindings['request']
+    request = node.bindings["request"]
     if not ALPHANUM.match(value):
-        raise c.Invalid(node, get_strings(
-            request.registry).unacceptable_characters)
+        raise c.Invalid(
+            node, get_strings(request.registry).unacceptable_characters
+        )
 
 
-ALPHANUM = re.compile(r'^[a-zA-Z0-9_.-]+$')
+ALPHANUM = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
 
 def username_does_not_contain_at(node, value):
@@ -60,10 +70,11 @@ def username_does_not_contain_at(node, value):
     validator here in case someone wishes to use it instead of
     ``unix_username``.
     """
-    request = node.bindings['request']
-    if '@' in value:
-        raise c.Invalid(node, get_strings(
-            request.registry).username_may_not_contain_at)
+    request = node.bindings["request"]
+    if "@" in value:
+        raise c.Invalid(
+            node, get_strings(request.registry).username_may_not_contain_at
+        )
 
 
 # Schema fragments
@@ -73,40 +84,61 @@ def username_does_not_contain_at(node, value):
 
 
 def get_username_creation_node(
-        title=_('User name'), description=_("Name with which you will log in"),
-        validator=None):
+    title=_("User name"),
+    description=_("Name with which you will log in"),
+    validator=None,
+):
     return c.SchemaNode(
-        c.String(), title=title, description=description,
+        c.String(),
+        title=title,
+        description=description,
         preparer=strip_preparer,
-        validator=validator or c.All(
-            c.Length(max=30), unix_username, unique_username))
+        validator=validator
+        or c.All(c.Length(max=30), unix_username, unique_username),
+    )
 
 
 def get_email_node(validator=None, description=None):
     return c.SchemaNode(
-        c.String(), title=_('Email'), description=description,
+        c.String(),
+        title=_("Email"),
+        description=description,
         preparer=strip_lower_preparer,
         validator=validator or c.All(c.Email(), unique_email),
-        widget=w.TextInputWidget(size=40, maxlength=260, type='email',
-                                 placeholder=_("joe@example.com")))
+        widget=w.TextInputWidget(
+            size=40,
+            maxlength=260,
+            type="email",
+            placeholder=_("joe@example.com"),
+        ),
+    )
 
 
-def get_checked_password_node(description=_(
-        "Your password must be harder than a dictionary word or proper name!"),
-        **kw):
+def get_checked_password_node(
+    description=_(
+        "Your password must be harder than a dictionary word or proper name!"
+    ),
+    **kw,
+):
     return c.SchemaNode(
-        c.String(), title=_('Password'), validator=c.Length(min=4),
+        c.String(),
+        title=_("Password"),
+        validator=c.Length(min=4),
         widget=w.CheckedPasswordWidget(),
-        description=description, **kw)
+        description=description,
+        **kw,
+    )
 
 
 # Schemas
 # -------
 
+
 class UsernameLoginSchema(CSRFSchema):
 
     handle = c.SchemaNode(
-        c.String(), title=_('User name'), preparer=strip_preparer)
+        c.String(), title=_("User name"), preparer=strip_preparer
+    )
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
@@ -134,24 +166,31 @@ class ForgotPasswordSchema(CSRFSchema):
 
     email = get_email_node(
         validator=c.All(c.Email(), email_exists),
-        description=_("The email address under which you have your account."))
+        description=_("The email address under which you have your account."),
+    )
 
 
 class UsernameResetPasswordSchema(CSRFSchema):
 
     username = c.SchemaNode(
-        c.String(), title=_('User name'), missing=c.null,
+        c.String(),
+        title=_("User name"),
+        missing=c.null,
         preparer=strip_preparer,
-        widget=w.TextInputWidget(template='readonly/textinput'))
+        widget=w.TextInputWidget(template="readonly/textinput"),
+    )
     password = get_checked_password_node()
 
 
 class EmailResetPasswordSchema(CSRFSchema):
 
     email = c.SchemaNode(
-        c.String(), title=_('Email'), missing=c.null,
+        c.String(),
+        title=_("Email"),
+        missing=c.null,
         preparer=strip_lower_preparer,
-        widget=w.TextInputWidget(template='readonly/textinput'))
+        widget=w.TextInputWidget(template="readonly/textinput"),
+    )
     password = get_checked_password_node()
 
 
@@ -159,9 +198,10 @@ class UsernameProfileSchema(CSRFSchema):
 
     username = c.SchemaNode(
         c.String(),
-        widget=w.TextInputWidget(template='readonly/textinput'),
+        widget=w.TextInputWidget(template="readonly/textinput"),
         preparer=strip_preparer,
-        missing=c.null)
+        missing=c.null,
+    )
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
 

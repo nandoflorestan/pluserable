@@ -7,7 +7,11 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 
 from pluserable.data.models import (
-    thirty_days_from_now, ActivationBase, GroupBase, UserBase)
+    thirty_days_from_now,
+    ActivationBase,
+    GroupBase,
+    UserBase,
+)
 
 
 class ActivationMixin(ActivationBase, MinimalBase, ID):
@@ -23,25 +27,24 @@ class ActivationMixin(ActivationBase, MinimalBase, ID):
     @declared_attr
     def code(self):
         """A random hash that is valid only once."""
-        return sa.Column(sa.Unicode(30), nullable=False,
-                         unique=True,
-                         default=random_hash)
+        return sa.Column(
+            sa.Unicode(30), nullable=False, unique=True, default=random_hash
+        )
 
     @declared_attr
     def valid_until(self):
         """How long will the activation key last."""
-        return sa.Column(sa.DateTime, nullable=False,
-                         default=thirty_days_from_now)
+        return sa.Column(
+            sa.DateTime, nullable=False, default=thirty_days_from_now
+        )
 
     @declared_attr
     def created_by(self):  # TODO Use according to doc above
         """The system that generated the activation key."""
-        return sa.Column(sa.Unicode(30), nullable=False,
-                         default='web')
+        return sa.Column(sa.Unicode(30), nullable=False, default="web")
 
 
 class NoUsernameMixin(UserBase, MinimalBase, ID):
-
     @declared_attr
     def email(self):
         """User e-mail address."""
@@ -74,17 +77,19 @@ class NoUsernameMixin(UserBase, MinimalBase, ID):
 
     @declared_attr
     def activation_id(self):
-        return sa.Column(sa.Integer, sa.ForeignKey('{}.id'.format(
-            ActivationMixin.__tablename__)))
+        return sa.Column(
+            sa.Integer,
+            sa.ForeignKey("{}.id".format(ActivationMixin.__tablename__)),
+        )
 
     @declared_attr
     def activation(self):
-        return sa.orm.relationship('Activation', backref='user')
+        return sa.orm.relationship("Activation", backref="user")
 
     @declared_attr
     def _password(self):
         """Password hash."""
-        return sa.Column('password', sa.Unicode(256), nullable=False)
+        return sa.Column("password", sa.Unicode(256), nullable=False)
 
 
 class UsernameMixin(NoUsernameMixin):
@@ -110,7 +115,7 @@ class GroupMixin(GroupBase, MinimalBase, ID):
     def users(self):
         """Relationship for users belonging to this group."""
         return sa.orm.relationship(
-            'User',
+            "User",
             secondary=UserGroupMixin.__tablename__,
             # order_by='%s.user.username' % UsernameMixin.__tablename__,
             passive_deletes=True,
@@ -132,24 +137,25 @@ class GroupMixin(GroupBase, MinimalBase, ID):
 
 
 class UserGroupMixin(MinimalBase, ID):
-
     @declared_attr
     def group_id(self):
         return sa.Column(
-            sa.Integer,
-            sa.ForeignKey(GroupMixin.__tablename__ + '.id'))
+            sa.Integer, sa.ForeignKey(GroupMixin.__tablename__ + ".id")
+        )
 
     @declared_attr
     def user_id(self):
         return sa.Column(
             sa.Integer,
-            sa.ForeignKey('user.id', onupdate='CASCADE', ondelete='CASCADE'))
+            sa.ForeignKey("user.id", onupdate="CASCADE", ondelete="CASCADE"),
+        )
 
     def __repr__(self):
-        return '<{}: {}, {}>'.format(type(self), self.group_id, self.user_id)
+        return "<{}: {}, {}>".format(type(self), self.group_id, self.user_id)
 
 
 __all__ = [
-    k for k, v in locals().items()
+    k
+    for k, v in locals().items()
     if isinstance(v, type) and issubclass(v, MinimalBase)
 ]

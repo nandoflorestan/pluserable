@@ -9,7 +9,6 @@ class AuthenticationFailure(Exception):
 
 
 class FormValidationFailure(Exception):  # TODO REMOVE
-
     def __init__(self, form, exc):
         Exception.__init__(self)
         self.form = form
@@ -17,7 +16,7 @@ class FormValidationFailure(Exception):  # TODO REMOVE
 
     def result(self, request, **cstruct):
         settings = request.registry.settings
-        retail = asbool(settings.get('pluserable.deform_retail', False))
+        retail = asbool(settings.get("pluserable.deform_retail", False))
 
         if retail:
             form = self.form
@@ -31,4 +30,4 @@ class FormValidationFailure(Exception):  # TODO REMOVE
 
         if not retail:
             form = form.render()
-        return {'form': form, 'errors': errors}
+        return {"form": form, "errors": errors}

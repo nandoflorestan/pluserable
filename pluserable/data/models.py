@@ -10,7 +10,7 @@ import cryptacular.bcrypt
 crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
 
 
-def thirty_days_from_now(now: Optional[datetime]=None) -> datetime:
+def thirty_days_from_now(now: Optional[datetime] = None) -> datetime:
     """Return a datetime pointing to exactly 30 days in the future."""
     now = now or datetime.utcnow()
     return now + timedelta(days=30)
@@ -29,8 +29,10 @@ class ActivationBase:
     """
 
     def __init__(
-        self, code: str = '', valid_until: Optional[datetime] = None,
-        created_by: str = 'web',
+        self,
+        code: str = "",
+        valid_until: Optional[datetime] = None,
+        created_by: str = "web",
     ):
         """Usually call with the ``created_by`` system, or no arguments."""
         self.code = code or random_hash()
@@ -43,7 +45,7 @@ class UserBase:
     """Base class for a User model."""
 
     def __init__(
-        self, email: str, password: str, salt: str = '', activation=None, **kw
+        self, email: str, password: str, salt: str = "", activation=None, **kw
     ):  # noqa
         # print('User constructor: {} / {} / {} / {}'.format(
         #     email, password, salt, activation))
@@ -57,12 +59,13 @@ class UserBase:
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.email)
+        return "<{}: {}>".format(self.__class__.__name__, self.email)
 
-    def gravatar_url(self, default='mm', size=80, cacheable=True):  # no cover
+    def gravatar_url(self, default="mm", size=80, cacheable=True):  # no cover
         """Return a Gravatar image URL for this user."""
         return gravatar_image(  # pragma: no cover
-            self.email, default=default, size=size, cacheable=cacheable)
+            self.email, default=default, size=size, cacheable=cacheable
+        )
 
     @property
     def password(self):
@@ -74,8 +77,10 @@ class UserBase:
         self._password = self._hash_password(value)
 
     def _hash_password(self, password):
-        assert self.salt, "UserBase constructor was not called; " \
+        assert self.salt, (
+            "UserBase constructor was not called; "
             "you probably have your User base classes in the wrong order."
+        )
         return str(crypt.encode(password + self.salt))
 
     @classmethod
@@ -108,4 +113,4 @@ class GroupBase:
     """Base class for a Group model."""
 
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.name)
+        return "<{}: {}>".format(self.__class__.__name__, self.name)

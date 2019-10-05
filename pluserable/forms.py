@@ -7,8 +7,8 @@ class SubmitForm(deform.Form):
     """By default include a "submit" button on a form."""
 
     def __init__(self, *args, **kwargs):  # noqa
-        if not kwargs.get('buttons'):
-            kwargs['buttons'] = ('submit',)
+        if not kwargs.get("buttons"):
+            kwargs["buttons"] = ("submit",)
         super(SubmitForm, self).__init__(*args, **kwargs)
 
 
@@ -19,14 +19,15 @@ class BootstrapForm(SubmitForm):
         super(BootstrapForm, self).__init__(*args, **kwargs)
 
         for child in self.children:
-            if isinstance(child.widget, deform.widget.TextInputWidget) or \
-                    isinstance(child.widget, deform.widget.TextAreaWidget):
+            if isinstance(
+                child.widget, deform.widget.TextInputWidget
+            ) or isinstance(child.widget, deform.widget.TextAreaWidget):
 
                 if not child.widget.css_class:
-                    child.widget.css_class = ''
+                    child.widget.css_class = ""
 
-                if 'xlarge' not in child.widget.css_class:
-                    child.widget.css_class += ' xlarge'
+                if "xlarge" not in child.widget.css_class:
+                    child.widget.css_class += " xlarge"
 
 
 class PluserableForm(BootstrapForm):
