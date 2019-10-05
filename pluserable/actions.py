@@ -8,12 +8,13 @@ be thin.  Business rules must be decoupled from the web framework.
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from bag.reify import reify
 from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
 
+from pluserable.data.typing import TUser
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.strings import get_strings, UIStringsBase
 
@@ -58,7 +59,7 @@ class CheckCredentials(PluserableAction):
     def _require_activation(self):
         return require_activation_setting_value(self.kerno)
 
-    def q_user(self, handle: str) -> Any:
+    def q_user(self, handle: str) -> Optional[TUser]:
         """Fetch user. ``handle`` can be a username or an email."""
         if "@" in handle:
             return self.repo.get_user_by_email(handle)
@@ -67,13 +68,15 @@ class CheckCredentials(PluserableAction):
 
     def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""
-        r = Rezulto()  # type: Any
+        r: Any = Rezulto()
         r.user = self.q_user(handle)  # IO
         self._check_credentials(r.user, handle, password)  # might raise
-        r.user.last_login_date = datetime.utcnow()
+        r.user.last_login_date = datetime.utcnow()  # type: ignore
         return r
 
-    def _check_credentials(self, user, handle: str, password: str):
+    def _check_credentials(
+        self, user: Optional[TUser], handle: str, password: str
+    ) -> TUser:
         """Pure method (no IO) that checks credentials against ``user``."""
         if not user or not user.check_password(password):
             raise AuthenticationFailure(
