@@ -2,6 +2,7 @@
 
 from abc import ABCMeta
 import logging
+from typing import Optional
 
 import colander
 import deform
@@ -236,7 +237,7 @@ class AuthView(BaseView):
             request.user = ret.user
             return authenticated(request, ret.user.id)
 
-    def logout(self):
+    def logout(self, url: Optional[str] = None) -> HTTPFound:
         """Remove the auth cookies and redirect...
 
         ...to the view defined in the ``pluserable.logout_redirect`` setting,
@@ -248,7 +249,7 @@ class AuthView(BaseView):
             request.add_flash(plain=msg, level="success")
         request.session.invalidate()
         return HTTPFound(
-            location=self.logout_redirect_view, headers=forget(request)
+            location=url or self.logout_redirect_view, headers=forget(request)
         )
 
 
@@ -325,23 +326,30 @@ class ForgotPasswordView(BaseView):
         After user clicked link on email message.
         """
         request = self.request
-        schema = request.registry.getUtility(IResetPasswordSchema)
-        schema = schema().bind(request=request)
 
-        form = request.registry.getUtility(IResetPasswordForm)
-        form = form(schema)
-
+        # Ensure the code in the URL brings us a real activation object
         code = request.matchdict.get("code", None)
         activation = request.repo.q_activation_by_code(code)
         if not activation:
             raise HTTPNotFound(self.strings.activation_code_not_found)
 
+        # Ensure the activation is connected to a user. TODO fix
         user = request.repo.q_user_by_activation(activation)
         if user is None:
             raise RuntimeError(
-                "How is it possible that I found the activation {} but not "
-                "a corresponding user?".format(activation.code)
+                "How is it possible that I found the activation "
+                f"{activation.code} but not a corresponding user?"
             )
+
+        # If a user is logged in, log her off before doing anything
+        if request.user:  # TODO add test
+            return AuthView(request).logout(url=request.path_qs)
+
+        schema = request.registry.getUtility(IResetPasswordSchema)
+        schema = schema().bind(request=request)
+
+        form = request.registry.getUtility(IResetPasswordForm)
+        form = form(schema)
 
         if request.method == "GET":
             appstruct = (
