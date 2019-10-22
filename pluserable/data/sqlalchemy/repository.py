@@ -133,7 +133,7 @@ class Repository(  # TODO fix method names
             user = self.User(email=email, password=tmp_password, **details)
             self.add(user)
             self.flush()
-            user.is_new = tmp_password  # type: ignore the transient variable
-        else:
-            user.is_new = False  # type: ignore the transient variable
+            user.is_new = tmp_password  # type: ignore
+        else:  # is_new is a transient variable.
+            user.is_new = False  # type: ignore
         return user
