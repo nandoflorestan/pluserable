@@ -140,7 +140,9 @@ class UserGroupMixin(MinimalBase, ID):
     @declared_attr
     def group_id(self):
         return sa.Column(
-            sa.Integer, sa.ForeignKey(GroupMixin.__tablename__ + ".id")
+            sa.Integer,
+            sa.ForeignKey(GroupMixin.__tablename__ + ".id"),
+            index=True,
         )
 
     @declared_attr
@@ -148,6 +150,7 @@ class UserGroupMixin(MinimalBase, ID):
         return sa.Column(
             sa.Integer,
             sa.ForeignKey("user.id", onupdate="CASCADE", ondelete="CASCADE"),
+            index=True,
         )
 
     def __repr__(self):
