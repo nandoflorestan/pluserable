@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from bag.reify import reify
-from kerno.action import Action
+from kerno.web.pyramid import PyramidAction
 from kerno.state import MalbonaRezulto, Rezulto
 
 from pluserable.data.typing import TUser
@@ -39,7 +39,7 @@ def get_activation_link(request, user_id: int, code: str) -> str:
     )
 
 
-class PluserableAction(Action):
+class PluserableAction(PyramidAction):
     """Base class for our actions."""
 
     @reify
