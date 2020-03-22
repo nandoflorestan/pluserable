@@ -6,7 +6,7 @@ python:
   - "pypy3"
 
 # command to install dependencies
-install: "python setup.py develop"
+install: "pip install -e ."
 
 # command to run tests
 script: "python setup.py test"
