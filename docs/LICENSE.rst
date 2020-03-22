@@ -2,7 +2,7 @@
 License for the Pluserable project
 ==================================
 
-Copyright (c) 2015-2018, Nando Florestan, John Anderson and contributors
+Copyright (c) 2015-2020, Nando Florestan, John Anderson and contributors
 
 All rights reserved.
 
