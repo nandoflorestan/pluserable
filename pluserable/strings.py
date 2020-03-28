@@ -22,7 +22,9 @@ class UIStringsBase:
 
     activation_check_email = _(
         "Thank you for registering! Please check your e-mail now. You can "
-        "continue by clicking the activation link we have sent you."
+        "continue by clicking the activation link we have sent you. "
+        "If you do not receive an e-mail in the next 5 minutes "
+        "please check your spam folder!"
     )
     activation_code_not_found_title = _("Activation code not found")
     activation_code_not_found = _(
