@@ -154,7 +154,9 @@ class UserGroupMixin(MinimalBase, ID):
         )
 
     def __repr__(self):
-        return "<{}: {}, {}>".format(type(self), self.group_id, self.user_id)
+        return "<{}: group {}, user {}>".format(
+            type(self).__name__, self.group_id, self.user_id
+        )
 
 
 __all__ = [
