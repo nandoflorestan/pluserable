@@ -15,6 +15,7 @@ from kerno.web.pyramid import PyramidAction
 from kerno.state import MalbonaRezulto, Rezulto
 
 from pluserable.data.typing import TUser
+from pluserable.events import login_event
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.strings import get_strings, UIStringsBase
 
@@ -72,6 +73,7 @@ class CheckCredentials(PluserableAction):
         r.user = self.q_user(handle)  # IO
         self._check_credentials(r.user, handle, password)  # might raise
         r.user.last_login_date = datetime.utcnow()  # type: ignore
+        login_event(self.kerno, self.repo, r.user)
         return r
 
     def _check_credentials(

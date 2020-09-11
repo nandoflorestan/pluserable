@@ -1,4 +1,10 @@
-"""Event classes for Pyramid integration."""
+"""Event classes."""
+
+
+from kerno.event import Event
+
+
+login_event = Event()  # triggered when a user authenticates
 
 
 class BaseEvent:
