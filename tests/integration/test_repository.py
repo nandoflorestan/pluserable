@@ -45,7 +45,7 @@ class TestRepository(IntegrationTestBase):
         user2.activation = activation
         self.sas.flush()
 
-        new_user = self.repo.q_user_by_username('sagan2')
+        new_user = self.repo.get_user_by_username('sagan2')
         new_activation = self.repo.q_activation_by_code(activation.code)
 
         assert activation is new_activation
@@ -92,19 +92,19 @@ class TestRepository(IntegrationTestBase):
         assert new_user is None
 
     def test_get_user_by_username(self):
-        """q_user_by_username() called with valid username returns the user."""
+        """get_user_by_username() returns the user."""
         user = self.create_users(count=1)
         self.sas.flush()
 
-        ret = self.repo.q_user_by_username(user.username)
+        ret = self.repo.get_user_by_username(user.username)
         assert ret is user
 
     def test_get_user_by_username_invalid(self):
-        """q_user_by_username(), with invalid username, returns None."""
+        """get_user_by_username(), with invalid username, returns None."""
         self.create_users(count=1)
         self.sas.flush()
 
-        ret = self.repo.q_user_by_username('wrong')
+        ret = self.repo.get_user_by_username('wrong')
         assert ret is None
 
     def test_get_user_by_activation(self):

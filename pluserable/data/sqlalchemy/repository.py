@@ -61,7 +61,7 @@ class Repository(  # TODO fix method names
         """Return a user with ``email``, or raise."""
         return self._q_user_by_email(email).one()
 
-    def q_user_by_username(self, username: str) -> Optional[TUser]:
+    def get_user_by_username(self, username: str) -> Optional[TUser]:
         """Return a user with ``username``, or None. Case-insensitive."""
         return (
             self.sas.query(self.User)

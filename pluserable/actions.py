@@ -65,7 +65,7 @@ class CheckCredentials(PluserableAction):
         if "@" in handle:
             return self.repo.get_user_by_email(handle)  # type: ignore
         else:
-            return self.repo.q_user_by_username(handle)  # type: ignore
+            return self.repo.get_user_by_username(handle)  # type: ignore
 
     def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""

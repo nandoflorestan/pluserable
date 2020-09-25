@@ -216,7 +216,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         response = view.register()
 
         assert response.status_int == 302
-        user = request.repo.q_user_by_username('admin')
+        user = request.repo.get_user_by_username('admin')
         assert isinstance(user, User)
         assert not user.is_activated
 
@@ -280,7 +280,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         request.add_flash.assert_called_with(
             plain=UIStringsBase.registration_done, level="success")
         assert response.status_int == 302
-        user = request.repo.q_user_by_username('admin')
+        user = request.repo.get_user_by_username('admin')
         assert user.is_activated is True
 
     def test_registration_craps_out(self):  # noqa
@@ -327,7 +327,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
 
         view = RegisterView(request)
         response = view.activate()
-        the_user = request.repo.q_user_by_username(user.username)
+        the_user = request.repo.get_user_by_username(user.username)
 
         assert the_user is user
         assert the_user.activation is None
@@ -379,7 +379,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         with self.assertRaises(MalbonaRezulto):
             view.activate()
 
-        the_user = request.repo.q_user_by_username(user.username)
+        the_user = request.repo.get_user_by_username(user.username)
         assert the_user is user
         assert not the_user.is_activated
 

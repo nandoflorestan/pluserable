@@ -39,7 +39,7 @@ def unique_email(node, val):
 def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
     request = node.bindings["request"]
-    user = request.repo.q_user_by_username(val)
+    user = request.repo.get_user_by_username(val)
     if user is not None:
         raise c.Invalid(
             node, get_strings(request.registry).registration_username_exists
