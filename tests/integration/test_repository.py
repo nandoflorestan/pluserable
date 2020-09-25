@@ -18,16 +18,6 @@ class TestRepository(IntegrationTestBase):
         assert len(groups) == 1
         assert len(groups[0].users) == 1
 
-    def test_q_group_by_id(self):  # noqa
-        group = Group(name='admin', description='group for admins')
-        group2 = Group(name='employees', description='group for employees')
-        self.sas.add(group)
-        self.sas.add(group2)
-        self.sas.flush()
-
-        ret = self.repo.q_group_by_id(group2.id)
-        assert ret is group2
-
     def test_q_activation_by_code(self):
         """q_activation_by_code() returns the correct activation."""
         activation = Activation()

@@ -4,7 +4,7 @@ Repositories are persistence strategies.
 """
 
 from abc import ABCMeta, abstractmethod
-from typing import Generic, Optional
+from typing import Generic, Optional, Sequence
 
 from pluserable.data.typing import TActivation, TGroup, TTUser
 
@@ -39,3 +39,7 @@ class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
     @abstractmethod
     def get_user_by_username(self, username: str) -> Optional[TTUser]:
         """Return a user with ``username``, or None. Case-insensitive."""
+
+    @abstractmethod
+    def q_groups(self) -> Sequence[TGroup]:
+        """Return an iterator on all groups."""

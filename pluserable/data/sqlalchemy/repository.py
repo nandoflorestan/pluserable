@@ -77,10 +77,6 @@ class Repository(  # TODO fix method names
         """Return an iterator on all groups."""
         return self.sas.query(self.Group)
 
-    def q_group_by_id(self, id: int) -> Optional[TGroup]:
-        """Return a group with ``id``, or None."""
-        return self.sas.query(self.Group).get(id)
-
     def q_activations(self) -> Query[TActivation]:
         """Return an iterator on all activations."""
         return self.sas.query(self.Activation)
