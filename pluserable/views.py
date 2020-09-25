@@ -109,7 +109,7 @@ def create_activation(request, user):  # TODO Move to action
         activation = Activation()
 
         repo = request.repo
-        repo.store_activation(activation)
+        repo.add(activation)
         user.activation = activation
         repo.flush()
 

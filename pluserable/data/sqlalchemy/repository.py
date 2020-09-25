@@ -81,10 +81,6 @@ class Repository(  # TODO fix method names
         """Return an iterator on all activations."""
         return self.sas.query(self.Activation)
 
-    def store_activation(self, activation: TActivation) -> None:
-        """Save the ``activation`` instance."""
-        self.sas.add(activation)
-
     def q_activation_by_code(self, code: str) -> Optional[TActivation]:
         """Return the Activation with ``code``, or None."""
         return self.sas.query(self.Activation).filter_by(code=code).first()

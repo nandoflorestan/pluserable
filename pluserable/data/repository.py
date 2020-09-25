@@ -43,3 +43,7 @@ class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
     @abstractmethod
     def q_groups(self) -> Sequence[TGroup]:
         """Return an iterator on all groups."""
+
+    @abstractmethod
+    def q_activations(self) -> Sequence[TActivation]:
+        """Return an iterator on all activations."""
