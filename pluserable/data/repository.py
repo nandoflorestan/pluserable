@@ -27,3 +27,11 @@ class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
     @abstractmethod
     def get_user_by_id(self, id: int) -> Optional[TTUser]:
         """Return the user with ``id``, or None."""
+
+    @abstractmethod
+    def get_user_by_email(self, email: str) -> Optional[TTUser]:
+        """Return a user with ``email``, or None."""
+
+    @abstractmethod
+    def one_user_by_email(self, email: str) -> TTUser:
+        """Return a user with ``email``, or raise."""

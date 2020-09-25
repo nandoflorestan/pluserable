@@ -47,7 +47,7 @@ class Repository(  # TODO fix method names
         # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 
-    def q_user_by_email(self, email: str) -> Query[TUser]:
+    def _q_user_by_email(self, email: str) -> Query[TUser]:
         """Return a query for a user with ``email``."""
         return self.sas.query(self.User).filter(
             func.lower(self.User.email) == email.lower()
@@ -55,13 +55,13 @@ class Repository(  # TODO fix method names
 
     def get_user_by_email(self, email: str) -> Optional[TUser]:
         """Return a user with ``email``, or None."""
-        return self.q_user_by_email(email).first()
+        return self._q_user_by_email(email).first()
 
     def one_user_by_email(self, email: str) -> TUser:
         """Return a user with ``email``, or raise."""
-        return self.q_user_by_email(email).one()
+        return self._q_user_by_email(email).one()
 
-    def q_user_by_username(self, username: str) -> TUser:
+    def q_user_by_username(self, username: str) -> Optional[TUser]:
         """Return a user with ``username``, or None. Case-insensitive."""
         return (
             self.sas.query(self.User)
@@ -73,7 +73,7 @@ class Repository(  # TODO fix method names
             .first()
         )
 
-    def q_users(self) -> TUser:
+    def q_users(self) -> Query[TUser]:
         """Return an iterator on all users."""
         return self.sas.query(self.User)
 
