@@ -103,7 +103,7 @@ class ActivateUser(PluserableAction):  # noqa
                 plain=self._strings.activation_code_not_found,
             )
 
-        user = self.repo.q_user_by_id(user_id)  # type: ignore
+        user = self.repo.get_user_by_id(user_id)  # type: ignore
         if not user:
             raise MalbonaRezulto(
                 status_int=404,

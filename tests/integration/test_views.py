@@ -679,7 +679,7 @@ class TestProfileView(IntegrationTestBase):  # noqa
         ProfileView(request).edit_profile()
 
         # Assertions
-        the_user = request.repo.q_user_by_id(user.id)
+        the_user = request.repo.get_user_by_id(user.id)
         assert the_user is user
         assert the_user.email == 'new_email@nasa.gov'
         assert user.check_password('science')

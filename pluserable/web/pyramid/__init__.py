@@ -21,10 +21,8 @@ from pluserable.web.pyramid.resources import RootFactory
 
 def get_user(request):
     """Return the user making the current request, or None."""
-    userid = request.unauthenticated_userid
-    if userid is None:
-        return None
-    return request.repo.q_user_by_id(userid)
+    id = request.unauthenticated_userid
+    return None if id is None else request.repo.get_user_by_id(id)
 
 
 def includeme(config) -> None:

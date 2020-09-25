@@ -58,20 +58,20 @@ class TestRepository(IntegrationTestBase):
         users = list(self.repo.q_users())
         assert len(users) == 2
 
-    def test_q_user_by_id(self):
-        """q_user_by_id() called with valid id returns the user."""
+    def test_get_user_by_id(self):
+        """get_user_by_id() called with valid id returns the user."""
         users = self.create_users(count=2)
         self.sas.flush()
 
-        ret = self.repo.q_user_by_id(users[1].id)
+        ret = self.repo.get_user_by_id(users[1].id)
         assert ret is users[1]
 
-    def test_q_user_by_id_invalid(self):
-        """q_user_by_id() called with invalid id returns None."""
+    def test_get_user_by_id_invalid(self):
+        """get_user_by_id() called with invalid id returns None."""
         self.create_users(count=1)
         self.sas.flush()
 
-        ret = self.repo.q_user_by_id(2)
+        ret = self.repo.get_user_by_id(2)
         assert ret is None
 
     def test_get_user_by_email(self):

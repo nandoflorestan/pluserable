@@ -23,4 +23,7 @@ class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
         self, activation: TActivation
     ) -> Optional[TTUser]:
         """Return the user with ``activation``, or None."""
-        ...
+
+    @abstractmethod
+    def get_user_by_id(self, id: int) -> Optional[TTUser]:
+        """Return the user with ``id``, or None."""

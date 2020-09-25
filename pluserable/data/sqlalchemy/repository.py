@@ -42,8 +42,8 @@ class Repository(  # TODO fix method names
             .first()
         )
 
-    def q_user_by_id(self, id: int) -> TUser:
-        """Return a user with ``id``, or None."""
+    def get_user_by_id(self, id: int) -> Optional[TUser]:
+        """Return the user with ``id``, or None."""
         # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
 

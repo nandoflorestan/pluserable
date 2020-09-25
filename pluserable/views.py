@@ -483,7 +483,7 @@ class ProfileView(BaseView):
     def profile(self):
         """Display a user profile."""
         user_id = self.request.matchdict.get("user_id", None)
-        user = self.request.repo.q_user_by_id(user_id)
+        user = self.request.repo.get_user_by_id(user_id)
         if not user:
             raise HTTPNotFound()
         return {"user": user}
