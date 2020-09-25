@@ -6,6 +6,7 @@ from typing import Optional
 
 import colander
 import deform
+from kerno.peto import Peto
 from kerno.state import to_dict
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
@@ -206,7 +207,7 @@ class AuthView(BaseView):
             raise HTTPBadRequest({"invalid": e.asdict()})
 
         try:
-            ret = CheckCredentials.from_pyramid(self.request)(
+            ret = CheckCredentials(peto=Peto.from_pyramid(self.request))(
                 handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:
@@ -233,7 +234,7 @@ class AuthView(BaseView):
                 return e.result(request)
 
             try:
-                ret = CheckCredentials.from_pyramid(request)(
+                ret = CheckCredentials(peto=Peto.from_pyramid(request))(
                     handle=captured["handle"], password=captured["password"]
                 )
             except AuthenticationFailure as e:  # TODO View for this exception
@@ -463,7 +464,7 @@ class RegisterView(BaseView):
     @kerno_view
     def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        ret = ActivateUser.from_pyramid(request)(
+        ret = ActivateUser(peto=Peto.from_pyramid(request))(
             code=request.matchdict.get("code", None),
             user_id=request.matchdict.get("user_id", None),
         )

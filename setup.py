@@ -34,7 +34,7 @@ class PyTest(TestCommand):
 
 requires = [
     'bag >= 3.0.0.dev1',
-    'kerno >= 0.4.0',
+    'kerno >= 0.5.0',
     'sqlalchemy',
     'transaction',
     'cryptacular',

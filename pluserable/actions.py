@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from bag.reify import reify
-from kerno.web.pyramid import PyramidAction
+from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
 
 from pluserable.data.typing import TUser
@@ -40,7 +40,7 @@ def get_activation_link(request, user_id: int, code: str) -> str:
     )
 
 
-class PluserableAction(PyramidAction):
+class PluserableAction(Action):
     """Base class for our actions."""
 
     @reify
@@ -56,16 +56,16 @@ def require_activation_setting_value(kerno) -> bool:
 class CheckCredentials(PluserableAction):
     """Business rules decoupled from the web framework and from persistence."""
 
-    @reify
+    @property
     def _require_activation(self):
         return require_activation_setting_value(self.kerno)
 
     def q_user(self, handle: str) -> Optional[TUser]:
         """Fetch user. ``handle`` can be a username or an email."""
         if "@" in handle:
-            return self.repo.get_user_by_email(handle)
+            return self.repo.get_user_by_email(handle)  # type: ignore
         else:
-            return self.repo.q_user_by_username(handle)
+            return self.repo.q_user_by_username(handle)  # type: ignore
 
     def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""
@@ -73,7 +73,7 @@ class CheckCredentials(PluserableAction):
         r.user = self.q_user(handle)  # IO
         self._check_credentials(r.user, handle, password)  # might raise
         r.user.last_login_date = datetime.utcnow()  # type: ignore
-        login_event(self.kerno, self.repo, r.user)
+        login_event(self.peto, r)
         return r
 
     def _check_credentials(
@@ -95,7 +95,7 @@ class CheckCredentials(PluserableAction):
 class ActivateUser(PluserableAction):  # noqa
     def __call__(self, code: str, user_id: int) -> Rezulto:
         """Find code, ensure belongs to user, delete activation instance."""
-        activation = self.repo.q_activation_by_code(code)
+        activation = self.repo.q_activation_by_code(code)  # type: ignore
         if not activation:
             raise MalbonaRezulto(
                 status_int=404,
@@ -103,7 +103,7 @@ class ActivateUser(PluserableAction):  # noqa
                 plain=self._strings.activation_code_not_found,
             )
 
-        user = self.repo.q_user_by_id(user_id)
+        user = self.repo.q_user_by_id(user_id)  # type: ignore
         if not user:
             raise MalbonaRezulto(
                 status_int=404,
@@ -118,7 +118,7 @@ class ActivateUser(PluserableAction):  # noqa
                 plain=self._strings.activation_code_not_match,
             )
 
-        self.repo.delete_activation(user, activation)
+        self.repo.delete_activation(user, activation)  # type: ignore
         ret = Rezulto()  # type: Any
         ret.user = user
         ret.activation = activation
