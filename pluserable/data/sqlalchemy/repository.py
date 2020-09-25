@@ -73,10 +73,6 @@ class Repository(  # TODO fix method names
             .first()
         )
 
-    def store_user(self, user: TUser) -> None:
-        """Save the ``user`` instance."""
-        self.sas.add(user)
-
     def q_groups(self) -> Query[TGroup]:
         """Return an iterator on all groups."""
         return self.sas.query(self.Group)

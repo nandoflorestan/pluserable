@@ -458,7 +458,7 @@ class RegisterView(BaseView):
         # This generic method must work with any custom User class and any
         # custom registration form:
         user = self.User(**controls)
-        self.request.repo.store_user(user)
+        self.request.repo.add(user)
         return user
 
     @kerno_view

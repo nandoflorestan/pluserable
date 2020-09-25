@@ -31,7 +31,7 @@ class UnitTestCase(TestCase):
                 user.activation = Activation()
             users.append(user)
             if hasattr(self, 'repo'):
-                self.repo.store_user(user)
+                self.repo.add(user)
         if count == 1:
             return users[0]
         else:
