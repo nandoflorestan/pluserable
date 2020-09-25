@@ -32,7 +32,9 @@ class Repository(  # TODO fix method names
     def Group(self) -> TGroup:  # noqa
         return self.kerno.utilities[const.GROUP_CLASS]
 
-    def q_user_by_activation(self, activation: TActivation) -> TUser:
+    def get_user_by_activation(
+        self, activation: TActivation
+    ) -> Optional[TUser]:
         """Return the user with ``activation``, or None."""
         return (
             self.sas.query(self.User)

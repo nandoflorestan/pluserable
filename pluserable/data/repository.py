@@ -3,12 +3,24 @@
 Repositories are persistence strategies.
 """
 
-from kerno.web.pyramid import IKerno
+from abc import ABCMeta, abstractmethod
+from typing import Generic, Optional
+
+from pluserable.data.typing import TActivation, TGroup, TTUser
 
 
-def instantiate_repository(registry):
-    """Return a new instance of the configured repository.
+class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
+    """An abstract base class (ABC) defining the repository interface."""
 
-    This must be called only once per request.
-    """
-    return registry.queryUtility(IKerno).new_repo()
+    # TODO Complete this ABC
+
+    User: TTUser
+    Activation: TActivation
+    Group: TGroup
+
+    @abstractmethod
+    def get_user_by_activation(
+        self, activation: TActivation
+    ) -> Optional[TTUser]:
+        """Return the user with ``activation``, or None."""
+        ...

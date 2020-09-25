@@ -108,11 +108,11 @@ class TestRepository(IntegrationTestBase):
         assert ret is None
 
     def test_get_user_by_activation(self):
-        """q_user_by_activation() returns the correct user."""
+        """get_user_by_activation() returns the correct user."""
         users = self.create_users(count=2)
         activation = Activation()
         users[1].activation = activation
         self.sas.flush()
 
-        ret = self.repo.q_user_by_activation(activation)
+        ret = self.repo.get_user_by_activation(activation)
         assert ret is users[1]

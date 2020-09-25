@@ -343,7 +343,7 @@ class ForgotPasswordView(BaseView):
             raise HTTPNotFound(self.strings.activation_code_not_found)
 
         # Ensure the activation is connected to a user. TODO fix
-        user = request.repo.q_user_by_activation(activation)
+        user = request.repo.get_user_by_activation(activation)
         if user is None:
             raise RuntimeError(
                 "How is it possible that I found the activation "

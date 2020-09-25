@@ -5,6 +5,7 @@ from typing import Generic, TypeVar
 
 TActivation = TypeVar("TActivation")
 TGroup = TypeVar("TGroup")
+TTUser = TypeVar("TTUser")
 
 
 class TUser(Generic[TActivation, TGroup]):
