@@ -9,12 +9,11 @@ from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository, Query
 from sqlalchemy import func
 
 from pluserable import const
+from pluserable.data.repository import AbstractRepo
 from pluserable.data.typing import TActivation, TGroup, TUser
 
 
-class Repository(  # TODO fix method names
-    BaseSQLAlchemyRepository, Generic[TActivation, TGroup]
-):
+class Repository(AbstractRepo, Generic[TActivation, TGroup]):
     """A repository that uses SQLAlchemy for storage.
 
     In the future other strategies can be developed (e. g. ZODB).
@@ -89,7 +88,7 @@ class Repository(  # TODO fix method names
         """Delete the Activation instance from the database."""
         assert isinstance(activation, self.Activation)
         user.activation = None
-        self.sas.delete(activation)
+        self.delete(activation)
 
     def delete_expired_activations(
         self, now: Optional[datetime] = None
@@ -101,7 +100,7 @@ class Repository(  # TODO fix method names
         )
         count = oldies.count()
         for old in oldies:
-            self.sas.delete(old)
+            self.delete(old)
         return count
 
     def get_or_create_user_by_email(
