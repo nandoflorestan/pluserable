@@ -11,7 +11,6 @@ flexible and maintainable.
 Refactoring
 ===========
 
-- Remove ZODB and the dream of supporting anything other than SQLAlchemy.
 - Use kerno.state instead of bag's add_flash(). Document.
 - Use kerno.event instead of pyramid events. Document.
 - Add @kerno_page and use it instead of @kerno_view.
