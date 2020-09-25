@@ -10,7 +10,7 @@ class TestRepository(IntegrationTestBase):
     def test_q_groups(self):
         """q_groups() returns all groups."""
         user = self.create_users(count=1)
-        group = Group(name='admin', description='group for admins')
+        group = Group(name="admin", description="group for admins")
         group.users.append(user)
         self.sas.flush()
 
@@ -18,25 +18,25 @@ class TestRepository(IntegrationTestBase):
         assert len(groups) == 1
         assert len(groups[0].users) == 1
 
-    def test_q_activation_by_code(self):
-        """q_activation_by_code() returns the correct activation."""
+    def test_get_activation_by_code(self):
+        """get_activation_by_code() returns the correct activation."""
         activation = Activation()
         self.sas.add(activation)
         self.sas.flush()
 
-        new_activation = self.repo.q_activation_by_code(activation.code)
+        new_activation = self.repo.get_activation_by_code(activation.code)
 
         assert activation is new_activation
 
-    def test_q_activation_by_code_leads_to_user(self):
-        """q_activation_by_code() leads to the correct user."""
+    def test_get_activation_by_code_leads_to_user(self):
+        """get_activation_by_code() leads to the correct user."""
         user1, user2 = self.create_users(count=2)
         activation = Activation()
         user2.activation = activation
         self.sas.flush()
 
-        new_user = self.repo.get_user_by_username('sagan2')
-        new_activation = self.repo.q_activation_by_code(activation.code)
+        new_user = self.repo.get_user_by_username("sagan2")
+        new_activation = self.repo.get_activation_by_code(activation.code)
 
         assert activation is new_activation
         assert new_user.activation is new_activation
@@ -70,7 +70,7 @@ class TestRepository(IntegrationTestBase):
         self.create_users(count=1)
         self.sas.flush()
 
-        new_user = self.repo.get_user_by_email('someone@else.com')
+        new_user = self.repo.get_user_by_email("someone@else.com")
 
         assert new_user is None
 
@@ -87,7 +87,7 @@ class TestRepository(IntegrationTestBase):
         self.create_users(count=1)
         self.sas.flush()
 
-        ret = self.repo.get_user_by_username('wrong')
+        ret = self.repo.get_user_by_username("wrong")
         assert ret is None
 
     def test_get_user_by_activation(self):

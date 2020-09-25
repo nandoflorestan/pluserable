@@ -47,3 +47,7 @@ class AbstractRepo(Generic[TActivation, TGroup, TTUser], metaclass=ABCMeta):
     @abstractmethod
     def q_activations(self) -> Sequence[TActivation]:
         """Return an iterator on all activations."""
+
+    @abstractmethod
+    def get_activation_by_code(self, code: str) -> Optional[TActivation]:
+        """Return the Activation with ``code``, or None."""

@@ -338,7 +338,7 @@ class ForgotPasswordView(BaseView):
 
         # Ensure the code in the URL brings us a real activation object
         code = request.matchdict.get("code", None)
-        activation = request.repo.q_activation_by_code(code)
+        activation = request.repo.get_activation_by_code(code)
         if not activation:
             raise HTTPNotFound(self.strings.activation_code_not_found)
 
