@@ -51,13 +51,6 @@ class TestRepository(IntegrationTestBase):
         assert activation is new_activation
         assert new_user.activation is new_activation
 
-    def test_gen_users(self):
-        """q_users() returns all existing users."""
-        self.create_users(count=2)
-        self.repo.flush()
-        users = list(self.repo.q_users())
-        assert len(users) == 2
-
     def test_get_user_by_id(self):
         """get_user_by_id() called with valid id returns the user."""
         users = self.create_users(count=2)

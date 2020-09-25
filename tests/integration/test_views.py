@@ -406,7 +406,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         with self.assertRaises(MalbonaRezulto):
             view.activate()
 
-        for user in request.repo.q_users():
+        for user in (user1, user2):
             assert not user.is_activated
 
 
