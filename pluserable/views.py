@@ -40,7 +40,7 @@ from pluserable.events import (
     NewRegistrationEvent,
     RegistrationActivatedEvent,
     PasswordResetEvent,
-    ProfileUpdatedEvent,
+    EventProfileUpdated,
 )
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
@@ -522,6 +522,7 @@ class ProfileView(BaseView):
                 else:
                     return e.result(request)
 
+            old_email = user.email
             changed = False
             email = captured.get("email", None)
             if email:
@@ -549,8 +550,13 @@ class ProfileView(BaseView):
                 request.add_flash(
                     plain=self.strings.edit_profile_done, level="success"
                 )
-                request.registry.notify(
-                    ProfileUpdatedEvent(request, user, captured)
+                request.kerno.events.broadcast(
+                    EventProfileUpdated(
+                        request=request,
+                        user=user,
+                        values=captured,
+                        old_email=old_email,
+                    )
                 )
             return HTTPFound(location=request.url)
 

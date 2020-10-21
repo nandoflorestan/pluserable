@@ -15,7 +15,7 @@ from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
 
 from pluserable.data.typing import TUser
-from pluserable.events import login_event
+from pluserable.events import EventLogin
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.data.repository import AbstractRepo
 from pluserable.strings import get_strings, UIStringsBase
@@ -72,13 +72,15 @@ class CheckCredentials(PluserableAction):
 
     def __call__(self, handle: str, password: str) -> Rezulto:
         """Get user object if credentials are valid, else raise."""
-        r: Any = Rezulto()
-        r.user = self.q_user(handle)  # IO
-        self._check_credentials(r.user, handle, password)  # might raise
-        assert r.user
-        r.user.last_login_date = datetime.utcnow()
-        login_event(self.peto, r)
-        return r
+        rezulto: Any = Rezulto()
+        rezulto.user = self.q_user(handle)  # IO
+        self._check_credentials(rezulto.user, handle, password)  # might raise
+        assert rezulto.user
+        rezulto.user.last_login_date = datetime.utcnow()
+        self.kerno.events.broadcast(
+            EventLogin(peto=self.peto, rezulto=rezulto)
+        )
+        return rezulto
 
     def _check_credentials(
         self, user: Optional[TUser], handle: str, password: str
