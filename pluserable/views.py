@@ -547,9 +547,6 @@ class ProfileView(BaseView):
                 changed = True
 
             if changed:
-                request.add_flash(
-                    plain=self.strings.edit_profile_done, level="success"
-                )
                 request.kerno.events.broadcast(
                     EventProfileUpdated(
                         request=request,
@@ -557,6 +554,9 @@ class ProfileView(BaseView):
                         values=captured,
                         old_email=old_email,
                     )
+                )
+                request.add_flash(
+                    plain=self.strings.edit_profile_done, level="success"
                 )
             return HTTPFound(location=request.url)
 
