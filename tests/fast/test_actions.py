@@ -1,6 +1,6 @@
 """Unit tests for pure methods of actions (pure business rules)."""
 
-from mock import Mock
+from unittest.mock import Mock
 from pluserable.actions import CheckCredentials
 from pluserable.exceptions import AuthenticationFailure
 from . import FastTestCase

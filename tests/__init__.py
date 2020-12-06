@@ -1,7 +1,7 @@
 """Tests for *pluserable*."""
 
 from datetime import datetime
-from mock import Mock
+from unittest.mock import Mock
 from unittest import TestCase
 
 from pkg_resources import resource_filename

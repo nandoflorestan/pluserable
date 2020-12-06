@@ -1,8 +1,6 @@
 # noqa
 
-from mock import Mock, patch
-from pyramid import testing
-from pyramid.compat import PY3
+from unittest.mock import Mock, patch
 from tests.slow import FunctionalTestBase
 
 

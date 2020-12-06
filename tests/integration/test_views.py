@@ -1,7 +1,7 @@
 """Tests for the views."""
 
 from datetime import datetime
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from kerno.state import MalbonaRezulto
 from pyramid_mailer.interfaces import IMailer
