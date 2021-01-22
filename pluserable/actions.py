@@ -13,7 +13,10 @@ from typing import Any, Optional
 from bag.reify import reify
 from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message
 
+from pluserable import const
 from pluserable.data.typing import TUser
 from pluserable.events import EventLogin
 from pluserable.exceptions import AuthenticationFailure
@@ -39,6 +42,35 @@ def get_activation_link(request, user_id: int, code: str) -> str:
         if scheme_domain_port
         else request.route_url("activate", user_id=user_id, code=code)
     )
+
+
+def create_activation(request, user):  # TODO Lose *request* argument
+    """Associate the user with a new activation, or keep the existing one.
+
+    Also send an email message with the link for the user to click.
+    """
+    kerno = request.kerno
+    repo = request.repo
+    if user.activation is None:
+        Activation = kerno.utilities[const.ACTIVATION_CLASS]
+        activation = Activation()
+        repo.add(activation)
+        user.activation = activation
+        repo.flush()
+
+    strings = get_strings(kerno)
+    message = Message(
+        subject=strings.activation_email_subject,
+        recipients=[user.email],
+        body=strings.activation_email_plain.replace(
+            "ACTIVATION_LINK",
+            get_activation_link(
+                request, user_id=user.id, code=user.activation.code
+            ),
+        ),
+    )
+    mailer = get_mailer(request)
+    mailer.send(message)
 
 
 class PluserableAction(Action):

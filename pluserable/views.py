@@ -21,6 +21,7 @@ from pluserable import const
 from pluserable.actions import (
     ActivateUser,
     CheckCredentials,
+    create_activation,
     require_activation_setting_value,
     get_activation_link,
 )
@@ -96,36 +97,6 @@ def authenticated(request, userid) -> HTTPFound:
         location=request.params.get("next")
         or get_config_route(request, "pluserable.login_redirect"),
     )
-
-
-def create_activation(request, user):  # TODO Move to action
-    """Associate ``user`` with a new activation or keep the existing one.
-
-    Also send an email message to ``user`` with the link for her to click.
-    """
-    if user.activation is None:
-        kerno = request.registry.getUtility(IKerno)
-        Activation = kerno.utilities[const.ACTIVATION_CLASS]
-        activation = Activation()
-
-        repo = request.repo
-        repo.add(activation)
-        user.activation = activation
-        repo.flush()
-
-    strings = get_strings(kerno)
-    message = Message(
-        subject=strings.activation_email_subject,
-        recipients=[user.email],
-        body=strings.activation_email_plain.replace(
-            "ACTIVATION_LINK",
-            get_activation_link(
-                request, user_id=user.id, code=user.activation.code
-            ),
-        ),
-    )
-    mailer = get_mailer(request)
-    mailer.send(message)
 
 
 def render_form(request, form, appstruct=None, **kw):
