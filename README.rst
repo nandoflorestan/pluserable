@@ -254,12 +254,17 @@ in configuration::
 
     [kerno utilities]
     pluserable.send_activation_email = myapp.actions:send_activation_email
+    pluserable.send_reset_password_email = myapp.actions:send_reset_password_email
 
 ...or imperatively in startup code::
 
     eko.utilities.register(
         "pluserable.send_activation_email",
         "myapp.actions:send_activation_email"
+    )
+    eko.utilities.register(
+        "pluserable.send_reset_password_email",
+        "myapp.actions:send_reset_password_email"
     )
 
 

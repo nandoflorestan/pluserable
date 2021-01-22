@@ -91,6 +91,10 @@ def eki(eko: Eko) -> None:
         "pluserable.send_activation_email",
         "pluserable.actions:send_activation_email",
     )
+    eko.utilities.set_default(
+        "pluserable.send_reset_password_email",
+        "pluserable.actions:send_reset_password_email",
+    )
 
     # Other settings are read from the [pluserable] configuration section:
     try:

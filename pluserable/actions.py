@@ -85,6 +85,50 @@ def send_activation_email(request, user):
     mailer.send(message)
 
 
+def get_reset_link(request, code: str) -> str:
+    """Return the link for the user to click on an email message.
+
+    ``route_url()`` uses the protocol and domain detected from the
+    current request.  Unfortunately in production, that's usually
+    https for the load balancer, but http for a backend Pyramid server.
+    So we take advantage of a ``scheme_domain_port`` configuration
+    setting if provided.
+    """
+    scheme_domain_port: str = request.registry.settings.get(
+        "scheme_domain_port", ""
+    )
+    return (
+        scheme_domain_port
+        + request.route_path("reset_password", code=code)
+        if scheme_domain_port
+        else request.route_url("reset_password", code=code)
+    )
+
+
+def send_reset_password_email(request, user):
+    """Send an extremely simple email message with a link.
+
+    Although this works fine, most apps will want to build a personalized
+    email message and send it via celery or something else asynchronous.
+    """
+    username = (
+        getattr(user, "short_name", "")
+        or getattr(user, "full_name", "")
+        or getattr(user, "username", "")
+        or user.email
+    )
+    strings = get_strings(request.kerno)
+    body = strings.reset_password_email_body.format(
+        link=get_reset_link(request, code=user.activation.code),
+        username=username,
+        domain=request.application_url,
+    )
+    subject = strings.reset_password_email_subject
+    message = Message(subject=subject, recipients=[user.email], body=body)
+    mailer = get_mailer(request)
+    mailer.send(message)
+
+
 class PluserableAction(Action):
     """Base class for our actions."""
 

@@ -14,8 +14,6 @@ from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import remember, forget, Authenticated
 from pyramid.settings import asbool
 from pyramid.url import route_url
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 from pluserable import const
 from pluserable.actions import (
@@ -23,7 +21,6 @@ from pluserable.actions import (
     CheckCredentials,
     create_activation,
     require_activation_setting_value,
-    get_activation_link,
 )
 from pluserable.interfaces import (
     ILoginForm,
@@ -231,6 +228,7 @@ class AuthView(BaseView):
 
 
 class ForgotPasswordView(BaseView):
+
     def __init__(self, request):  # noqa
         super(ForgotPasswordView, self).__init__(request)
 
@@ -276,24 +274,11 @@ class ForgotPasswordView(BaseView):
             user.activation = activation
             repo.flush()  # initialize activation.code
 
-        # TODO: Generate msg in a separate method so subclasses can override
-        mailer = get_mailer(request)
-        username = (
-            getattr(user, "short_name", "")
-            or getattr(user, "full_name", "")
-            or getattr(user, "username", "")
-            or user.email
-        )
-        body = self.strings.reset_password_email_body.format(
-            link=route_url(
-                "reset_password", request, code=user.activation.code
-            ),
-            username=username,
-            domain=request.application_url,
-        )
-        subject = self.strings.reset_password_email_subject
-        message = Message(subject=subject, recipients=[user.email], body=body)
-        mailer.send(message)
+        # The app can replace the function that sends the email message.
+        send_reset_password_email = request.kerno.utilities[
+            "pluserable.send_reset_password_email"
+        ]
+        send_reset_password_email(request, user)
 
         request.add_flash(
             plain=self.strings.reset_password_email_sent, level="success"
