@@ -241,6 +241,28 @@ Here is an example implementation of a strings class::
         logout_done = None  # Do not flash a message after the user logs out
 
 
+Changing the email messages
+===========================
+
+*pluserable* includes functions that send very simple, plain text only,
+email messages using pyramid_mailer.  Messages are sent synchronously.
+
+You can replace those with your own functions in order to send emails
+asynchronously (e. g. using celery), or to determine the content of the
+email messages.  Plug your function in through kerno utilities -- for example
+in configuration::
+
+    [kerno utilities]
+    pluserable.send_activation_email = myapp.actions:send_activation_email
+
+...or imperatively in startup code::
+
+    eko.utilities.register(
+        "pluserable.send_activation_email",
+        "myapp.actions:send_activation_email"
+    )
+
+
 Changing the primary key column name
 ====================================
 
@@ -298,19 +320,8 @@ http://travis-ci.org/#!/nandoflorestan/pluserable
 Origin of the project
 =====================
 
-*pluserable* is a fork of *horus*, a project started by John Anderson:
+*pluserable* started as a fork of *horus* by John Anderson:
 https://github.com/eventray/horus
 
-The differences are:
-
-- *pluserable* lets you log in with an email (or a username);
-  *horus* only lets you log in with a username.
-- *pluserable* does not have horus' admin views -- they were rarely used.
-- *pluserable* allows you to pick a subset of the views for your project;
-  *horus* always registers all of the routes and views.
-- *horus* had a "/profile/{user_id}/edit" URL; but since a user can only
-  edit her OWN email and password, we have a simpler URL: "/edit_profile".
-- *pluserable* does not include an outdated version of *bootstrap*.
-- *pluserable* does not have a scaffolding script.
-- *pluserable* no longer supports Python 2.
-- *pluserable* uses the bag library for a maintained version of FlashMessage.
+*horus* is no longer maintained since 2015.  *pluserable* is maintained and
+sees 1 or 2 releases per year.

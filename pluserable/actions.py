@@ -49,16 +49,28 @@ def create_activation(request, user):  # TODO Lose *request* argument
 
     Also send an email message with the link for the user to click.
     """
-    kerno = request.kerno
     repo = request.repo
     if user.activation is None:
-        Activation = kerno.utilities[const.ACTIVATION_CLASS]
+        Activation = request.kerno.utilities[const.ACTIVATION_CLASS]
         activation = Activation()
         repo.add(activation)
         user.activation = activation
         repo.flush()
 
-    strings = get_strings(kerno)
+    # The application can configure a function that sends the email message.
+    send_activation_email = request.kerno.utilities[
+        "pluserable.send_activation_email"
+    ]
+    send_activation_email(request, user)
+
+
+def send_activation_email(request, user):
+    """Send an extremely simple email message with the activation link.
+
+    Although this works fine, most apps will want to build a personalized
+    email message and send it via celery or something else asynchronous.
+    """
+    strings = get_strings(request.kerno)
     message = Message(
         subject=strings.activation_email_subject,
         recipients=[user.email],

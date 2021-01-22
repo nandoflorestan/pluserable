@@ -46,24 +46,13 @@ def _get_ini_path(kind=''):
 
 
 def _make_eko(sas_factory=None):
-    from bag.settings import SettingsReader
     from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
     from kerno.start import Eko
     eko = Eko.from_ini(_get_ini_path())
     if sas_factory:
         eko.utilities.register(BaseSQLAlchemyRepository.SAS, sas_factory)
 
-    eko.include('kerno.repository')  # adds add_repository_mixin() to eko
-    eko.kerno.pluserable_settings = SettingsReader(
-        get_default_pluserable_settings())
-    # eko.include('pluserable')
-
-    eko.utilities.set_default(
-        const.REPOSITORY, 'pluserable.data.sqlalchemy.repository:Repository')
-    eko.add_repository_mixin(  # type: ignore
-        mixin=eko.kerno.utilities[const.REPOSITORY],  # type: ignore
-    )
-
+    eko.include("pluserable")
     return eko
 
 

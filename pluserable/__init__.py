@@ -85,6 +85,13 @@ def eki(eko: Eko) -> None:
         const.STRING_CLASS, "pluserable.strings:UIStringsBase"
     )
 
+    # pluserable provides functions that send very simple email messages.
+    # These functions can be replaced by the application.
+    eko.utilities.set_default(
+        "pluserable.send_activation_email",
+        "pluserable.actions:send_activation_email",
+    )
+
     # Other settings are read from the [pluserable] configuration section:
     try:
         section = eko.kerno.settings["pluserable"]
