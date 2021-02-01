@@ -38,7 +38,7 @@ Releaser(
     EnsureGitClean,   # There are no uncommitted changes in tracked files.
     EnsureGitBranch,  # I must be in the branch specified in config
     # InteractivelyEnsureChangesDocumented,     # Did you update CHANGES.rst?
-    CheckTravis,  # We run this late, so travis-ci has more time to build
+    # CheckTravis,  # We run this late, so travis-ci has more time to build
 
     # ======================  All checks pass. RELEASE!  ======================
     SetVersionNumberInteractively,  # Ask for version and write to source code
