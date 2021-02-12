@@ -122,3 +122,7 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
         else:  # is_new is a transient variable.
             user.is_new = False  # type: ignore
         return user
+
+    def q_users(self) -> Query[TUser]:
+        """Return a query for all users."""
+        return self.sas.query(self.User)

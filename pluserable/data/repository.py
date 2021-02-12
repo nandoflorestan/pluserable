@@ -69,3 +69,7 @@ class AbstractRepo(
         self, email: str, details: DictStr
     ) -> TTUser:
         """Return User if ``email`` exists, else create it with ``details``."""
+
+    @abstractmethod
+    def q_users(self) -> Query[TTUser]:
+        """Return a query for all users."""
