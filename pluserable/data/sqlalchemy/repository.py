@@ -5,7 +5,7 @@ from typing import Any, Dict, Generic, Optional
 
 from bag.reify import reify
 from bag.text import random_string
-from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository, Query
+from kerno.repository.sqlalchemy import Query
 from sqlalchemy import func
 
 from pluserable import const
