@@ -459,7 +459,7 @@ class ProfileView(BaseView):  # noqa
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)
 
-    def edit_profile(self):
+    def edit_profile(self) -> DictStr:
         """Let the user change her own email or password."""
         request = self.request
         user = request.user
@@ -468,12 +468,11 @@ class ProfileView(BaseView):  # noqa
 
         form = self._get_form()
 
-        if request.method == "GET":
+        if request.method in ("GET", "HEAD"):
             appstruct = {"email": user.email or ""}
             if hasattr(user, "username"):
-                appstruct["username"] = user.username
+                appstruct["username"] = user.username  # type: ignore
             return render_form(request, form, appstruct)
-
         elif request.method == "POST":
             controls = request.POST.items()
 
@@ -482,7 +481,10 @@ class ProfileView(BaseView):  # noqa
             except FormValidationFailure as e:
                 if hasattr(user, "username"):
                     # We pre-populate username
-                    return e.result(request, username=user.username)
+                    return e.result(
+                        request,
+                        username=user.username,  # type: ignore
+                    )
                 else:
                     return e.result(request)
 
@@ -523,6 +525,8 @@ class ProfileView(BaseView):  # noqa
                     plain=self.strings.edit_profile_done, level="success"
                 )
             return HTTPFound(location=request.url)
+        else:
+            raise RuntimeError(f"edit_profile method: {request.method}")
 
 
 def get_pyramid_views_config():
