@@ -8,6 +8,7 @@ import colander
 import deform
 from kerno.peto import Peto
 from kerno.state import to_dict
+from kerno.typing import DictStr
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -22,6 +23,7 @@ from pluserable.actions import (
     create_activation,
     require_activation_setting_value,
 )
+from pluserable.data.typing import TUser
 from pluserable.interfaces import (
     ILoginForm,
     ILoginSchema,
@@ -43,6 +45,7 @@ from pluserable.events import (
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
 from pluserable.strings import get_strings
+from pluserable.web.pyramid.typing import PRequest
 
 LOG = logging.getLogger(__name__)
 
@@ -67,16 +70,16 @@ def includeme(config) -> None:
         )
 
 
-def get_config_route(request, config_key: str) -> str:
+def get_config_route(request: PRequest, config_key: str) -> str:
     """Resolve ``config_key`` to a URL, usually for redirection."""
     settings = request.registry.settings
     try:
-        return request.route_url(settings[config_key])
+        return request.route_path(settings[config_key])
     except KeyError:
         return settings[config_key]
 
 
-def authenticated(request, userid) -> HTTPFound:
+def authenticated(request: PRequest, userid: int) -> HTTPFound:
     """Set the auth cookies and redirect.
 
     ...either to the URL indicated in the "next" request parameter,
@@ -96,7 +99,7 @@ def authenticated(request, userid) -> HTTPFound:
     )
 
 
-def render_form(request, form, appstruct=None, **kw):
+def render_form(request: PRequest, form, appstruct=None, **kw) -> DictStr:
     settings = request.registry.settings
     retail = asbool(settings.get("pluserable.deform_retail", False))
 
@@ -111,7 +114,7 @@ def render_form(request, form, appstruct=None, **kw):
     return result
 
 
-def validate_form(controls, form):
+def validate_form(controls, form) -> DictStr:  # noqa
     try:
         captured = form.validate(controls)
     except deform.ValidationFailure as e:
@@ -126,15 +129,16 @@ class BaseView(metaclass=ABCMeta):
     """Base class for pluserable views."""
 
     @property
-    def request(self):
+    def request(self) -> PRequest:
         """Return the current request."""
         # we defined this so that we can override the request in tests easily
         return self._request
 
-    def __init__(self, request):  # TODO REMOVE MOST OF THESE LINES
+    def __init__(self, request: PRequest):  # noqa
+        # TODO REMOVE MOST OF THESE LINES
         self._request = request
         self.Activation = request.kerno.utilities[const.ACTIVATION_CLASS]
-        self.User = request.kerno.utilities[const.USER_CLASS]
+        self.User: type = request.kerno.utilities[const.USER_CLASS]
         self.settings = request.registry.settings
 
     @reify
@@ -146,7 +150,7 @@ class BaseView(metaclass=ABCMeta):
 class AuthView(BaseView):
     """View that does login and logout."""
 
-    def __init__(self, request):  # noqa
+    def __init__(self, request: PRequest):  # noqa
         super(AuthView, self).__init__(request)
 
         # TODO These shouldn't be computed every time... But run tests
@@ -163,7 +167,7 @@ class AuthView(BaseView):
         form = request.registry.getUtility(ILoginForm)
         self.form = form(self.schema, buttons=(self.strings.login_button,))
 
-    def login_ajax(self):  # TODO ADD TESTS FOR THIS!
+    def login_ajax(self) -> DictStr:  # noqa.  TODO ADD TESTS FOR THIS!
         try:
             cstruct = self.request.json_body
         except ValueError as e:
@@ -179,13 +183,13 @@ class AuthView(BaseView):
                 handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:
-            raise HTTPBadRequest({"status": "failure", "reason": e.message})
+            raise HTTPBadRequest({"status": "failure", "reason": str(e)})
         return {"status": "okay", "user": to_dict(ret.user)}
 
-    def login(self, handle=None):
+    def login(self, handle=None) -> DictStr:
         """Present the login form, or validate data and authenticate user."""
         request = self.request
-        if request.method == "GET":
+        if request.method in ("GET", "HEAD"):
             if request.user:
                 return HTTPFound(location=self.login_redirect_view)
             return render_form(
@@ -193,7 +197,6 @@ class AuthView(BaseView):
                 self.form,
                 appstruct={"handle": handle} if handle else {},
             )
-
         elif request.method == "POST":
             controls = request.POST.items()
             try:  # TODO Move form validation into action
@@ -210,6 +213,8 @@ class AuthView(BaseView):
                 return render_form(request, self.form, captured, errors=[e])
             request.user = ret.user
             return authenticated(request, ret.user.id)
+        else:
+            raise RuntimeError(f"Login request method: {request.method}")
 
     def logout(self, url: Optional[str] = None) -> HTTPFound:
         """Remove the auth cookies and redirect...
@@ -227,9 +232,8 @@ class AuthView(BaseView):
         )
 
 
-class ForgotPasswordView(BaseView):
-
-    def __init__(self, request):  # noqa
+class ForgotPasswordView(BaseView):  # noqa
+    def __init__(self, request: PRequest):  # noqa
         super(ForgotPasswordView, self).__init__(request)
 
         self.forgot_password_redirect_view = route_url(
@@ -268,10 +272,10 @@ class ForgotPasswordView(BaseView):
             return e.result(request)
 
         repo = request.repo
-        user = repo.get_user_by_email(captured["email"])
-        if user.activation is None:  # If user already has activation, reuse it
-            activation = self.Activation()  # TODO add test for this condition
-            user.activation = activation
+        user = repo.one_user_by_email(captured["email"])
+        # If user already has activation, reuse it
+        if user.activation is None:  # TODO add test for this condition
+            user.activation = self.Activation()
             repo.flush()  # initialize activation.code
 
         # The app can replace the function that sends the email message.
@@ -285,7 +289,7 @@ class ForgotPasswordView(BaseView):
         )
         return HTTPFound(location=self.reset_password_redirect_view)
 
-    def reset_password(self):  # TODO Extract action
+    def reset_password(self) -> DictStr:  # TODO Extract action
         """Show or process the "reset password" form.
 
         After user clicked link on email message.
@@ -316,14 +320,13 @@ class ForgotPasswordView(BaseView):
         form = request.registry.getUtility(IResetPasswordForm)
         form = form(schema)
 
-        if request.method == "GET":
+        if request.method in ("GET", "HEAD"):
             appstruct = (
                 {"username": user.username}
                 if hasattr(user, "username")
                 else {"email": user.email}
             )
             return render_form(request, form, appstruct)
-
         elif request.method == "POST":
             controls = request.POST.items()
             try:
@@ -344,10 +347,12 @@ class ForgotPasswordView(BaseView):
             )
             location = self.reset_password_redirect_view
             return HTTPFound(location=location)
+        else:
+            raise RuntimeError(f"Reset password method: {request.method}")
 
 
-class RegisterView(BaseView):
-    def __init__(self, request):  # noqa
+class RegisterView(BaseView):  # noqa
+    def __init__(self, request: PRequest):  # noqa
         super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
         self.schema = schema().bind(request=self.request)
@@ -366,16 +371,16 @@ class RegisterView(BaseView):
         kerno = request.registry.getUtility(IKerno)
         self.require_activation = require_activation_setting_value(kerno)
 
-    def register(self):
+    def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
-        if request.method == "GET":
+        if request.method in ("GET", "HEAD"):
             if request.user:
                 return HTTPFound(location=self.after_register_url)
 
             return render_form(request, self.form)
 
         elif request.method != "POST":
-            return
+            raise RuntimeError(f"register() request method: {request.method}")
 
         # If the request is a POST:
         controls = request.POST.items()
@@ -409,7 +414,7 @@ class RegisterView(BaseView):
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)
 
-    def persist_user(self, controls):
+    def persist_user(self, controls: DictStr) -> TUser:
         """To change how the user is stored, override this method."""
         # This generic method must work with any custom User class and any
         # custom registration form:
@@ -418,7 +423,8 @@ class RegisterView(BaseView):
         return user
 
     @kerno_view
-    def activate(self):  # http://localhost:6543/activate/10/89008993e9d5
+    def activate(self) -> HTTPFound:  # noqa
+        # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
         ret = ActivateUser(peto=Peto.from_pyramid(request))(
             code=request.matchdict.get("code", None),
@@ -429,14 +435,16 @@ class RegisterView(BaseView):
             plain=self.strings.activation_email_verified, level="success"
         )
         request.registry.notify(  # send a Pyramid event
-            RegistrationActivatedEvent(request, ret.user, ret.activation)
+            RegistrationActivatedEvent(
+                request=request, user=ret.user, activation=ret.activation
+            )
         )
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self.after_activate_url)
 
 
-class ProfileView(BaseView):
-    def profile(self):
+class ProfileView(BaseView):  # noqa
+    def profile(self) -> DictStr:
         """Display a user profile."""
         user_id = self.request.matchdict.get("user_id", None)
         user = self.request.repo.get_user_by_id(user_id)

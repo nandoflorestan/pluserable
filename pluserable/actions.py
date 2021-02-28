@@ -8,7 +8,7 @@ be thin.  Business rules must be decoupled from the web framework.
 """
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from bag.reify import reify
 from kerno.action import Action
@@ -21,6 +21,7 @@ from pluserable.data.typing import TUser
 from pluserable.events import EventLogin
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.data.repository import AbstractRepo
+from pluserable.data.typing import ActivationRezulto, UserRezulto
 from pluserable.strings import get_strings, UIStringsBase
 
 
@@ -98,8 +99,7 @@ def get_reset_link(request, code: str) -> str:
         "scheme_domain_port", ""
     )
     return (
-        scheme_domain_port
-        + request.route_path("reset_password", code=code)
+        scheme_domain_port + request.route_path("reset_password", code=code)
         if scheme_domain_port
         else request.route_url("reset_password", code=code)
     )
@@ -158,13 +158,14 @@ class CheckCredentials(PluserableAction):
         else:
             return self.repo.get_user_by_username(handle)
 
-    def __call__(self, handle: str, password: str) -> Rezulto:
+    def __call__(self, handle: str, password: str) -> UserRezulto:
         """Get user object if credentials are valid, else raise."""
-        rezulto: Any = Rezulto()
-        rezulto.user = self.q_user(handle)  # IO
-        self._check_credentials(rezulto.user, handle, password)  # might raise
-        assert rezulto.user
-        rezulto.user.last_login_date = datetime.utcnow()
+        user = self.q_user(handle)  # IO
+        self._check_credentials(user, handle, password)  # might raise
+        assert user
+        user.last_login_date = datetime.utcnow()
+        rezulto: UserRezulto = UserRezulto()
+        rezulto.user = user
         self.kerno.events.broadcast(
             EventLogin(peto=self.peto, rezulto=rezulto)
         )
@@ -187,7 +188,7 @@ class CheckCredentials(PluserableAction):
 
 
 class ActivateUser(PluserableAction):  # noqa
-    def __call__(self, code: str, user_id: int) -> Rezulto:
+    def __call__(self, code: str, user_id: int) -> ActivationRezulto:
         """Find code, ensure belongs to user, delete activation instance."""
         activation = self.repo.get_activation_by_code(code)
         if not activation:
@@ -213,7 +214,7 @@ class ActivateUser(PluserableAction):  # noqa
             )
 
         self.repo.delete_activation(user, activation)
-        ret = Rezulto()  # type: Any
+        ret = ActivationRezulto()
         ret.user = user
         ret.activation = activation
 
