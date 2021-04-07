@@ -137,18 +137,20 @@ commit the session yourself. This also gives you the chance to
 do some extra processing::
 
     from pluserable.events import (
-        PasswordResetEvent, NewRegistrationEvent,
-        RegistrationActivatedEvent, ProfileUpdatedEvent)
+        EventRegistration, EventActivation, EventLogin,
+        EventPasswordReset, EventProfileUpdated,
+    )
 
-    def handle_request(event):
+    def handle_event(event):
         request = event.request
         session = request.registry.getUtility(IDBSession)
         session.commit()
 
-    self.config.add_subscriber(handle_request, PasswordResetEvent)
-    self.config.add_subscriber(handle_request, NewRegistrationEvent)
-    self.config.add_subscriber(handle_request, RegistrationActivatedEvent)
-    self.config.add_subscriber(handle_request, ProfileUpdatedEvent)
+    config.add_subscriber(handle_event, EventRegistration)
+    config.add_subscriber(handle_event, EventActivation)
+    config.add_subscriber(handle_event, EventLogin)
+    config.add_subscriber(handle_event, EventPasswordReset)
+    config.add_subscriber(handle_event, EventProfileUpdated)
 
 
 Whether or not to have a "username" field

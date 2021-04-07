@@ -18,7 +18,6 @@ from pyramid_mailer.message import Message
 
 from pluserable import const
 from pluserable.data.typing import TUser
-from pluserable.events import EventLogin
 from pluserable.exceptions import AuthenticationFailure
 from pluserable.data.repository import AbstractRepo
 from pluserable.data.typing import ActivationRezulto, UserRezulto
@@ -164,11 +163,7 @@ class CheckCredentials(PluserableAction):
         self._check_credentials(user, handle, password)  # might raise
         assert user
         user.last_login_date = datetime.utcnow()
-        rezulto: UserRezulto = UserRezulto()
-        rezulto.user = user
-        self.kerno.events.broadcast(
-            EventLogin(peto=self.peto, rezulto=rezulto)
-        )
+        rezulto: UserRezulto = UserRezulto(user=user)
         return rezulto
 
     def _check_credentials(

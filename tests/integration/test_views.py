@@ -9,8 +9,8 @@ from pyramid_mailer.mailer import DummyMailer
 from pyramid.httpexceptions import HTTPNotFound
 
 from pluserable.events import (
-    NewRegistrationEvent,
-    PasswordResetEvent,
+    EventRegistration,
+    EventPasswordReset,
     EventProfileUpdated,
 )
 from pluserable.interfaces import ILoginForm, ILoginSchema
@@ -286,7 +286,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         def handle_registration(event):
             event.request.repo.flush()
 
-        self.config.add_subscriber(handle_registration, NewRegistrationEvent)
+        self.config.add_subscriber(handle_registration, EventRegistration)
 
         request = self.get_request(
             post={
@@ -313,7 +313,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         user = request.repo.get_user_by_username("admin")
         assert user.is_activated is True
 
-    def test_registration_craps_out(self):  # noqa
+    def test_registration_fails_with_mailer(self):  # noqa
         self.config.add_route("index", "/")
 
         def send(message):
@@ -561,7 +561,7 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
         def handle_password_reset(event):
             event.request.repo.flush()
 
-        self.config.add_subscriber(handle_password_reset, PasswordResetEvent)
+        self.config.add_subscriber(handle_password_reset, EventPasswordReset)
 
         view = ForgotPasswordView(request)
         response = view.reset_password()

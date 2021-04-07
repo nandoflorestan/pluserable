@@ -2,7 +2,7 @@
 
 from abc import ABCMeta
 import logging
-from typing import Optional
+from typing import cast, Optional
 
 import colander
 import deform
@@ -37,9 +37,10 @@ from pluserable.interfaces import (
     IProfileSchema,
 )
 from pluserable.events import (
-    NewRegistrationEvent,
-    RegistrationActivatedEvent,
-    PasswordResetEvent,
+    EventLogin,
+    EventRegistration,
+    EventActivation,
+    EventPasswordReset,
     EventProfileUpdated,
 )
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
@@ -168,8 +169,9 @@ class AuthView(BaseView):
         self.form = form(self.schema, buttons=(self.strings.login_button,))
 
     def login_ajax(self) -> DictStr:  # noqa.  TODO ADD TESTS FOR THIS!
+        request = self.request
         try:
-            cstruct = self.request.json_body
+            cstruct = request.json_body
         except ValueError as e:
             raise HTTPBadRequest({"invalid": str(e)})
 
@@ -179,12 +181,18 @@ class AuthView(BaseView):
             raise HTTPBadRequest({"invalid": e.asdict()})
 
         try:
-            ret = CheckCredentials(peto=Peto.from_pyramid(self.request))(
+            peto = Peto.from_pyramid(request)
+            rezulto = CheckCredentials(peto=peto)(
                 handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:
             raise HTTPBadRequest({"status": "failure", "reason": str(e)})
-        return {"status": "okay", "user": to_dict(ret.user)}
+
+        request.user = rezulto.user
+        request.registry.notify(  # broadcast a Pyramid event
+            EventLogin(request=request, peto=peto, rezulto=rezulto)
+        )
+        return {"status": "okay", "user": to_dict(rezulto.user)}
 
     def login(self, handle=None) -> DictStr:
         """Present the login form, or validate data and authenticate user."""
@@ -197,24 +205,30 @@ class AuthView(BaseView):
                 self.form,
                 appstruct={"handle": handle} if handle else {},
             )
-        elif request.method == "POST":
-            controls = request.POST.items()
-            try:  # TODO Move form validation into action
-                captured = validate_form(controls, self.form)
-            except FormValidationFailure as e:
-                return e.result(request)
-
-            try:
-                ret = CheckCredentials(peto=Peto.from_pyramid(request))(
-                    handle=captured["handle"], password=captured["password"]
-                )
-            except AuthenticationFailure as e:  # TODO View for this exception
-                request.add_flash(plain=str(e), level="danger")
-                return render_form(request, self.form, captured, errors=[e])
-            request.user = ret.user
-            return authenticated(request, ret.user.id)
-        else:
+        elif request.method != "POST":
             raise RuntimeError(f"Login request method: {request.method}")
+
+        # If this is a POST:
+        controls = request.POST.items()
+        try:  # TODO Move form validation into action
+            captured = validate_form(controls, self.form)
+        except FormValidationFailure as e:
+            return e.result(request)
+
+        peto = Peto.from_pyramid(request)
+        try:
+            rezulto = CheckCredentials(peto=peto)(
+                handle=captured["handle"], password=captured["password"]
+            )
+        except AuthenticationFailure as e:  # TODO View for this exception
+            request.add_flash(plain=str(e), level="danger")
+            return render_form(request, self.form, captured, errors=[e])
+
+        request.user = rezulto.user
+        request.registry.notify(  # broadcast a Pyramid event
+            EventLogin(request=request, peto=peto, rezulto=rezulto)
+        )
+        return authenticated(request, rezulto.user.id)
 
     def logout(self, url: Optional[str] = None) -> HTTPFound:
         """Remove the auth cookies and redirect...
@@ -342,8 +356,8 @@ class ForgotPasswordView(BaseView):  # noqa
             request.add_flash(
                 plain=self.strings.reset_password_done, level="success"
             )
-            request.registry.notify(
-                PasswordResetEvent(request, user, password)
+            request.registry.notify(  # broadcast a Pyramid event
+                EventPasswordReset(request, user, password)
             )
             location = self.reset_password_redirect_view
             return HTTPFound(location=location)
@@ -405,8 +419,13 @@ class RegisterView(BaseView):  # noqa
                 plain=self.strings.registration_done, level="success"
             )
 
-        request.registry.notify(
-            NewRegistrationEvent(request, user, None, controls)
+        request.registry.notify(  # broadcast a Pyramid event
+            EventRegistration(
+                request=request,
+                user=user,
+                values=cast(DictStr, controls),
+                activation_is_required=self.require_activation,
+            )
         )
         if autologin:
             request.repo.flush()  # in order to get the id
@@ -434,8 +453,8 @@ class RegisterView(BaseView):  # noqa
         request.add_flash(  # TODO Move into action
             plain=self.strings.activation_email_verified, level="success"
         )
-        request.registry.notify(  # send a Pyramid event
-            RegistrationActivatedEvent(
+        request.registry.notify(  # broadcast a Pyramid event
+            EventActivation(
                 request=request, user=ret.user, activation=ret.activation
             )
         )
