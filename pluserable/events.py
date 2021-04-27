@@ -1,10 +1,11 @@
 """Event classes."""
 
-from kerno.peto import Peto
 from kerno.typing import DictStr
 
 from pluserable.data.typing import TUser, UserRezulto
-from pluserable.web.pyramid.typing import PRequest
+from pluserable.web.pyramid.typing import PRequest, UserlessPeto
+
+# TODO from dataclasses import dataclass
 
 
 class BaseEvent:  # noqa
@@ -36,10 +37,10 @@ class EventLogin(BaseEvent):
     """Fired when a user authenticates."""
 
     def __init__(
-        self, request: PRequest, peto: Peto, rezulto: UserRezulto
+        self, request: PRequest, upeto: UserlessPeto, rezulto: UserRezulto
     ):  # noqa
         super().__init__(request=request, user=rezulto.user)
-        self.peto = peto
+        self.upeto = upeto
         self.rezulto = rezulto
 
 

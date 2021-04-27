@@ -6,7 +6,6 @@ from typing import cast, Optional
 
 import colander
 import deform
-from kerno.peto import Peto
 from kerno.state import to_dict
 from kerno.typing import DictStr
 from kerno.web.pyramid import kerno_view, IKerno
@@ -46,7 +45,7 @@ from pluserable.events import (
 from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
 from pluserable.httpexceptions import HTTPBadRequest
 from pluserable.strings import get_strings
-from pluserable.web.pyramid.typing import PRequest
+from pluserable.web.pyramid.typing import PRequest, UserlessPeto
 
 LOG = logging.getLogger(__name__)
 
@@ -181,8 +180,8 @@ class AuthView(BaseView):
             raise HTTPBadRequest({"invalid": e.asdict()})
 
         try:
-            peto = Peto.from_pyramid(request)
-            rezulto = CheckCredentials(peto=peto)(
+            upeto = UserlessPeto.from_pyramid(request)
+            rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:
@@ -190,7 +189,7 @@ class AuthView(BaseView):
 
         request.user = rezulto.user
         request.registry.notify(  # broadcast a Pyramid event
-            EventLogin(request=request, peto=peto, rezulto=rezulto)
+            EventLogin(request=request, upeto=upeto, rezulto=rezulto)
         )
         return {"status": "okay", "user": to_dict(rezulto.user)}
 
@@ -215,9 +214,9 @@ class AuthView(BaseView):
         except FormValidationFailure as e:
             return e.result(request)
 
-        peto = Peto.from_pyramid(request)
+        upeto = UserlessPeto.from_pyramid(request)
         try:
-            rezulto = CheckCredentials(peto=peto)(
+            rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"], password=captured["password"]
             )
         except AuthenticationFailure as e:  # TODO View for this exception
@@ -226,7 +225,7 @@ class AuthView(BaseView):
 
         request.user = rezulto.user
         request.registry.notify(  # broadcast a Pyramid event
-            EventLogin(request=request, peto=peto, rezulto=rezulto)
+            EventLogin(request=request, upeto=upeto, rezulto=rezulto)
         )
         return authenticated(request, rezulto.user.id)
 
@@ -445,7 +444,7 @@ class RegisterView(BaseView):  # noqa
     def activate(self) -> HTTPFound:  # noqa
         # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        ret = ActivateUser(peto=Peto.from_pyramid(request))(
+        ret = ActivateUser(upeto=UserlessPeto.from_pyramid(request))(
             code=request.matchdict.get("code", None),
             user_id=request.matchdict.get("user_id", None),
         )

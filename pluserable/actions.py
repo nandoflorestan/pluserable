@@ -11,7 +11,6 @@ from datetime import datetime
 from typing import Optional
 
 from bag.reify import reify
-from kerno.action import Action
 from kerno.state import MalbonaRezulto, Rezulto
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -19,9 +18,9 @@ from pyramid_mailer.message import Message
 from pluserable import const
 from pluserable.data.typing import TUser
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.data.repository import AbstractRepo
 from pluserable.data.typing import ActivationRezulto, UserRezulto
 from pluserable.strings import get_strings, UIStringsBase
+from pluserable.web.pyramid.typing import UserlessPeto
 
 
 def get_activation_link(request, user_id: int, code: str) -> str:
@@ -128,14 +127,15 @@ def send_reset_password_email(request, user):
     mailer.send(message)
 
 
-class PluserableAction(Action):
+class UserlessAction:
     """Base class for our actions."""
 
-    repo: AbstractRepo  # let mypy know about our repo interface
+    def __init__(self, upeto: UserlessPeto):  # noqa
+        self.upeto = upeto
 
     @reify
     def _strings(self) -> UIStringsBase:
-        return get_strings(self.kerno)
+        return get_strings(self.upeto.kerno)
 
 
 def require_activation_setting_value(kerno) -> bool:
@@ -143,19 +143,19 @@ def require_activation_setting_value(kerno) -> bool:
     return kerno.pluserable_settings.bool("require_activation", default=True)
 
 
-class CheckCredentials(PluserableAction):
+class CheckCredentials(UserlessAction):
     """Business rules decoupled from the web framework and from persistence."""
 
     @property
     def _require_activation(self):
-        return require_activation_setting_value(self.kerno)
+        return require_activation_setting_value(self.upeto.kerno)
 
     def q_user(self, handle: str) -> Optional[TUser]:
         """Fetch user. ``handle`` can be a username or an email."""
         if "@" in handle:
-            return self.repo.get_user_by_email(handle)
+            return self.upeto.repo.get_user_by_email(handle)
         else:
-            return self.repo.get_user_by_username(handle)
+            return self.upeto.repo.get_user_by_username(handle)
 
     def __call__(self, handle: str, password: str) -> UserRezulto:
         """Get user object if credentials are valid, else raise."""
@@ -182,10 +182,10 @@ class CheckCredentials(PluserableAction):
         return user
 
 
-class ActivateUser(PluserableAction):  # noqa
+class ActivateUser(UserlessAction):  # noqa
     def __call__(self, code: str, user_id: int) -> ActivationRezulto:
         """Find code, ensure belongs to user, delete activation instance."""
-        activation = self.repo.get_activation_by_code(code)
+        activation = self.upeto.repo.get_activation_by_code(code)
         if not activation:
             raise MalbonaRezulto(
                 status_int=404,
@@ -193,7 +193,7 @@ class ActivateUser(PluserableAction):  # noqa
                 plain=self._strings.activation_code_not_found,
             )
 
-        user = self.repo.get_user_by_id(user_id)
+        user = self.upeto.repo.get_user_by_id(user_id)
         if not user:
             raise MalbonaRezulto(
                 status_int=404,
@@ -208,7 +208,7 @@ class ActivateUser(PluserableAction):  # noqa
                 plain=self._strings.activation_code_not_match,
             )
 
-        self.repo.delete_activation(user, activation)
+        self.upeto.repo.delete_activation(user, activation)
         ret = ActivationRezulto()
         ret.user = user
         ret.activation = activation

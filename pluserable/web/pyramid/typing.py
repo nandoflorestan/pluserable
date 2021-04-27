@@ -1,5 +1,6 @@
 # noqa
 
+from kerno.peto import AbsUserlessPeto
 from kerno.web.pyramid.typing import KRequest
 
 from pluserable.data.repository import AbstractRepo
@@ -15,3 +16,7 @@ class PRequest(KRequest):
 
     repo: AbstractRepo
     user: TUser
+
+
+UserlessPeto = AbsUserlessPeto[AbstractRepo]
+# Peto = AbstractPeto[AbstractRepo, TUser]
