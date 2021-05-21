@@ -283,11 +283,6 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         get_setting_mock.return_value = False
         self.config.add_route("index", "/")
 
-        def handle_registration(event):
-            event.request.repo.flush()
-
-        self.config.add_subscriber(handle_registration, EventRegistration)
-
         request = self.get_request(
             post={
                 "username": "admin",
@@ -557,11 +552,6 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
         request.matchdict.get = get
 
         request.user = None
-
-        def handle_password_reset(event):
-            event.request.repo.flush()
-
-        self.config.add_subscriber(handle_password_reset, EventPasswordReset)
 
         view = ForgotPasswordView(request)
         response = view.reset_password()
