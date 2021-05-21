@@ -188,7 +188,7 @@ class AuthView(BaseView):
             raise HTTPBadRequest({"status": "failure", "reason": str(e)})
 
         request.user = rezulto.user
-        request.registry.notify(  # broadcast a Pyramid event
+        request.kerno.events.broadcast(  # trigger a kerno event
             EventLogin(request=request, upeto=upeto, rezulto=rezulto)
         )
         return {"status": "okay", "user": to_dict(rezulto.user)}
@@ -224,7 +224,7 @@ class AuthView(BaseView):
             return render_form(request, self.form, captured, errors=[e])
 
         request.user = rezulto.user
-        request.registry.notify(  # broadcast a Pyramid event
+        request.kerno.events.broadcast(  # trigger a kerno event
             EventLogin(request=request, upeto=upeto, rezulto=rezulto)
         )
         return authenticated(request, rezulto.user.id)
@@ -355,7 +355,7 @@ class ForgotPasswordView(BaseView):  # noqa
             request.add_flash(
                 plain=self.strings.reset_password_done, level="success"
             )
-            request.registry.notify(  # broadcast a Pyramid event
+            request.kerno.events.broadcast(  # trigger a kerno event
                 EventPasswordReset(request, user, password)
             )
             location = self.reset_password_redirect_view
@@ -418,7 +418,7 @@ class RegisterView(BaseView):  # noqa
                 plain=self.strings.registration_done, level="success"
             )
 
-        request.registry.notify(  # broadcast a Pyramid event
+        request.kerno.events.broadcast(  # trigger a kerno event
             EventRegistration(
                 request=request,
                 user=user,
@@ -452,7 +452,7 @@ class RegisterView(BaseView):  # noqa
         request.add_flash(  # TODO Move into action
             plain=self.strings.activation_email_verified, level="success"
         )
-        request.registry.notify(  # broadcast a Pyramid event
+        request.kerno.events.broadcast(  # trigger a kerno event
             EventActivation(
                 request=request, user=ret.user, activation=ret.activation
             )
@@ -531,7 +531,7 @@ class ProfileView(BaseView):  # noqa
                 changed = True
 
             if changed:
-                request.kerno.events.broadcast(
+                request.kerno.events.broadcast(  # trigger a kerno event
                     EventProfileUpdated(
                         request=request,
                         user=user,

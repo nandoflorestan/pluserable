@@ -9,12 +9,9 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-The documentation is at http://docs.nando.audio/pluserable/latest/
+It is being refactored to support other web frameworks.
 
-- The last version of *pluserable* that supported Python 2 was 0.2.0.
-- *pluserable* 0.5 requires Python >= 3.4.
-- *pluserable* 0.6 requires Python >= 3.5 and has (some) type annotations.
-- *pluserable* 0.7 requires Python >= 3.6 and has (more) type annotations.
+The documentation is at http://docs.nando.audio/pluserable/latest/
 
 
 Minimal integration
@@ -146,11 +143,18 @@ do some extra processing::
         session = request.registry.getUtility(IDBSession)
         session.commit()
 
-    config.add_subscriber(handle_event, EventRegistration)
-    config.add_subscriber(handle_event, EventActivation)
-    config.add_subscriber(handle_event, EventLogin)
-    config.add_subscriber(handle_event, EventPasswordReset)
-    config.add_subscriber(handle_event, EventProfileUpdated)
+    kerno.events.subscribe(handle_event, EventRegistration)
+    kerno.events.subscribe(handle_event, EventActivation)
+    kerno.events.subscribe(handle_event, EventLogin)
+    kerno.events.subscribe(handle_event, EventPasswordReset)
+    kerno.events.subscribe(handle_event, EventProfileUpdated)
+
+The ``kerno`` variable comes from your initialization of the kerno library,
+which is useful to define the domain model of your application.
+(The ``kerno`` variable represents a global object for the domain model --
+it does not know anything about the web framework.)
+At runtime pluserable finds the kerno instance at ``request.kerno``.
+In the future pluserable will be independent of the Pyramid web framework.
 
 
 Whether or not to have a "username" field

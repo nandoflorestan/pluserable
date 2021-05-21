@@ -12,12 +12,11 @@ Refactoring
 ===========
 
 - Use kerno.state instead of bag's add_flash(). Document.
-- Use kerno.event instead of pyramid events. Document.
 - Add @kerno_page and use it instead of @kerno_view.
 - Use kerno.to_dict
 - Stop the configuration madness.
 - Rename NoUsernameMixin to BasicUserMixin and UsernameMixin to NamedUserMixin.
-- Use the pydantic library to validate configuration
+- Use the pydantic library, or the schema library, to validate configuration
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document
 - Go through the TODOs on the code
@@ -35,5 +34,3 @@ Features
 ========
 
 - Integrate velruse so we will have login via Facebook, Google etc.
-- Support Mozilla Persona?
-- New git repo
