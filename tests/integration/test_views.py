@@ -118,7 +118,7 @@ class TestAuthView(IntegrationTestBase):  # noqa
         self.config.registry.settings["pluserable.login_redirect"] = "index"
         self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
-        user = self.create_users(count=1)
+        user = self.create_users(count=1, password="science")
         self.sas.flush()
 
         request = self.get_request(
@@ -144,7 +144,7 @@ class TestAuthView(IntegrationTestBase):  # noqa
         self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
 
-        user = self.create_users(count=1, activation=True)
+        user = self.create_users(count=1, password="science", activation=True)
         self.sas.flush()
 
         request = self.get_request(
@@ -692,7 +692,7 @@ class TestProfileView(IntegrationTestBase):  # noqa
     def test_profile_update_email(self):  # noqa
         self.config.add_route("index", "/")
 
-        user = self.create_users(count=1)
+        user = self.create_users(count=1, password="science")
         self.sas.flush()
 
         def handle_profile_updated(event):

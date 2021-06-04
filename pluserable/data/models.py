@@ -5,9 +5,12 @@ from typing import Optional
 
 from bag.text.hash import random_hash
 from bag.web import gravatar_image
-import cryptacular.bcrypt
 
-crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
+# import cryptacular.bcrypt
+from passlib.context import CryptContext
+
+# crypt = cryptacular.bcrypt.BCRYPTPasswordManager()
+pass_context = CryptContext(schemes=["bcrypt"])
 
 
 def thirty_days_from_now(now: Optional[datetime] = None) -> datetime:
@@ -74,14 +77,18 @@ class UserBase:
 
     @password.setter
     def password(self, value):
-        self._password = self._hash_password(value)
+        if value == "Please bypass hashing!":  # for unit tests
+            self._password = value
+        else:
+            self._password = self._hash_password(value)
 
     def _hash_password(self, password):
         assert self.salt, (
             "UserBase constructor was not called; "
             "you probably have your User base classes in the wrong order."
         )
-        return str(crypt.encode(password + self.salt))
+        # return str(crypt.encode(password + self.salt))
+        return pass_context.hash(password + self.salt)
 
     @classmethod
     def generate_random_password(cls, chars=12):  # pragma: no cover
@@ -95,7 +102,8 @@ class UserBase:
         """Check the ``password`` and return a boolean."""
         if not password:
             return False
-        return crypt.check(self.password, password + self.salt)
+        # return crypt.check(self.password, password + self.salt)
+        return pass_context.verify(password + self.salt, self.password)
 
     @property
     def is_activated(self):

@@ -17,20 +17,23 @@ from tests.models import Activation, User
 class UnitTestCase(TestCase):
     """Base class for all our tests, especially unit tests."""
 
-    def create_users(self, count=1, activation=False):
+    def create_users(
+        self, count=1, password="Please bypass hashing!", activation=False
+    ):
         """Return a user if count is 1, else a list of users."""
         users = []
         for index in range(1, count + 1):
-            user = User(username='sagan{}'.format(index),
-                        email='carlsagan{}@nasa.gov'.format(index),
-                        password='science',
-                        registered_date=datetime(2000, 1, 1),
-                        last_login_date=datetime(2000, 1, 1),
-                        )
+            user = User(
+                username="sagan{}".format(index),
+                email="carlsagan{}@nasa.gov".format(index),
+                password=password,
+                registered_date=datetime(2000, 1, 1),
+                last_login_date=datetime(2000, 1, 1),
+            )
             if activation:
                 user.activation = Activation()
             users.append(user)
-            if hasattr(self, 'repo'):
+            if hasattr(self, "repo"):
                 self.repo.add(user)
         if count == 1:
             return users[0]
@@ -38,16 +41,17 @@ class UnitTestCase(TestCase):
             return users
 
 
-def _get_ini_path(kind=''):
+def _get_ini_path(kind=""):
     if kind:
-        kind = kind + '/'
-    path = resource_filename(__name__, kind + 'test.ini')
+        kind = kind + "/"
+    path = resource_filename(__name__, kind + "test.ini")
     return path
 
 
 def _make_eko(sas_factory=None):
     from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
     from kerno.start import Eko
+
     eko = Eko.from_ini(_get_ini_path())
     if sas_factory:
         eko.utilities.register(BaseSQLAlchemyRepository.SAS, sas_factory)
@@ -63,8 +67,8 @@ class AppTestCase(UnitTestCase):
     """
 
     @classmethod
-    def _read_pyramid_settings(cls, kind=''):
-        return appconfig('config:' + _get_ini_path(kind=kind))
+    def _read_pyramid_settings(cls, kind=""):
+        return appconfig("config:" + _get_ini_path(kind=kind))
 
     run_once = False
 
@@ -84,8 +88,8 @@ class AppTestCase(UnitTestCase):
 
         cls = AppTestCase  # set class variables on superclass
         cls.settings = cls._read_pyramid_settings()
-        cls.engine = engine_from_config(cls.settings, prefix='sqlalchemy.')
-        print('Creating the tables on the test database:\n%s' % cls.engine)
+        cls.engine = engine_from_config(cls.settings, prefix="sqlalchemy.")
+        print("Creating the tables on the test database:\n%s" % cls.engine)
         Base.metadata.drop_all(cls.engine)
         Base.metadata.create_all(cls.engine)
 
@@ -93,10 +97,10 @@ class AppTestCase(UnitTestCase):
         """Prepare for each individual test."""
         self.kerno = _make_eko().kerno
 
-    def get_request(self, post=None, request_method='GET'):
+    def get_request(self, post=None, request_method="GET"):
         """Return a dummy request for testing."""
         if post is None:
-            post = {'csrf_token': 'irrelevant but required'}
+            post = {"csrf_token": "irrelevant but required"}
         request = testing.DummyRequest(post)
         request.session = Mock()
         request.method = request_method

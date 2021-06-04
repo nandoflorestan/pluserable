@@ -18,13 +18,13 @@ def content_of(*files, encoding="utf-8"):
     return "\n".join(content)
 
 
-class PyTest(TestCommand):
-    def finalize_options(self):
+class PyTest(TestCommand):  # noqa
+    def finalize_options(self):  # noqa
         TestCommand.finalize_options(self)
         # self.test_args = []
         # self.test_suite = True
 
-    def run_tests(self):
+    def run_tests(self):  # noqa
         # Import here, because outside requirements aren't installed
         import pytest
 
@@ -37,7 +37,8 @@ requires = [
     "kerno >= 0.5.0",
     "sqlalchemy",
     "transaction",
-    "cryptacular",
+    # "cryptacular",
+    "passlib",
     "deform",
     "pyramid",  # TODO REMOVE when agnostic
     "pyramid_mailer",
