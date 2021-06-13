@@ -2,7 +2,7 @@
   <body>
 
     <div class="flash-messages">
-        % for msg in request.session.pop_flash():
+        % for msg in request.get_flash_msgs():
             ${msg_to_html(flavor='bootstrap3', msg=msg)|n}
         % endfor
     </div>

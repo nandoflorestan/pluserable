@@ -22,28 +22,28 @@ class FunctionalTestBase(AppTestCase):
 
     def main(self, config):
         def index(request):
-            return Response('index!')
+            return Response("index!")
 
-        config.add_route('index', '/')
-        config.add_view(index, route_name='index')
+        config.add_route("index", "/")
+        config.add_view(index, route_name="index")
 
         authz_policy = ACLAuthorizationPolicy()
         config.set_authorization_policy(authz_policy)
 
-        authn_policy = AuthTktAuthenticationPolicy('secret')
+        authn_policy = AuthTktAuthenticationPolicy("secret")
         config.set_authentication_policy(authn_policy)
 
         settings = config.registry.settings
 
         # Pyramid sessions
-        session_factory = SignedCookieSessionFactory('sum_see_krert')
+        session_factory = SignedCookieSessionFactory("sum_see_krert")
         config.set_session_factory(session_factory)
 
-        if settings.get('su.require_activation', True):
-            config.include('pyramid_mailer')  # TODO Avoid test emails
+        if settings.get("su.require_activation", True):
+            config.include("pyramid_mailer")  # TODO Avoid test emails
 
-        config.include('pyramid_mako')
-        config.include('pluserable')
+        config.include("pyramid_mako")
+        config.include("pluserable")
 
         app = config.make_wsgi_app()
         return app
@@ -51,8 +51,7 @@ class FunctionalTestBase(AppTestCase):
     def setUp(self):
         """Stuff called before each functional test."""
         self.subtransaction = SubtransactionTrick(
-            engine=self.engine,
-            sessionmaker=scoped_session(sessionmaker())
+            engine=self.engine, sessionmaker=scoped_session(sessionmaker())
         )
         self.sas = self.subtransaction.sas  # TODO REMOVE
 
