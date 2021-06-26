@@ -33,8 +33,8 @@ class PyTest(TestCommand):  # noqa
 
 
 requires = [
-    "bag >= 3.1.0",
-    "kerno > 0.5.0",
+    "bag >= 4.0.0",
+    "kerno >= 0.6.0",
     "sqlalchemy",
     "transaction",
     # "cryptacular",
