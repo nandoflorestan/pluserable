@@ -113,7 +113,7 @@ class UserBase:
     # @property
     # def __acl__(self):
     #     return [
-    #         (Allow, 'user:%s' % self.id, 'access_user')
+    #         (Allow, f"u:{self.id}", 'access_user')
     #     ]
 
 

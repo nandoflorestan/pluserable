@@ -3,12 +3,12 @@
 from pyramid.security import Authenticated, Allow, ALL_PERMISSIONS
 
 
-class BaseFactory:
+class BaseFactory:  # noqa
     def __init__(self, request):  # noqa
         self.request = request
 
 
-class RootFactory(BaseFactory):
+class RootFactory(BaseFactory):  # noqa
     @property
     def __acl__(self):
         defaultlist = [
@@ -18,7 +18,7 @@ class RootFactory(BaseFactory):
         return defaultlist
 
 
-class UserFactory(RootFactory):
+class UserFactory(RootFactory):  # noqa
     def __getitem__(self, key):
         user = self.request.repo.get_user_by_id(key)
 
