@@ -1,4 +1,5 @@
 """Pluserable integration for the Pyramid web framework."""
+from warnings import warn
 
 from bag.settings import SettingsReader
 
@@ -21,8 +22,8 @@ from pluserable.web.pyramid.resources import RootFactory
 
 def get_user(request):
     """Return the user making the current request, or None."""
-    id = request.unauthenticated_userid
-    return None if id is None else request.repo.get_user_by_id(id)
+    warn("request.user is deprecated; use request.identity instead.")
+    return request.identity
 
 
 def includeme(config) -> None:
