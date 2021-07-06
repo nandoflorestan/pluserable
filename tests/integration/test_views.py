@@ -23,7 +23,7 @@ from pluserable.views import (
 )
 
 from tests.models import User
-from tests.integration import IntegrationTestBase
+from tests.integration import IntegrationTestBase, LoggedIntegrationTest
 
 
 class TestAuthView(IntegrationTestBase):  # noqa
@@ -627,35 +627,11 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
             view.reset_password()
 
 
-class TestProfileView(IntegrationTestBase):  # noqa
-    def test_profile_loads(self):  # noqa
-        self.config.add_route("index", "/")
-
-        user = self.create_users(count=1)
-        self.sas.flush()
-
-        request = self.get_request()
-        request.user = Mock()
-
-        request.matchdict = Mock()
-        get = Mock()
-        get.return_value = user.id
-        request.matchdict.get = get
-
-        view = ProfileView(request)
-
-        response = view.profile()
-
-        assert response.get("user", None) == user
-
+class TestProfileView(LoggedIntegrationTest):  # noqa
     def test_profile_bad_id(self):  # noqa
         self.config.add_route("index", "/")
 
-        self.create_users(count=1)
-        self.sas.flush()
-
         request = self.get_request()
-        request.user = Mock()
         request.matchdict = Mock()
 
         get = Mock()
@@ -666,34 +642,22 @@ class TestProfileView(IntegrationTestBase):  # noqa
         with self.assertRaises(HTTPNotFound):
             view.profile()
 
-    def test_profile_update_profile_invalid(self):  # noqa
-        from pluserable.interfaces import IProfileSchema
-        from tests.schemas import ProfileSchema
-
-        self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
+    def test_profile_loads(self):  # noqa
         self.config.add_route("index", "/")
-
-        user = self.create_users(count=1)
-        self.sas.flush()
-
-        request = self.get_request(request_method="POST")
-        request.user = user
-
+        request = self.get_request()
         request.matchdict = Mock()
         get = Mock()
-        get.return_value = user.id
+        get.return_value = request.identity.id
         request.matchdict.get = get
 
-        # The code being tested
-        response = ProfileView(request).edit_profile()
+        view = ProfileView(request)
 
-        assert len(response["errors"]) == 3
+        response = view.profile()
+
+        assert response.get("user", None) == request.identity
 
     def test_profile_update_email(self):  # noqa
         self.config.add_route("index", "/")
-
-        user = self.create_users(count=1, password="science")
-        self.sas.flush()
 
         def handle_profile_updated(event):
             event.request.repo.flush()
@@ -709,30 +673,27 @@ class TestProfileView(IntegrationTestBase):  # noqa
             },
             request_method="POST",
         )
+        assert request.identity
         request.add_flash = Mock()
-        request.user = user
         request.matchdict = Mock()
         get = Mock()
-        get.return_value = user.id
+        get.return_value = request.identity.id
         request.matchdict.get = get
 
         # The code being tested
         ProfileView(request).edit_profile()
 
         # Assertions
-        the_user = request.repo.get_user_by_id(user.id)
-        assert the_user is user
+        the_user = request.repo.get_user_by_id(request.identity.id)
+        assert the_user is request.identity
         assert the_user.email == "new_email@nasa.gov"
-        assert user.check_password("science")
+        assert the_user.password == "Please bypass hashing!"
 
     def test_profile_update_password(self):  # noqa  # Happy
         self.config.add_route("index", "/")
-        user = self.create_users(count=1)
-        self.sas.flush()
-
         request = self.get_request(
             post={
-                "email": user.email,
+                "email": self.user.email,
                 "password": {
                     "password": "new password",
                     "password-confirm": "new password",
@@ -742,11 +703,10 @@ class TestProfileView(IntegrationTestBase):  # noqa
             request_method="POST",
         )
         request.add_flash = Mock()
-        request.user = user
 
         request.matchdict = Mock()
         get = Mock()
-        get.return_value = user.id
+        get.return_value = self.user.id
         request.matchdict.get = get
 
         handle_profile_updated = Mock()
@@ -758,7 +718,25 @@ class TestProfileView(IntegrationTestBase):  # noqa
         ProfileView(request).edit_profile()
 
         # Assertions
-        assert user in request.repo.sas.dirty
-        assert user.email == "carlsagan1@nasa.gov"
-        assert user.check_password("new password")
+        assert self.user in request.repo.sas.dirty
+        assert self.user.email == "carlsagan1@nasa.gov"
+        assert self.user.check_password("new password")
         assert handle_profile_updated.called
+
+    def test_profile_update_profile_invalid(self):  # noqa
+        from pluserable.interfaces import IProfileSchema
+        from tests.schemas import ProfileSchema
+
+        self.config.registry.registerUtility(ProfileSchema, IProfileSchema)
+        self.config.add_route("index", "/")
+        request = self.get_request(request_method="POST")
+
+        request.matchdict = Mock()
+        get = Mock()
+        get.return_value = request.identity.id
+        request.matchdict.get = get
+
+        # The code being tested
+        response = ProfileView(request).edit_profile()
+
+        assert len(response["errors"]) == 3

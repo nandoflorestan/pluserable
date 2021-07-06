@@ -11,7 +11,7 @@ from kerno.typing import DictStr
 from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
-from pyramid.security import remember, forget, Authenticated
+from pyramid.security import forget, remember
 from pyramid.settings import asbool
 from pyramid.url import route_url
 
@@ -480,9 +480,7 @@ class ProfileView(BaseView):  # noqa
     def edit_profile(self) -> DictStr:
         """Let the user change her own email or password."""
         request = self.request
-        user = request.user
-        # if not user:  # substitute with effective_principals=Authenticated
-        #     raise HTTPNotFound()
+        user = request.identity
 
         form = self._get_form()
 
@@ -580,7 +578,7 @@ def get_pyramid_views_config():
         "edit_profile": {
             "view": ProfileView,
             "attr": "edit_profile",
-            "effective_principals": Authenticated,
+            "is_authenticated": True,
             "renderer": "pluserable:templates/edit_profile.mako",
         },
     }

@@ -34,13 +34,13 @@ class PyTest(TestCommand):  # noqa
 
 requires = [
     "bag >= 4.0.0",
-    "kerno >= 0.6.0",
+    "kerno > 0.6.0",
     "sqlalchemy",
     "transaction",
     # "cryptacular",
     "passlib",
     "deform",
-    "pyramid",  # TODO REMOVE when agnostic
+    "pyramid >= 2.0",  # TODO REMOVE when agnostic
     "pyramid_mailer",
     "pyramid_mako",
     "zope.interface",

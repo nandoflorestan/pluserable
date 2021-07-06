@@ -49,12 +49,17 @@ Minimal integration
   returns a SQLAlchemy session instance, ready for use. Alternatively,
   it can be a scoped session.
 
+- pluserable includes a (very standard and vanilla) SecurityPolicy.
+  If you wish to use it, do::
+
+    config.include("pluserable.web.pyramid.security")
+
 - You may write a function that returns a configuration for Pyramid routes and
   views (which is something you probably want to manipulate in code
   because it won't change between dev, staging and production environments),
   and then inform pluserable about it like this::
 
-    registry.settings['pluserable_configurator'] = 'my.package:some_function'
+    registry.settings["pluserable_configurator"] = "my.package:some_function"
 
 - Your ``pluserable_configurator`` function would look more or less like this::
 
