@@ -427,7 +427,7 @@ class RegisterView(BaseView):  # noqa
             )
         )
         if autologin:
-            request.repo.flush()  # in order to get the id
+            request.repo.flush()  # in order to get user.id
             return authenticated(request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self.after_register_url)

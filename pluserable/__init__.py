@@ -1,7 +1,5 @@
 """Pluserable is a user registration and login library."""
 
-from typing import List
-
 from bag.settings import SettingsReader
 from kerno.start import Eko
 
@@ -24,18 +22,6 @@ from pluserable.schemas import (
     EmailResetPasswordSchema,
     EmailProfileSchema,
 )
-
-
-def groupfinder(userid, request) -> List[str]:
-    """Return the main principals of the current user."""
-    user = request.user
-    groups = None
-    if user:
-        groups = []
-        for group in user.groups:
-            groups.append("group:%s" % group.name)
-        groups.append("user:%s" % user.id)
-    return groups
 
 
 class BaseStrategy:
