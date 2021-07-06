@@ -304,16 +304,6 @@ by creating a new mixin class::
         pass
 
 
-Developing your application
-===========================
-
-Every request object will have a "user" variable containing the User instance
-of the person who logged in.  This is *reified* -- meaning the query to
-retrieve the user data only happens once per request.
-
-So do use ``request.user`` in your code.
-
-
 pluserable development
 ======================
 

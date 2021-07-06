@@ -20,17 +20,6 @@ class TestViews(FunctionalTestBase):  # noqa
         res = self.app.get("/login")
         self.assertEqual(res.status_int, 200)
 
-    def test_login_redirects_if_logged_in(self):  # noqa
-        request = self.get_request()
-        from pluserable.views import AuthView
-
-        with patch.object(AuthView, "request", request) as request:
-            request.user = Mock()
-            res = self.app.get("/login").follow()
-            # TODO: Patch index request as well so that it redirects to the
-            # dashboard
-            assert b"index" in res.body
-
     def test_empty_login_fails(self):  # noqa
         res = self.app.post("/login", {"submit": True})
 

@@ -1,4 +1,4 @@
-"""Test groupfinder and request.user."""
+"""Test request.user."""
 
 from datetime import datetime
 

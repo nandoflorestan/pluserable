@@ -48,23 +48,10 @@ class TestAuthView(IntegrationTestBase):  # noqa
         self.config.add_route("index", "/")
 
         request = self.get_request()
-        request.user = None
         view = AuthView(request)
         response = view.login()
 
         assert response.get("form", None)
-
-    def test_login_redirects_if_logged_in(self):  # noqa
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
-        self.config.add_route("index", "/")
-
-        request = self.get_request()
-        request.user = Mock()
-        view = AuthView(request)
-
-        response = view.login()
-        assert response.status_int == 302
 
     def test_login_fails_empty(self):
         """Make sure we can't log in with empty credentials."""
@@ -165,31 +152,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
             level="danger",
         )
 
-    def test_logout(self):
-        """User logs out successfully."""
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
-        self.config.add_route("index", "/")
-        request = self.get_request()
-
-        invalidate = Mock()
-        request.add_flash = Mock()
-        request.user = Mock()
-        request.session = Mock()
-        request.session.invalidate = invalidate
-
-        view = AuthView(request)
-        with patch("pluserable.views.forget") as forget:
-            with patch("pluserable.views.HTTPFound") as HTTPFound:
-                view.logout()
-                request.add_flash.assert_called_with(
-                    plain=UIStringsBase.logout_done, level="success"
-                )
-
-                forget.assert_called_with(request)
-                assert invalidate.called
-                assert HTTPFound.called
-
 
 class TestRegisterView(IntegrationTestBase):  # noqa
     def test_register_loads_not_logged_in(self):  # noqa
@@ -197,24 +159,10 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         self.config.add_route("index", "/")
 
         request = self.get_request()
-        request.user = None
         view = RegisterView(request)
         response = view.register()
 
         assert response.get("form", None)
-
-    def test_register_redirects_if_logged_in(self):  # noqa
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-        self.config.add_route("index", "/")
-
-        request = self.get_request()
-        request.user = Mock()
-        view = RegisterView(request)
-        response = view.register()
-
-        assert response.status_int == 302
 
     def test_register_creates_inactive_user(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -233,7 +181,6 @@ class TestRegisterView(IntegrationTestBase):  # noqa
             request_method="POST",
         )
         request.add_flash = Mock()
-        request.user = Mock()
         view = RegisterView(request)
         response = view.register()
 
@@ -247,7 +194,6 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         self.config.add_route("index", "/")
 
         request = self.get_request(request_method="POST")
-        request.user = Mock()
         view = RegisterView(request)
         response = view.register()
 
@@ -297,7 +243,6 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         )
 
         request.add_flash = Mock()
-        request.user = Mock()
 
         view = RegisterView(request)
         response = view.register()
@@ -439,33 +384,36 @@ class TestRegisterView(IntegrationTestBase):  # noqa
 
 
 class TestForgotPasswordView(IntegrationTestBase):  # noqa
+    def test_forgot_password_invalid_password(self):  # noqa
+        self.config.add_route("index", "/")
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.create_users(count=1)
+        self.sas.flush()
+        request = self.get_request(
+            post={
+                "email": "sagan",
+                "csrf_token": "irrelevant but required",
+            },
+            request_method="POST",
+        )
+        view = ForgotPasswordView(request)
+
+        response = view.forgot_password()
+        assert len(response["errors"]) == 1
+
     def test_forgot_password_loads(self):  # noqa
         self.config.add_route("index", "/")
-
         request = self.get_request()
-        request.user = None
         view = ForgotPasswordView(request)
-        response = view.forgot_password()
 
+        response = view.forgot_password()
         assert response.get("form", None)
-
-    def test_forgot_password_logged_in_redirects(self):  # noqa
-        self.config.add_route("index", "/")
-
-        request = self.get_request()
-        request.user = Mock()
-        view = ForgotPasswordView(request)
-        response = view.forgot_password()
-
-        assert response.status_int == 302
 
     def test_forgot_password_valid_user_succeeds(self):  # noqa
         self.config.add_route("index", "/")
         self.config.registry.registerUtility(DummyMailer(), IMailer)
-
         self.create_users(count=1)
         self.sas.flush()
-
         request = self.get_request(
             post={
                 "email": "carlsagan1@nasa.gov",
@@ -474,36 +422,72 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
             request_method="POST",
         )
         request.add_flash = Mock()
-        request.user = None
-
         view = ForgotPasswordView(request)
-        response = view.forgot_password()
 
+        response = view.forgot_password()
         request.add_flash.assert_called_with(
             plain=UIStringsBase.reset_password_email_sent, level="success"
         )
         assert response.status_int == 302
 
-    def test_forgot_password_invalid_password(self):  # noqa
+    def test_invalid_reset_gets_404(self):  # noqa
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route("index", "/")
+
+        self.create_users(count=1, activation=True)
+        self.sas.flush()
+
+        request = self.get_request()
+        request.matchdict = Mock()
+        get = Mock()
+        get.return_value = "wrong value"
+        request.matchdict.get = get
+        view = ForgotPasswordView(request)
+
+        with self.assertRaises(HTTPNotFound):
+            view.reset_password()
+
+    def test_reset_password_empty_password(self):  # noqa
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route("index", "/")
+
+        user = self.create_users(count=1, activation=True)
+        self.sas.flush()
+
+        request = self.get_request(request_method="POST")
+        request.matchdict = Mock()
+        get = Mock()
+        get.return_value = user.activation.code
+        request.matchdict.get = get
+        view = ForgotPasswordView(request)
+
+        response = view.reset_password()
+        assert len(response["errors"]) == 1
+
+    def test_reset_password_invalid_password(self):  # noqa
         self.config.add_route("index", "/")
         self.config.registry.registerUtility(DummyMailer(), IMailer)
 
-        self.create_users(count=1)
+        user = self.create_users(count=1, activation=True)
         self.sas.flush()
 
         request = self.get_request(
             post={
-                "email": "sagan",
+                "Password": {
+                    "Password": "t",
+                    "Password-confirm": "t",
+                },
                 "csrf_token": "irrelevant but required",
             },
             request_method="POST",
         )
-
-        request.user = None
-
+        request.matchdict = Mock()
+        get = Mock()
+        get.return_value = user.activation.code
+        request.matchdict.get = get
         view = ForgotPasswordView(request)
-        response = view.forgot_password()
 
+        response = view.reset_password()
         assert len(response["errors"]) == 1
 
     def test_reset_password_loads(self):  # noqa
@@ -514,17 +498,13 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
         self.sas.flush()
 
         request = self.get_request()
-
         request.matchdict = Mock()
         get = Mock()
         get.return_value = user.activation.code
         request.matchdict.get = get
-
-        request.user = None
-
         view = ForgotPasswordView(request)
-        response = view.reset_password()
 
+        response = view.reset_password()
         assert response.get("form", None)
         assert "sagan" in response["form"]
 
@@ -550,85 +530,58 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
         get = Mock()
         get.return_value = user.activation.code
         request.matchdict.get = get
-
-        request.user = None
-
         view = ForgotPasswordView(request)
-        response = view.reset_password()
 
+        response = view.reset_password()
         assert user.check_password("test123")
         assert response.status_int == 302
 
-    def test_reset_password_invalid_password(self):  # noqa
+
+class TestLoggedIn(LoggedIntegrationTest):  # noqa
+    def test_forgot_password_logged_in_redirects(self):  # noqa
         self.config.add_route("index", "/")
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-
-        user = self.create_users(count=1, activation=True)
-        self.sas.flush()
-
-        request = self.get_request(
-            post={
-                "Password": {
-                    "Password": "t",
-                    "Password-confirm": "t",
-                },
-                "csrf_token": "irrelevant but required",
-            },
-            request_method="POST",
-        )
-
-        request.matchdict = Mock()
-        get = Mock()
-        get.return_value = user.activation.code
-        request.matchdict.get = get
-
-        request.user = None
-
-        view = ForgotPasswordView(request)
-        response = view.reset_password()
-
-        assert len(response["errors"]) == 1
-
-    def test_reset_password_empty_password(self):  # noqa
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-        self.config.add_route("index", "/")
-
-        user = self.create_users(count=1, activation=True)
-        self.sas.flush()
-
-        request = self.get_request(request_method="POST")
-        request.matchdict = Mock()
-        get = Mock()
-        get.return_value = user.activation.code
-        request.matchdict.get = get
-        request.user = None
-
-        view = ForgotPasswordView(request)
-        response = view.reset_password()
-
-        assert len(response["errors"]) == 1
-
-    def test_invalid_reset_gets_404(self):  # noqa
-        self.config.registry.registerUtility(DummyMailer(), IMailer)
-        self.config.add_route("index", "/")
-
-        self.create_users(count=1, activation=True)
-        self.sas.flush()
-
         request = self.get_request()
-        request.matchdict = Mock()
-        get = Mock()
-        get.return_value = "wrong value"
-        request.matchdict.get = get
-
-        request.user = None  # nobody is logged in
         view = ForgotPasswordView(request)
-        with self.assertRaises(HTTPNotFound):
-            view.reset_password()
 
+        response = view.forgot_password()
+        assert response.status_int == 302
 
-class TestProfileView(LoggedIntegrationTest):  # noqa
-    def test_profile_bad_id(self):  # noqa
+    def test_login_redirects_if_logged_in(self):  # noqa
+        self.config.registry.settings["pluserable.login_redirect"] = "index"
+        self.config.registry.settings["pluserable.logout_redirect"] = "index"
+        self.config.add_route("index", "/")
+        request = self.get_request()
+        view = AuthView(request)
+
+        response = view.login()
+        assert response.status_int == 302
+        assert response.headers["Location"] == "/"
+
+    def test_logout(self):
+        """User logs out successfully."""
+        self.config.registry.settings["pluserable.login_redirect"] = "index"
+        self.config.registry.settings["pluserable.logout_redirect"] = "index"
+        self.config.add_route("index", "/")
+        request = self.get_request()
+
+        invalidate = Mock()
+        request.add_flash = Mock()
+        request.session = Mock()
+        request.session.invalidate = invalidate
+
+        view = AuthView(request)
+        with patch("pluserable.views.forget") as forget:
+            with patch("pluserable.views.HTTPFound") as HTTPFound:
+                view.logout()
+                request.add_flash.assert_called_with(
+                    plain=UIStringsBase.logout_done, level="success"
+                )
+
+                forget.assert_called_with(request)
+                assert invalidate.called
+                assert HTTPFound.called
+
+    def test_profile_view_bad_id(self):  # noqa
         self.config.add_route("index", "/")
 
         request = self.get_request()
@@ -642,7 +595,7 @@ class TestProfileView(LoggedIntegrationTest):  # noqa
         with self.assertRaises(HTTPNotFound):
             view.profile()
 
-    def test_profile_loads(self):  # noqa
+    def test_profile_view_loads(self):  # noqa
         self.config.add_route("index", "/")
         request = self.get_request()
         request.matchdict = Mock()
@@ -723,7 +676,18 @@ class TestProfileView(LoggedIntegrationTest):  # noqa
         assert self.user.check_password("new password")
         assert handle_profile_updated.called
 
-    def test_profile_update_profile_invalid(self):  # noqa
+    def test_register_redirects_if_logged_in(self):  # noqa
+        self.config.registry.settings["pluserable.login_redirect"] = "index"
+        self.config.registry.settings["pluserable.logout_redirect"] = "index"
+        self.config.registry.registerUtility(DummyMailer(), IMailer)
+        self.config.add_route("index", "/")
+        request = self.get_request()
+        view = RegisterView(request)
+
+        response = view.register()
+        assert response.status_int == 302
+
+    def test_update_profile_invalid(self):  # noqa
         from pluserable.interfaces import IProfileSchema
         from tests.schemas import ProfileSchema
 

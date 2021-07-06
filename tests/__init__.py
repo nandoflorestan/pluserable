@@ -105,6 +105,5 @@ class AppTestCase(UnitTestCase):
         request.session = Mock()
         request.method = request_method
         request.repo = self.repo
-        request.user = None
         request.kerno = self.kerno
         return request

@@ -197,7 +197,7 @@ class AuthView(BaseView):
         """Present the login form, or validate data and authenticate user."""
         request = self.request
         if request.method in ("GET", "HEAD"):
-            if request.user:
+            if request.identity:
                 return HTTPFound(location=self.login_redirect_view)
             return render_form(
                 request,
@@ -271,7 +271,7 @@ class ForgotPasswordView(BaseView):  # noqa
         form = form(schema)
 
         if request.method == "GET":
-            if request.user:
+            if request.identity:
                 return HTTPFound(location=self.forgot_password_redirect_view)
             else:
                 return render_form(request, form)
@@ -324,7 +324,7 @@ class ForgotPasswordView(BaseView):  # noqa
             )
 
         # If a user is logged in, log her off before doing anything
-        if request.user:  # TODO add test
+        if request.identity:  # TODO add test
             return AuthView(request).logout(url=request.path_qs)
 
         schema = request.registry.getUtility(IResetPasswordSchema)
@@ -387,7 +387,7 @@ class RegisterView(BaseView):  # noqa
     def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
         if request.method in ("GET", "HEAD"):
-            if request.user:
+            if request.identity:
                 return HTTPFound(location=self.after_register_url)
 
             return render_form(request, self.form)
