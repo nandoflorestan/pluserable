@@ -1,44 +1,57 @@
 """Colander and Deform schemas."""
 
 import re
+from typing import List
 
 from bag.text import strip_preparer, strip_lower_preparer
 import colander as c
 from deform.schema import CSRFSchema
 import deform.widget as w
+from kerno.kerno import Kerno
+from kerno.web.pyramid import KRequest
 
 from pluserable.strings import get_strings, _
 
 
 def email_exists(node, val):
     """Colander validator that ensures a User exists with the email."""
-    request = node.bindings["request"]
+    request: KRequest = node.bindings["request"]
     user = request.repo.get_user_by_email(val)
     if not user:
         raise c.Invalid(
             node,
-            get_strings(
-                request.registry
-            ).reset_password_email_must_exist.format(val),
+            get_strings(request.registry).reset_password_email_must_exist.format(val),
         )
 
 
 def unique_email(node, val):
     """Colander validator that ensures the email does not exist."""
-    request = node.bindings["request"]
+    request: KRequest = node.bindings["request"]
     other = request.repo.get_user_by_email(val)
     if other:
         raise c.Invalid(
             node,
-            get_strings(request.registry).registration_email_exists.format(
-                other.email
-            ),
+            get_strings(request.registry).registration_email_exists.format(other.email),
+        )
+
+
+def email_domain_allowed(node, val):
+    """Colander validator that blocks configured email domains."""
+    kerno: Kerno = node.bindings["kerno"]
+    request: KRequest = node.bindings["request"]
+    blocked_domains: List[str] = kerno.settings["pluserable"].get(
+        "email_domains_blacklist", []
+    )
+    left, domain = val.split("@", 1)
+    if domain in blocked_domains:
+        raise c.Invalid(
+            node, get_strings(request.registry).email_domain_blocked.format(domain)
         )
 
 
 def unique_username(node, val):
     """Colander validator that ensures the username does not exist."""
-    request = node.bindings["request"]
+    request: KRequest = node.bindings["request"]
     user = request.repo.get_user_by_username(val)
     if user is not None:
         raise c.Invalid(
@@ -48,11 +61,9 @@ def unique_username(node, val):
 
 def unix_username(node, value):
     """Colander validator that ensures the username is alphanumeric."""
-    request = node.bindings["request"]
+    request: KRequest = node.bindings["request"]
     if not ALPHANUM.match(value):
-        raise c.Invalid(
-            node, get_strings(request.registry).unacceptable_characters
-        )
+        raise c.Invalid(node, get_strings(request.registry).unacceptable_characters)
 
 
 ALPHANUM = re.compile(r"^[a-zA-Z0-9_.-]+$")
@@ -70,11 +81,9 @@ def username_does_not_contain_at(node, value):
     validator here in case someone wishes to use it instead of
     ``unix_username``.
     """
-    request = node.bindings["request"]
+    request: KRequest = node.bindings["request"]
     if "@" in value:
-        raise c.Invalid(
-            node, get_strings(request.registry).username_may_not_contain_at
-        )
+        raise c.Invalid(node, get_strings(request.registry).username_may_not_contain_at)
 
 
 # Schema fragments
@@ -93,18 +102,18 @@ def get_username_creation_node(
         title=title,
         description=description,
         preparer=strip_preparer,
-        validator=validator
-        or c.All(c.Length(max=30), unix_username, unique_username),
+        validator=validator or c.All(c.Length(max=30), unix_username, unique_username),
     )
 
 
 def get_email_node(validator=None, description=None):
+    """Return a reusable email address node for Colander schemas."""
     return c.SchemaNode(
         c.String(),
         title=_("Email"),
         description=description,
         preparer=strip_lower_preparer,
-        validator=validator or c.All(c.Email(), unique_email),
+        validator=validator or c.All(c.Email(), unique_email, email_domain_allowed),
         widget=w.TextInputWidget(
             size=40,
             maxlength=260,
@@ -136,9 +145,7 @@ def get_checked_password_node(
 
 class UsernameLoginSchema(CSRFSchema):
 
-    handle = c.SchemaNode(
-        c.String(), title=_("User name"), preparer=strip_preparer
-    )
+    handle = c.SchemaNode(c.String(), title=_("User name"), preparer=strip_preparer)
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 

@@ -52,18 +52,17 @@ class UIStringsBase:
 
     wrong_email = _("Wrong email or password.")
     wrong_username = _("Wrong username or password.")
-    inactive_account = _(
-        "Your account is not active; please check your e-mail."
-    )
+    inactive_account = _("Your account is not active; please check your e-mail.")
 
     edit_profile_email_present = _(
         "That email address ({email}) belongs to another user."
     )
     edit_profile_done = _("Your profile has been updated.")
 
+    email_domain_blocked = _("The domain {} is not acceptable.")
+
     registration_email_exists = _(
-        "Sorry, an account with the email {} "
-        "already exists. Try logging in instead."
+        "Sorry, an account with the email {} " "already exists. Try logging in instead."
     )
     registration_username_exists = _(
         "Sorry, an account with this username already exists. "

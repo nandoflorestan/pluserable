@@ -2,14 +2,14 @@
 Introduction to *pluserable*
 ============================
 
-*pluserable* provides generic user registration for the Pyramid web framework,
-if your web app uses SQLAlchemy.
+*pluserable* provides generic user registration for the Pyramid
+web framework, if your web app uses SQLAlchemy.
 
 It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-It is being refactored to support other web frameworks.
+It is gradually being refactored to support other web frameworks.
 
 The documentation is at http://docs.nando.audio/pluserable/latest/
 
@@ -20,21 +20,21 @@ Minimal integration
 - Create a virtualenv and activate it. Install pyramid and create
   your Pyramid project.
 
-- Ensure you have some SQLAlchemy declarative initialization. This is usually
-  created by the Pyramid scaffold.
+- Ensure you have some SQLAlchemy declarative initialization.
+  This is usually created by the Pyramid scaffold.
 
 - Edit your *setup.py* to add "pluserable" to the dependencies in the
   *install_requires* list.
 
-- Run ``python setup.py develop`` on your project to install all dependencies
-  into your virtualenv.
+- Run ``python setup.py develop`` on your project to install all
+  dependencies into your virtualenv.
 
 - Create models inheriting from pluserable' abstract models.
   Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
 
-- In your Pyramid configuration file, create a section called "kerno utilities"
-  like this::
+- In your Pyramid configuration file, create a section called
+  "kerno utilities" like this::
 
     [kerno utilities]
         # Let pluserable know which model classes to use:
@@ -45,9 +45,18 @@ Minimal integration
         # Give pluserable a SQLAlchemy session factory:
         session factory = some.app.models:get_sqlalchemy_session
 
-- Above you are also pointing to a session factory. Just write a function that
-  returns a SQLAlchemy session instance, ready for use. Alternatively,
-  it can be a scoped session.
+- Above you are also pointing to a session factory. Just write a
+  function that returns a SQLAlchemy session instance, ready for use.
+  Alternatively, it can be a scoped session.
+
+- Also add to your Pyramid configuration file a "pluserable" section
+  like this::
+
+    [pluserable]
+        email_domains_blacklist =
+
+- In the above configuration variable you can block certain domains
+  from users' email addresses.
 
 - pluserable includes a (very standard and vanilla) SecurityPolicy.
   If you wish to use it, do::
@@ -83,8 +92,8 @@ You have to use it next::
         global_settings['__file__'],  # Path to your INI configuration file
     )
 
-The above causes **pluserable** to read certain sections of your INI file --
-especially the ``[Kerno utilities]`` section.
+The above causes **pluserable** to read your INI file -- especially
+the ``[Kerno utilities]`` and ``[pluserable]`` sections.
 
 The backend for database access is in a separate class, this way you can
 substitute the implementation. This is called the "repository" pattern.
