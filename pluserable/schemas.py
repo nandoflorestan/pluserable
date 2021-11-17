@@ -42,7 +42,10 @@ def email_domain_allowed(node, val):
     blocked_domains: List[str] = kerno.settings["pluserable"].get(
         "email_domains_blacklist", []
     )
-    left, domain = val.split("@", 1)
+    try:
+        left, domain = val.split("@", 1)
+    except ValueError:
+        raise c.Invalid(node, "An email address must contain an @ character")
     if domain in blocked_domains:
         raise c.Invalid(
             node, get_strings(request.registry).email_domain_blocked.format(domain)
@@ -97,6 +100,7 @@ def get_username_creation_node(
     description=_("Name with which you will log in"),
     validator=None,
 ):
+    """Return a reusable username node for Colander schemas."""
     return c.SchemaNode(
         c.String(),
         title=title,

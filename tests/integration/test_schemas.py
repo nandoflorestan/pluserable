@@ -1,7 +1,12 @@
 """Tests for our schemas."""
 
-from colander import Invalid
-from pluserable.schemas import UsernameLoginSchema, UsernameRegisterSchema
+import colander as c
+
+from pluserable.schemas import (
+    EmailRegisterSchema,
+    UsernameLoginSchema,
+    UsernameRegisterSchema,
+)
 
 from tests.integration import IntegrationTestBase
 
@@ -33,7 +38,7 @@ class TestSchemas(IntegrationTestBase):  # noqa
         def deserialize_empty():
             try:
                 schema.deserialize({})
-            except Invalid as exc:
+            except c.Invalid as exc:
                 assert len(exc.children) == 3
                 errors = ["handle", "password", "csrf_token"]
                 for child in exc.children:
@@ -41,7 +46,7 @@ class TestSchemas(IntegrationTestBase):  # noqa
                     assert child.msg == "Required"
                 raise
 
-        self.assertRaises(Invalid, deserialize_empty)
+        self.assertRaises(c.Invalid, deserialize_empty)
 
     def test_usernames_may_not_contain_at(self):  # noqa
         POST = {
@@ -58,14 +63,14 @@ class TestSchemas(IntegrationTestBase):  # noqa
         def run():
             try:
                 schema.deserialize(POST)
-            except Invalid as exc:
+            except c.Invalid as exc:
                 assert len(exc.children) == 1
                 the_error = exc.children[0]
                 assert the_error.node.name == "username"
                 assert the_error.msg == ["Contains unacceptable characters."]
                 raise
 
-        self.assertRaises(Invalid, run)
+        self.assertRaises(c.Invalid, run)
 
     def test_usernames_may_contain_dot_dash_underline(self):  # noqa
         handle = "Sagan-was-a-GREAT_writer."
@@ -84,3 +89,19 @@ class TestSchemas(IntegrationTestBase):  # noqa
         assert result["username"] == handle
         assert result["password"] == "pass"
         assert result["email"] == "sagan@nasa.gov"
+
+    def test_registration_schema(self):  # noqa
+        request = self.get_request()
+        schema = EmailRegisterSchema().bind(
+            request=request, kerno=request.kerno
+        )
+        adict = {
+            "email": "brou@haha.com",
+            "password": "haha",
+            "csrf_token": "irrelevant but required",
+        }
+        schema.deserialize(adict)
+
+        with self.assertRaises(c.Invalid):
+            adict["email"] = "haha"
+            schema.deserialize(adict)
