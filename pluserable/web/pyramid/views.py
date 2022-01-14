@@ -86,9 +86,7 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     or to the page defined in kerno.pluserable_settings["login_redirect"],
     which defaults to a view named 'index'.
     """
-    autologin = asbool(
-        request.registry.settings.get("pluserable.autologin", False)
-    )
+    autologin = request.kerno.pluserable_settings["autologin"]
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
         request.add_flash(plain=msg, level="success")
@@ -406,7 +404,7 @@ class RegisterView(BaseView):  # noqa
         # With the form validated, we know email and username are unique.
         user = self.persist_user(captured)
 
-        autologin = asbool(self.settings.get("pluserable.autologin", False))
+        autologin = request.kerno.pluserable_settings["autologin"]
 
         if self.require_activation:
             create_activation(request, user)  # send activation email

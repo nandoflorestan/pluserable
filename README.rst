@@ -53,11 +53,15 @@ Minimal integration
   like this::
 
     [pluserable]
+        autologin = false
         email_domains_blacklist = barbie.com
             sbt.com.br
 
-- In the above configuration variable you can block certain domains
-  from users' email addresses.
+- The ``autologin`` setting determines whether a user gets logged in
+  directly after registration.
+
+- Through the blacklist setting you can block certain domains from
+  users' email addresses.
 
 - pluserable includes a (very standard and vanilla) SecurityPolicy.
   If you wish to use it, do::

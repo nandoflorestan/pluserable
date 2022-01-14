@@ -24,12 +24,25 @@ class DomainsSchema(c.SchemaNode):
 
 
 class PluserableConfigSchema(c.MappingSchema):
-    """Colander validation schema for the entire configuration dictionary."""
+    """Colander validation schema for the entire configuration dictionary.
 
+    When using a INI configuration file, these settings are placed in
+    the ``[pluserable]`` section.
+    """
+
+    autologin = c.SchemaNode(
+        c.Bool(),
+        missing=False,
+        doc="Whether to log a user in directly after registration",
+    )
     email_domains_blacklist = DomainsSchema()
     login_redirect = c.SchemaNode(c.String(), missing="index")
     logout_redirect = c.SchemaNode(c.String(), missing="index")
-    require_activation = c.SchemaNode(c.Bool(), missing=True)
+    require_activation = c.SchemaNode(
+        c.Bool(),
+        missing=True,
+        doc="When true users can only log in after confirming their email address",
+    )
 
 
 def validate_pluserable_config(adict: DictStr):
