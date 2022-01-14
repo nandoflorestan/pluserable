@@ -292,7 +292,7 @@ class ForgotPasswordView(BaseView):  # noqa
             plain=self.strings.reset_password_email_sent, level="success"
         )
         return HTTPFound(
-            location=get_config_route(request, "reset_password_redirect")
+            location=get_config_route(request, "forgot_password_redirect")
         )
 
     def reset_password(self) -> DictStr:  # TODO Extract action
