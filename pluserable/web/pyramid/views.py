@@ -247,11 +247,6 @@ class AuthView(BaseView):
 class ForgotPasswordView(BaseView):  # noqa
     def __init__(self, request: PRequest):  # noqa
         super(ForgotPasswordView, self).__init__(request)
-
-        self.forgot_password_redirect_view = route_url(
-            self.settings.get("pluserable.forgot_password_redirect", "index"),
-            request,
-        )
         self.reset_password_redirect_view = route_url(
             self.settings.get("pluserable.reset_password_redirect", "index"),
             request,
@@ -271,7 +266,11 @@ class ForgotPasswordView(BaseView):  # noqa
 
         if request.method == "GET":
             if request.identity:
-                return HTTPFound(location=self.forgot_password_redirect_view)
+                return HTTPFound(
+                    location=get_config_route(
+                        request, "forgot_password_redirect"
+                    )
+                )
             else:
                 return render_form(request, form)
 

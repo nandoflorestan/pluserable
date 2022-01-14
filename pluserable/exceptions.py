@@ -1,5 +1,7 @@
 """Custom exceptions raised by pluserable."""
 
+from kerno.typing import DictStr
+
 from pluserable.web.pyramid.typing import PRequest
 
 
@@ -13,7 +15,7 @@ class FormValidationFailure(Exception):  # TODO REMOVE
         self.form = form
         self.exc = exc
 
-    def result(self, request: PRequest, **cstruct):  # noqa
+    def result(self, request: PRequest, **cstruct) -> DictStr:  # noqa
         retail = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
             "deform_retail"
         ]

@@ -41,8 +41,11 @@ class PluserableConfigSchema(c.MappingSchema):
         doc="Whether to enable retail rendering of deform forms",
     )
     email_domains_blacklist = DomainsSchema()
+
+    forgot_password_redirect = c.SchemaNode(c.String(), missing="index")
     login_redirect = c.SchemaNode(c.String(), missing="index")
     logout_redirect = c.SchemaNode(c.String(), missing="index")
+
     require_activation = c.SchemaNode(
         c.Bool(),
         missing=True,
