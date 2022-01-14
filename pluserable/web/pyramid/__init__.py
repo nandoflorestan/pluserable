@@ -46,7 +46,7 @@ def includeme(config) -> None:
     # to a callable that we call here:
     configurator = settings_reader.resolve(
         key="pluserable_configurator",
-        default="pluserable.settings:get_default_pluserable_settings",
+        default="pluserable.views:get_default_pluserable_settings",
     )
     settings["pluserable"] = configurator()
 

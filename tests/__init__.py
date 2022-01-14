@@ -8,8 +8,7 @@ from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 
-from pluserable import const
-from pluserable.settings import get_default_pluserable_settings
+from pluserable.views import get_default_pluserable_settings
 
 from tests.models import Activation, User
 
