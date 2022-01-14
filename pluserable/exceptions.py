@@ -1,23 +1,22 @@
 """Custom exceptions raised by pluserable."""
 
-from pyramid.settings import asbool
+from pluserable.web.pyramid.typing import PRequest
 
 
 class AuthenticationFailure(Exception):
-
-    pass
+    """Raised when handle and password do not match, during login."""
 
 
 class FormValidationFailure(Exception):  # TODO REMOVE
-    def __init__(self, form, exc):
+    def __init__(self, form, exc):  # noqa
         Exception.__init__(self)
         self.form = form
         self.exc = exc
 
-    def result(self, request, **cstruct):
-        settings = request.registry.settings
-        retail = asbool(settings.get("pluserable.deform_retail", False))
-
+    def result(self, request: PRequest, **cstruct):  # noqa
+        retail = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
+            "deform_retail"
+        ]
         if retail:
             form = self.form
             errors = self.form.error.children

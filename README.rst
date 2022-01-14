@@ -88,7 +88,13 @@ Minimal integration
 - Include **pluserable** into your Pyramid application,
   just after Pyramid's Configurator is instantiated::
 
-    config.include('pluserable')
+    from kerno.start import Eko
+
+    def includeme(config):
+        """Stuff called during Pyramid initialization."""
+        eko = Eko.from_ini("server.ini")
+        eko.include("pluserable")
+        config.include("pluserable")
 
 This does almost nothing: it only makes a new config method available.
 You have to use it next::

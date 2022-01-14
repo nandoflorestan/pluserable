@@ -11,12 +11,12 @@ flexible and maintainable.
 Refactoring
 ===========
 
+- Use colander to validate configuration at startup.
+- Stop the configuration madness.
 - Use kerno.state instead of bag's add_flash(). Document.
 - Add @kerno_page and use it instead of @kerno_view.
 - Use kerno.to_dict
-- Stop the configuration madness.
 - Rename NoUsernameMixin to BasicUserMixin and UsernameMixin to NamedUserMixin.
-- Use the pydantic library, or the schema library, to validate configuration
 - Add civilized way of selecting which routes/views I want for my project
 - Lose schema and form interfaces; document
 - Go through the TODOs on the code

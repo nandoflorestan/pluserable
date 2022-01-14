@@ -35,6 +35,11 @@ class PluserableConfigSchema(c.MappingSchema):
         missing=False,
         doc="Whether to log a user in directly after registration",
     )
+    deform_retail = c.SchemaNode(
+        c.Bool(),
+        missing=False,
+        doc="Whether to enable retail rendering of deform forms",
+    )
     email_domains_blacklist = DomainsSchema()
     login_redirect = c.SchemaNode(c.String(), missing="index")
     logout_redirect = c.SchemaNode(c.String(), missing="index")

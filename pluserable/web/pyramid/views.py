@@ -12,7 +12,6 @@ from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import forget, remember
-from pyramid.settings import asbool
 from pyramid.url import route_url
 
 from pluserable import const
@@ -86,7 +85,9 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     or to the page defined in kerno.pluserable_settings["login_redirect"],
     which defaults to a view named 'index'.
     """
-    autologin = request.kerno.pluserable_settings["autologin"]
+    autologin = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
+        "autologin"
+    ]
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
         request.add_flash(plain=msg, level="success")
@@ -98,8 +99,10 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
 
 
 def render_form(request: PRequest, form, appstruct=None, **kw) -> DictStr:
-    settings = request.registry.settings
-    retail = asbool(settings.get("pluserable.deform_retail", False))
+    """Return the deform *form* rendered with *appstruct* data."""
+    retail = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
+        "deform_retail"
+    ]
 
     if appstruct is not None:
         form.set_appstruct(appstruct)
@@ -404,7 +407,9 @@ class RegisterView(BaseView):  # noqa
         # With the form validated, we know email and username are unique.
         user = self.persist_user(captured)
 
-        autologin = request.kerno.pluserable_settings["autologin"]
+        autologin = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
+            "autologin"
+        ]
 
         if self.require_activation:
             create_activation(request, user)  # send activation email
