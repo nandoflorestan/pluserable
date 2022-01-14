@@ -53,7 +53,8 @@ Minimal integration
   like this::
 
     [pluserable]
-        email_domains_blacklist =
+        email_domains_blacklist = barbie.com
+            sbt.com.br
 
 - In the above configuration variable you can block certain domains
   from users' email addresses.
