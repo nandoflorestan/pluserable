@@ -66,7 +66,7 @@ class PluserableConfigSchema(c.MappingSchema):
     reset_password_redirect = c.SchemaNode(
         c.String(),
         missing="index",
-        doc="Route or URL after a user resets password",
+        doc="Route or URL after a user resets their password",
     )
 
     require_activation = c.SchemaNode(

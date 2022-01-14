@@ -9,7 +9,9 @@ It is a pluggable web application that provides user registration, login,
 logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
-It is gradually being refactored to support other web frameworks.
+*pluserable* is highly configurable, you can make it do what you want.
+
+It is gradually being refactored to support other web frameworks, too.
 
 The documentation is at http://docs.nando.audio/pluserable/latest/
 
@@ -53,15 +55,32 @@ Minimal integration
   like this::
 
     [pluserable]
-        autologin = false
-        email_domains_blacklist = barbie.com
-            sbt.com.br
+        # Whether to log a user in directly after registration. Default: false.
+        # autologin = false
 
-- The ``autologin`` setting determines whether a user gets logged in
-  directly after registration.
+        # Email domains we do not accept for registration. One per line.
+        email_domains_blacklist =
 
-- Through the blacklist setting you can block certain domains from
-  users' email addresses.
+        # Route or URL after a user confirms their email. Default: "index"
+        # activate_redirect = index
+
+        # Route or URL after a user fills the forgot password form. Default: "index"
+        # forgot_password_redirect = index
+
+        # Route or URL after a user logs in. Default: "index"
+        # login_redirect = index
+
+        # Route or URL after a user logs out. Default: "index"
+        # logout_redirect = index
+
+        # Route or URL after a user signs up for an account. Default: "index"
+        # register_redirect = index
+
+        # Route or URL after a user resets their password. Default: "index"
+        # reset_password_redirect = index
+
+        # Whether to enable retail rendering of deform forms. Default: false.
+        # deform_retail = false
 
 - pluserable includes a (very standard and vanilla) SecurityPolicy.
   If you wish to use it, do::
@@ -111,14 +130,6 @@ substitute the implementation. This is called the "repository" pattern.
 It is recommended that you use the repository pattern in your app, too.
 The pluserable repository is instantiated once per request. It is available
 in the ``request.repo`` variable.
-
-- You can set the redirection routes by adding 2 lines to the
-  ``[pluserable]`` configuration section::
-
-    [pluserable]
-        # (other settings, then...)
-        login_redirect = index
-        logout_redirect = index
 
 - If you haven't done so yet, configure an HTTP session factory according to
   the Sessions chapter of the Pyramid documentation.
