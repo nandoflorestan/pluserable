@@ -196,7 +196,7 @@ which is useful to define the domain model of your application.
 (The ``kerno`` variable represents a global object for the domain model --
 it does not know anything about the web framework.)
 At runtime pluserable finds the kerno instance at ``request.kerno``.
-In the future pluserable will be independent of the Pyramid web framework.
+In the future pluserable will support web frameworks other than Pyramid.
 
 
 Whether or not to have a "username" field
@@ -206,13 +206,22 @@ It is important that you analyze the characteristics of your web application
 and decide whether you need a ``username`` field for users to log in with.
 pluserable provides 2 modes of operation:
 
-- **email + username:** The user chooses a username when registering and later she can log in by providing either the username or the email address. Therefore, usernames may NOT contain the @ character. **This mode is the default.** It is expressed by the configuration setting ``pluserable.handle = usermail``
-- **email only:** There is no ``username`` field and users only provide their email address. You enable this mode by:
-    - Making your User model subclass NoUsernameMixin instead of UsernameMixin;
-    - Adding this configuration setting: ``pluserable.handle = email``, which will make pluserable default to schemas that contain email fields instead of username fields.
+- **email + username:** The user chooses a username when registering
+  and later she can log in by providing either the username or the
+  email address. Therefore, usernames may NOT contain the @ character.
+  **This mode is the default.** It is expressed by the Pyramid
+  configuration setting ``pluserable.handle = username``
+- **email only:** There is no ``username`` field and users only provide
+  their email address. You enable this mode by:
+    - Making your User model subclass ``NoUsernameMixin`` instead
+      of ``UsernameMixin``;
+    - Adding this configuration setting: ``pluserable.handle = email``,
+      which will make pluserable default to schemas that contain email
+      fields instead of username fields.
 
-If you make this change and want to keep your data you must deal with the
-existing (or missing) "username" column yourself.
+This choice should be made at the beginning of a project.  If later you
+change it and want to keep your data you must deal with the existing
+(or missing) "username" column yourself.
 
 
 Changing the forms
@@ -268,12 +277,12 @@ templating language, just override the view configuration::
         route_name="profile", renderer="yourapp:templates/profile.jinja2")
 
 
-Changing strings
-================
+Changing UI strings
+===================
 
 Take a look at `this class
 <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/strings.py>`_.
-This is where we store all the strings in *pluserable*.
+This is where we store all the UI strings in *pluserable*.
 If you'd like to change one or two messages, simply create a subclass
 and configure it::
 
