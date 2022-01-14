@@ -72,7 +72,7 @@ def includeme(config) -> None:
 
 def get_config_route(request: PRequest, config_key: str) -> str:
     """Resolve ``config_key`` to a URL, usually for redirection."""
-    settings = request.registry.settings
+    settings = request.kerno.pluserable_settings  # type: ignore[attr-defined]
     try:
         return request.route_path(settings[config_key])
     except KeyError:
@@ -83,7 +83,7 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     """Set the auth cookies and redirect.
 
     ...either to the URL indicated in the "next" request parameter,
-    or to the page defined in pluserable.login_redirect,
+    or to the page defined in kerno.pluserable_settings["login_redirect"],
     which defaults to a view named 'index'.
     """
     autologin = asbool(
@@ -95,7 +95,7 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     return HTTPFound(
         headers=remember(request, userid),
         location=request.params.get("next")
-        or get_config_route(request, "pluserable.login_redirect"),
+        or get_config_route(request, "login_redirect"),
     )
 
 
@@ -154,11 +154,9 @@ class AuthView(BaseView):
         super(AuthView, self).__init__(request)
 
         # TODO These shouldn't be computed every time... But run tests
-        self.login_redirect_view = get_config_route(
-            request, "pluserable.login_redirect"
-        )
+        self.login_redirect_view = get_config_route(request, "login_redirect")
         self.logout_redirect_view = get_config_route(
-            request, "pluserable.logout_redirect"
+            request, "logout_redirect"
         )
 
         schema = request.registry.getUtility(ILoginSchema)
@@ -232,7 +230,7 @@ class AuthView(BaseView):
     def logout(self, url: Optional[str] = None) -> HTTPFound:
         """Remove the auth cookies and redirect...
 
-        ...to the view defined in the ``pluserable.logout_redirect`` setting,
+        ...to the view defined in the ``logout_redirect`` setting,
         which defaults to a view named 'index'.
         """
         request = self.request
@@ -382,7 +380,9 @@ class RegisterView(BaseView):  # noqa
 
         # TODO reify:
         kerno = request.registry.getUtility(IKerno)
-        self.require_activation = kerno.pluserable_settings["require_activation"]
+        self.require_activation = kerno.pluserable_settings[
+            "require_activation"
+        ]
 
     def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
@@ -472,7 +472,9 @@ class ProfileView(BaseView):  # noqa
 
     def _get_form(self):
         schema = self.request.registry.getUtility(IProfileSchema)
-        self.schema = schema().bind(request=self.request, kerno=self.request.kerno)
+        self.schema = schema().bind(
+            request=self.request, kerno=self.request.kerno
+        )
 
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)

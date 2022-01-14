@@ -43,8 +43,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
         assert form.called
 
     def test_login_loads(self):  # noqa
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
 
         request = self.get_request()
@@ -56,8 +54,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
     def test_login_fails_empty(self):
         """Make sure we can't log in with empty credentials."""
         self.config.add_route("index", "/")
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
 
         request = self.get_request(
             post={
@@ -79,8 +75,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
 
     def test_login_fails_bad_credentials(self):
         """Make sure we can't log in with bad credentials."""
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
 
         request = self.get_request(
@@ -102,8 +96,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
 
     def test_login_succeeds(self):
         """Make sure we can log in."""
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
         user = self.create_users(count=1, password="science")
         self.sas.flush()
@@ -127,8 +119,6 @@ class TestAuthView(IntegrationTestBase):  # noqa
 
     def test_inactive_login_fails(self):
         """Ensure we can't log in with an inactive user."""
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
 
         user = self.create_users(count=1, password="science", activation=True)
@@ -546,8 +536,6 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         assert response.status_int == 302
 
     def test_login_redirects_if_logged_in(self):  # noqa
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
         request = self.get_request()
         view = AuthView(request)
@@ -558,8 +546,6 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
 
     def test_logout(self):
         """User logs out successfully."""
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.add_route("index", "/")
         request = self.get_request()
 
@@ -676,8 +662,6 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         assert handle_profile_updated.called
 
     def test_register_redirects_if_logged_in(self):  # noqa
-        self.config.registry.settings["pluserable.login_redirect"] = "index"
-        self.config.registry.settings["pluserable.logout_redirect"] = "index"
         self.config.registry.registerUtility(DummyMailer(), IMailer)
         self.config.add_route("index", "/")
         request = self.get_request()
