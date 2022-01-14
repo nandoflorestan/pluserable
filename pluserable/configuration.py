@@ -42,6 +42,11 @@ class PluserableConfigSchema(c.MappingSchema):
     )
     email_domains_blacklist = DomainsSchema()
 
+    activate_redirect = c.SchemaNode(
+        c.String(),
+        missing="index",
+        doc="Route or URL after a user confirms their email",
+    )
     forgot_password_redirect = c.SchemaNode(
         c.String(),
         missing="index",
@@ -52,6 +57,11 @@ class PluserableConfigSchema(c.MappingSchema):
     )
     logout_redirect = c.SchemaNode(
         c.String(), missing="index", doc="Route or URL after a user logs out"
+    )
+    register_redirect = c.SchemaNode(
+        c.String(),
+        missing="index",
+        doc="Route or URL after a user signs up for an account",
     )
     reset_password_redirect = c.SchemaNode(
         c.String(),

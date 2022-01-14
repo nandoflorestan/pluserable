@@ -367,24 +367,25 @@ class RegisterView(BaseView):  # noqa
         form = request.registry.getUtility(IRegisterForm)
         self.form = form(self.schema)
 
-        self.after_register_url = route_url(
-            self.settings.get("pluserable.register_redirect", "index"), request
-        )
-        self.after_activate_url = route_url(
-            self.settings.get("pluserable.activate_redirect", "index"), request
-        )
-
         # TODO reify:
         kerno = request.registry.getUtility(IKerno)
         self.require_activation = kerno.pluserable_settings[
             "require_activation"
         ]
 
+    @property
+    def _after_activate_url(self):
+        return get_config_route(self.request, "activate_redirect")
+
+    @property
+    def _after_register_url(self):
+        return get_config_route(self.request, "register_redirect")
+
     def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
         if request.method in ("GET", "HEAD"):
             if request.identity:
-                return HTTPFound(location=self.after_register_url)
+                return HTTPFound(location=self._after_register_url)
 
             return render_form(request, self.form)
 
@@ -428,7 +429,7 @@ class RegisterView(BaseView):  # noqa
             request.repo.flush()  # in order to get user.id
             return authenticated(request, user.id)
         else:  # not autologin: user must log in just after registering.
-            return HTTPFound(location=self.after_register_url)
+            return HTTPFound(location=self._after_register_url)
 
     def persist_user(self, controls: DictStr) -> TUser:
         """To change how the user is stored, override this method."""
@@ -456,7 +457,7 @@ class RegisterView(BaseView):  # noqa
             )
         )
         # If an exception is raised in an event subscriber, this never runs:
-        return HTTPFound(location=self.after_activate_url)
+        return HTTPFound(location=self._after_activate_url)
 
 
 class ProfileView(BaseView):  # noqa
