@@ -101,8 +101,13 @@ It is recommended that you use the repository pattern in your app, too.
 The pluserable repository is instantiated once per request. It is available
 in the ``request.repo`` variable.
 
-- Configure ``pluserable.login_redirect`` and ``pluserable.logout_redirect``
-  (in your .ini configuration file) to set the redirection routes.
+- You can set the redirection routes by adding 2 lines to the
+  ``[pluserable]`` configuration section::
+
+    [pluserable]
+        # (other settings, then...)
+        login_redirect = index
+        logout_redirect = index
 
 - If you haven't done so yet, configure an HTTP session factory according to
   the Sessions chapter of the Pyramid documentation.
@@ -126,7 +131,7 @@ in the ``request.repo`` variable.
 
       [pluserable]
           # (other settings, then...)
-          require_activation = False
+          require_activation = false
 
   - Otherwise, configure pyramid_mailer `according to its documentation
     <http://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/>`_

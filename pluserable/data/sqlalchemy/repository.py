@@ -112,15 +112,16 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
         If the user is new, they need to go through password recovery.
         # TODO No access to tmp_password, create activation, send email
         """
-        user = self.get_user_by_email(email)
-        if user is None:
+        opt_user = self.get_user_by_email(email)
+        if opt_user is None:
             tmp_password = random_string(length=8)
             user = self.User(email=email, password=tmp_password, **details)
             self.add(user)
             self.flush()
-            user.is_new = tmp_password  # type: ignore
+            user.is_new = tmp_password
         else:  # is_new is a transient variable.
-            user.is_new = False  # type: ignore
+            user = opt_user
+            user.is_new = False
         return user
 
     def q_users(self) -> Query[TUser]:

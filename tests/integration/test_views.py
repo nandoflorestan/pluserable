@@ -223,10 +223,8 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         assert isinstance(adict, dict)
         assert adict["errors"]
 
-    @patch("pluserable.views.require_activation_setting_value")
-    def test_register_no_activation_suceeds(self, get_setting_mock):
+    def test_register_no_activation_suceeds(self):
         """Test register() with setting to not require activation."""
-        get_setting_mock.return_value = False
         self.config.add_route("index", "/")
 
         request = self.get_request(
@@ -241,6 +239,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
             },
             request_method="POST",
         )
+        request.kerno.pluserable_settings["require_activation"] = False
 
         request.add_flash = Mock()
 

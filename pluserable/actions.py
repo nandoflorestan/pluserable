@@ -138,17 +138,12 @@ class UserlessAction:
         return get_strings(self.upeto.kerno)
 
 
-def require_activation_setting_value(kerno) -> bool:
-    """Return the value of a certain setting."""
-    return kerno.pluserable_settings.bool("require_activation", default=True)
-
-
 class CheckCredentials(UserlessAction):
     """Business rules decoupled from the web framework and from persistence."""
 
     @property
     def _require_activation(self):
-        return require_activation_setting_value(self.upeto.kerno)
+        return self.upeto.kerno.pluserable_settings["require_activation"]
 
     def q_user(self, handle: str) -> Optional[TUser]:
         """Fetch user. ``handle`` can be a username or an email."""
@@ -158,9 +153,14 @@ class CheckCredentials(UserlessAction):
             return self.upeto.repo.get_user_by_username(handle)
 
     def __call__(self, handle: str, password: str) -> UserRezulto:
-        """Get user object if credentials are valid, else raise."""
+        """Get user object if credentials are valid, else prevent brute force."""
         user = self.q_user(handle)  # IO
-        self._check_credentials(user, handle, password)  # might raise
+        try:
+            self._check_credentials(user, handle, password)
+        except AuthenticationFailure:
+            # TODO if configured_redis:
+            #     write_ip
+            raise
         assert user
         user.last_login_date = datetime.utcnow()
         rezulto: UserRezulto = UserRezulto(user=user)

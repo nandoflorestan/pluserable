@@ -20,7 +20,6 @@ from pluserable.actions import (
     ActivateUser,
     CheckCredentials,
     create_activation,
-    require_activation_setting_value,
 )
 from pluserable.data.typing import TUser
 from pluserable.interfaces import (
@@ -382,7 +381,7 @@ class RegisterView(BaseView):  # noqa
 
         # TODO reify:
         kerno = request.registry.getUtility(IKerno)
-        self.require_activation = require_activation_setting_value(kerno)
+        self.require_activation = kerno.pluserable_settings["require_activation"]
 
     def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
@@ -487,7 +486,7 @@ class ProfileView(BaseView):  # noqa
         if request.method in ("GET", "HEAD"):
             appstruct = {"email": user.email or ""}
             if hasattr(user, "username"):
-                appstruct["username"] = user.username  # type: ignore
+                appstruct["username"] = user.username
             return render_form(request, form, appstruct)
         elif request.method == "POST":
             controls = request.POST.items()
@@ -499,7 +498,7 @@ class ProfileView(BaseView):  # noqa
                     # We pre-populate username
                     return e.result(
                         request,
-                        username=user.username,  # type: ignore
+                        username=user.username,
                     )
                 else:
                     return e.result(request)

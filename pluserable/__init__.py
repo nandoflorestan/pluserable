@@ -1,9 +1,8 @@
 """Pluserable is a user registration and login library."""
 
-from bag.settings import SettingsReader
 from kerno.start import Eko
-
 from pluserable import const
+from pluserable.configuration import validate_pluserable_config
 from pluserable.interfaces import (
     ILoginSchema,
     IRegisterSchema,
@@ -62,7 +61,7 @@ def eki(eko: Eko) -> None:
     eko.utilities.set_default(
         const.REPOSITORY, "pluserable.data.sqlalchemy.repository:Repository"
     )
-    eko.add_repository_mixin(  # type: ignore
+    eko.add_repository_mixin(  # type: ignore[attr-defined]
         mixin=eko.kerno.utilities[const.REPOSITORY]
     )
 
@@ -87,7 +86,9 @@ def eki(eko: Eko) -> None:
         section = eko.kerno.settings["pluserable"]
     except Exception:
         section = {}
-    eko.kerno.pluserable_settings = SettingsReader(section)  # type: ignore
+    eko.kerno.pluserable_settings = (  # type: ignore[attr-defined]
+        validate_pluserable_config(section)
+    )
 
 
 def includeme(config):
