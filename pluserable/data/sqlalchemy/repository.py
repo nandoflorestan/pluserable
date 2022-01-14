@@ -14,10 +14,7 @@ from pluserable.data.typing import TActivation, TGroup, TUser
 
 
 class Repository(AbstractRepo, Generic[TActivation, TGroup]):
-    """A repository that uses SQLAlchemy for storage.
-
-    In the future other strategies can be developed (e. g. ZODB).
-    """
+    """A repository that uses SQLAlchemy for storage."""
 
     @reify
     def User(self) -> TUser:  # noqa

@@ -10,6 +10,14 @@ logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
 *pluserable* is highly configurable, you can make it do what you want.
+Features include:
+
+- User sign up. You can change the sign up form.
+- Optional email address confirmation step.
+- Log in and log out.
+- Forgot password (sends an email).
+- Reset password.
+- You can replace forms, templates, models, UI strings and email message content.
 
 It is gradually being refactored to support other web frameworks, too.
 
@@ -129,8 +137,10 @@ The backend for database access is in a separate class, this way you can
 substitute the implementation. This is called the "repository" pattern.
 One of the main benefits is, it makes writing tests much easier.
 It is recommended that you use the repository pattern in your app, too.
-The pluserable repository is instantiated once per request. It is available
-in the ``request.repo`` variable.
+The `pluserable repository
+<https://github.com/nandoflorestan/pluserable/blob/master/pluserable/data/repository.py>`_.
+is instantiated once per request.
+The instance is available in the ``request.repo`` variable.
 
 - If you haven't done so yet, configure an HTTP session factory according to
   the Sessions chapter of the Pyramid documentation.
