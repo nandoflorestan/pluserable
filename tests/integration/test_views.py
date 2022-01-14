@@ -15,7 +15,7 @@ from pluserable.events import (
 )
 from pluserable.interfaces import ILoginForm, ILoginSchema
 from pluserable.strings import UIStringsBase
-from pluserable.views import (
+from pluserable.web.pyramid.views import (
     AuthView,
     ForgotPasswordView,
     ProfileView,
@@ -569,8 +569,8 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         request.session.invalidate = invalidate
 
         view = AuthView(request)
-        with patch("pluserable.views.forget") as forget:
-            with patch("pluserable.views.HTTPFound") as HTTPFound:
+        with patch("pluserable.web.pyramid.views.forget") as forget:
+            with patch("pluserable.web.pyramid.views.HTTPFound") as HTTPFound:
                 view.logout()
                 request.add_flash.assert_called_with(
                     plain=UIStringsBase.logout_done, level="success"

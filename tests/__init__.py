@@ -8,7 +8,7 @@ from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 
-from pluserable.views import get_default_pluserable_settings
+from pluserable.web.pyramid.views import get_default_pluserable_settings
 
 from tests.models import Activation, User
 

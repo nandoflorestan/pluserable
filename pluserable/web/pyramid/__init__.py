@@ -46,7 +46,7 @@ def includeme(config) -> None:
     # to a callable that we call here:
     configurator = settings_reader.resolve(
         key="pluserable_configurator",
-        default="pluserable.views:get_default_pluserable_settings",
+        default="pluserable.web.pyramid.views:get_default_pluserable_settings",
     )
     settings["pluserable"] = configurator()
 
@@ -77,4 +77,4 @@ def includeme(config) -> None:
         )
 
     config.include("kerno.web.msg_to_html")
-    config.include("pluserable.views")
+    config.include("pluserable.web.pyramid.views")
