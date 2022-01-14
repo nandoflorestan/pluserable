@@ -45,6 +45,7 @@ class PluserableConfigSchema(c.MappingSchema):
     forgot_password_redirect = c.SchemaNode(c.String(), missing="index")
     login_redirect = c.SchemaNode(c.String(), missing="index")
     logout_redirect = c.SchemaNode(c.String(), missing="index")
+    reset_password_redirect = c.SchemaNode(c.String(), missing="index")
 
     require_activation = c.SchemaNode(
         c.Bool(),

@@ -245,13 +245,6 @@ class AuthView(BaseView):
 
 
 class ForgotPasswordView(BaseView):  # noqa
-    def __init__(self, request: PRequest):  # noqa
-        super(ForgotPasswordView, self).__init__(request)
-        self.reset_password_redirect_view = route_url(
-            self.settings.get("pluserable.reset_password_redirect", "index"),
-            request,
-        )
-
     def forgot_password(self) -> HTTPFound:  # TODO Extract action
         """Show or process the "forgot password" form.
 
@@ -298,7 +291,9 @@ class ForgotPasswordView(BaseView):  # noqa
         request.add_flash(
             plain=self.strings.reset_password_email_sent, level="success"
         )
-        return HTTPFound(location=self.reset_password_redirect_view)
+        return HTTPFound(
+            location=get_config_route(request, "reset_password_redirect")
+        )
 
     def reset_password(self) -> DictStr:  # TODO Extract action
         """Show or process the "reset password" form.
@@ -356,8 +351,9 @@ class ForgotPasswordView(BaseView):  # noqa
             request.kerno.events.broadcast(  # trigger a kerno event
                 EventPasswordReset(request, user, password)
             )
-            location = self.reset_password_redirect_view
-            return HTTPFound(location=location)
+            return HTTPFound(
+                location=get_config_route(request, "reset_password_redirect")
+            )
         else:
             raise RuntimeError(f"Reset password method: {request.method}")
 
