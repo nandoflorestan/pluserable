@@ -31,7 +31,7 @@ Minimal integration
 - Run ``python setup.py develop`` on your project to install all
   dependencies into your virtualenv.
 
-- Create models inheriting from pluserable' abstract models.
+- Create models inheriting from pluserable's abstract models.
   Find an example in the file `pluserable/tests/models.py
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
 
@@ -119,7 +119,7 @@ This does almost nothing: it only makes a new config method available.
 You have to use it next::
 
     config.setup_pluserable(  # Directive that starts pluserable up
-        global_settings['__file__'],  # Path to your INI configuration file
+        global_settings["__file__"],  # Path to your INI configuration file
     )
 
 The above causes **pluserable** to read your INI file -- especially
@@ -127,6 +127,7 @@ the ``[Kerno utilities]`` and ``[pluserable]`` sections.
 
 The backend for database access is in a separate class, this way you can
 substitute the implementation. This is called the "repository" pattern.
+One of the main benefits is, it makes writing tests much easier.
 It is recommended that you use the repository pattern in your app, too.
 The pluserable repository is instantiated once per request. It is available
 in the ``request.repo`` variable.
@@ -144,7 +145,7 @@ in the ``request.repo`` variable.
 - Include the package pyramid_mailer for the validation e-mail and
   "forgot password" e-mail::
 
-    config.include('pyramid_mailer')
+    config.include("pyramid_mailer")
 
 - The /register form should appear, though ugly. Now you have a choice
   regarding user activation by email:
@@ -239,8 +240,8 @@ Changing the templates
 If you would like to substitute the templates you can use pyramid's
 `override_asset <http://pyramid.readthedocs.org/en/latest/narr/assets.html#overriding-assets-section>`_::
 
-    config.override_asset(to_override='pluserable:templates/template.mako',
-        override_with='your_package:templates/anothertemplate.mako')
+    config.override_asset(to_override="pluserable:templates/template.mako",
+        override_with="your_package:templates/anothertemplate.mako")
 
 The templates you have available to override are:
 
@@ -253,18 +254,18 @@ The templates you have available to override are:
 If you would like to override the templates with Jinja2, or any other
 templating language, just override the view configuration::
 
-    config.add_view('pluserable.views.AuthController', attr='login',
-        route_name='login', renderer='yourapp:templates/login.jinja2')
-    config.add_view('pluserable.views.ForgotPasswordController',
-        attr='forgot_password', route_name='forgot_password',
-        renderer='yourapp:templates/forgot_password.jinja2')
-    config.add_view('pluserable.views.ForgotPasswordController',
-        attr='reset_password', route_name='reset_password',
-        renderer='yourapp:templates/reset_password.jinja2')
-    config.add_view('pluserable.views.RegisterController', attr='register',
-        route_name='register', renderer='yourapp:templates/register.jinja2')
-    config.add_view('pluserable.views.ProfileController', attr='profile',
-        route_name='profile', renderer='yourapp:templates/profile.jinja2')
+    config.add_view("pluserable.views.AuthController", attr="login",
+        route_name="login", renderer="yourapp:templates/login.jinja2")
+    config.add_view("pluserable.views.ForgotPasswordController",
+        attr="forgot_password", route_name="forgot_password",
+        renderer="yourapp:templates/forgot_password.jinja2")
+    config.add_view("pluserable.views.ForgotPasswordController",
+        attr="reset_password", route_name="reset_password",
+        renderer="yourapp:templates/reset_password.jinja2")
+    config.add_view("pluserable.views.RegisterController", attr="register",
+        route_name="register", renderer="yourapp:templates/register.jinja2")
+    config.add_view("pluserable.views.ProfileController", attr="profile",
+        route_name="profile", renderer="yourapp:templates/profile.jinja2")
 
 
 Changing strings
@@ -326,7 +327,7 @@ by creating a new mixin class::
 
     class NullPkMixin(Base):
         abstract = True
-        _idAttribute = 'pk'
+        _idAttribute = "pk"
 
         @declared_attr
         def pk(self):
