@@ -156,9 +156,7 @@ class AuthView(BaseView):
 
         # TODO These shouldn't be computed every time... But run tests
         self.login_redirect_view = get_config_route(request, "login_redirect")
-        self.logout_redirect_view = get_config_route(
-            request, "logout_redirect"
-        )
+        self.logout_redirect_view = get_config_route(request, "logout_redirect")
 
         schema = request.registry.getUtility(ILoginSchema)
         self.schema = schema().bind(request=request, kerno=request.kerno)
@@ -181,7 +179,9 @@ class AuthView(BaseView):
         try:
             upeto = UserlessPeto.from_pyramid(request)
             rezulto = CheckCredentials(upeto=upeto)(
-                handle=captured["handle"], password=captured["password"]
+                handle=captured["handle"],
+                password=captured["password"],
+                ip=request.remote_addr,
             )
         except AuthenticationFailure as e:
             raise HTTPBadRequest({"status": "failure", "reason": str(e)})
@@ -216,7 +216,9 @@ class AuthView(BaseView):
         upeto = UserlessPeto.from_pyramid(request)
         try:
             rezulto = CheckCredentials(upeto=upeto)(
-                handle=captured["handle"], password=captured["password"]
+                handle=captured["handle"],
+                password=captured["password"],
+                ip=request.remote_addr,
             )
         except AuthenticationFailure as e:  # TODO View for this exception
             request.add_flash(plain=str(e), level="danger")
@@ -260,9 +262,7 @@ class ForgotPasswordView(BaseView):  # noqa
         if request.method == "GET":
             if request.identity:
                 return HTTPFound(
-                    location=get_config_route(
-                        request, "forgot_password_redirect"
-                    )
+                    location=get_config_route(request, "forgot_password_redirect")
                 )
             else:
                 return render_form(request, form)
@@ -288,12 +288,8 @@ class ForgotPasswordView(BaseView):  # noqa
         ]
         send_reset_password_email(request, user)
 
-        request.add_flash(
-            plain=self.strings.reset_password_email_sent, level="success"
-        )
-        return HTTPFound(
-            location=get_config_route(request, "forgot_password_redirect")
-        )
+        request.add_flash(plain=self.strings.reset_password_email_sent, level="success")
+        return HTTPFound(location=get_config_route(request, "forgot_password_redirect"))
 
     def reset_password(self) -> DictStr:  # TODO Extract action
         """Show or process the "reset password" form.
@@ -345,9 +341,7 @@ class ForgotPasswordView(BaseView):  # noqa
             user.password = password
             request.repo.delete_activation(user, activation)
 
-            request.add_flash(
-                plain=self.strings.reset_password_done, level="success"
-            )
+            request.add_flash(plain=self.strings.reset_password_done, level="success")
             request.kerno.events.broadcast(  # trigger a kerno event
                 EventPasswordReset(request, user, password)
             )
@@ -369,9 +363,7 @@ class RegisterView(BaseView):  # noqa
 
         # TODO reify:
         kerno = request.registry.getUtility(IKerno)
-        self.require_activation = kerno.pluserable_settings[
-            "require_activation"
-        ]
+        self.require_activation = kerno.pluserable_settings["require_activation"]
 
     @property
     def _after_activate_url(self):
@@ -413,9 +405,7 @@ class RegisterView(BaseView):  # noqa
                 plain=self.strings.activation_check_email, level="success"
             )
         elif not autologin:
-            request.add_flash(
-                plain=self.strings.registration_done, level="success"
-            )
+            request.add_flash(plain=self.strings.registration_done, level="success")
 
         request.kerno.events.broadcast(  # trigger a kerno event
             EventRegistration(
@@ -452,9 +442,7 @@ class RegisterView(BaseView):  # noqa
             plain=self.strings.activation_email_verified, level="success"
         )
         request.kerno.events.broadcast(  # trigger a kerno event
-            EventActivation(
-                request=request, user=ret.user, activation=ret.activation
-            )
+            EventActivation(request=request, user=ret.user, activation=ret.activation)
         )
         # If an exception is raised in an event subscriber, this never runs:
         return HTTPFound(location=self._after_activate_url)
@@ -471,9 +459,7 @@ class ProfileView(BaseView):  # noqa
 
     def _get_form(self):
         schema = self.request.registry.getUtility(IProfileSchema)
-        self.schema = schema().bind(
-            request=self.request, kerno=self.request.kerno
-        )
+        self.schema = schema().bind(request=self.request, kerno=self.request.kerno)
 
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)
@@ -538,9 +524,7 @@ class ProfileView(BaseView):  # noqa
                         old_email=old_email,
                     )
                 )
-                request.add_flash(
-                    plain=self.strings.edit_profile_done, level="success"
-                )
+                request.add_flash(plain=self.strings.edit_profile_done, level="success")
             return HTTPFound(location=request.url)
         else:
             raise RuntimeError(f"edit_profile method: {request.method}")

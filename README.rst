@@ -10,14 +10,18 @@ logout and change password functionality. *pluserable* follows a policy of
 minimal interference, so your app can mostly keep its existing models.
 
 *pluserable* is highly configurable, you can make it do what you want.
-Features include:
+Features (all of them optional) include:
 
-- User sign up. You can change the sign up form.
-- Optional email address confirmation step.
+- User sign up (registration).
+- Email address confirmation step (user activation).
 - Log in and log out.
-- Forgot password (sends an email).
+- Forgot password (sends an email with a new activation).
 - Reset password.
-- You can replace forms, templates, models, UI strings and email message content.
+- Brute force prevention by storing in a redis server the IP address of
+  any user who fails authentication.  Then the user must wait before
+  trying to authenticate again, and the time doubles with each attempt.
+- You can replace forms, templates, views, models, UI strings
+  and email message content.
 
 It is gradually being refactored to support other web frameworks, too.
 
@@ -68,6 +72,14 @@ Minimal integration
 
         # Email domains we do not accept for registration. One per line.
         email_domains_blacklist =
+
+        # Prevents brute force. Default: empty string, meaning feature disabled.
+        # Syntax: redis://username:password@localhost:6379/0
+        # redis_url =
+
+        # Number of seconds a user must wait before trying login again.
+        # Default value: 15, doubled on each attempt. Depends on a redis_url.
+        # seconds_after_login_fail =
 
         # Route or URL after a user confirms their email. Default: "index"
         # activate_redirect = index
@@ -336,6 +348,22 @@ in configuration::
         "pluserable.send_reset_password_email",
         "myapp.actions:send_reset_password_email"
     )
+
+
+Brute force prevention
+======================
+
+Brute force prevention is enabled by configuring ``redis_url``
+as mentioned above.  This will store in a redis server the IP address of
+any user who fails authentication.  Then the user must wait before
+trying to authenticate again, and the time doubles with each attempt.
+
+If you wish to tweak the behavior of brute force prevention, or use a different
+storage, you can create a subclass, and then configure it as a kerno utility::
+
+    [kerno utilities]
+        # Below is the default class, but you can change it to your own.
+        brute force class = pluserable.no_bruteforce:BruteForceAidRedis
 
 
 Changing the primary key column name

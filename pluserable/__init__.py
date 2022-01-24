@@ -66,9 +66,7 @@ def eki(eko: Eko) -> None:
     )
 
     # The UI text can be changed; by default we use UIStringsBase itself:
-    eko.utilities.set_default(
-        const.STRING_CLASS, "pluserable.strings:UIStringsBase"
-    )
+    eko.utilities.set_default(const.STRING_CLASS, "pluserable.strings:UIStringsBase")
 
     # pluserable provides functions that send very simple email messages.
     # These functions can be replaced by the application.
@@ -89,6 +87,13 @@ def eki(eko: Eko) -> None:
     eko.kerno.pluserable_settings = (  # type: ignore[attr-defined]
         validate_pluserable_config(section)
     )
+
+    # If redis_url configured, use redis by default
+    if eko.kerno.pluserable_settings.get("redis_url"):  # type: ignore[attr-defined]
+        bfc = "pluserable.no_bruteforce:BruteForceAidRedis"
+    else:
+        bfc = "pluserable.no_bruteforce:BruteForceAidDummy"
+    eko.utilities.set_default("brute force class", bfc)
 
 
 def includeme(config):

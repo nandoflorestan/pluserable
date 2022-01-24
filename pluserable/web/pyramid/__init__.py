@@ -71,9 +71,7 @@ def includeme(config) -> None:
         EmailStrategy.set_up(config)
     else:
         raise RuntimeError(
-            "Invalid config value for pluserable.handle: {}".format(
-                handle_config
-            )
+            "Invalid config value for pluserable.handle: {}".format(handle_config)
         )
 
     config.include("kerno.web.msg_to_html")

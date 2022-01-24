@@ -16,9 +16,8 @@ from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
 from pluserable import const
-from pluserable.data.typing import TUser
+from pluserable.data.typing import ActivationRezulto, TUser, UserRezulto
 from pluserable.exceptions import AuthenticationFailure
-from pluserable.data.typing import ActivationRezulto, UserRezulto
 from pluserable.strings import get_strings, UIStringsBase
 from pluserable.web.pyramid.typing import UserlessPeto
 
@@ -32,12 +31,9 @@ def get_activation_link(request, user_id: int, code: str) -> str:
     So we take advantage of a ``scheme_domain_port`` configuration
     setting if provided.
     """
-    scheme_domain_port: str = request.registry.settings.get(
-        "scheme_domain_port", ""
-    )
+    scheme_domain_port: str = request.registry.settings.get("scheme_domain_port", "")
     return (
-        scheme_domain_port
-        + request.route_path("activate", user_id=user_id, code=code)
+        scheme_domain_port + request.route_path("activate", user_id=user_id, code=code)
         if scheme_domain_port
         else request.route_url("activate", user_id=user_id, code=code)
     )
@@ -57,9 +53,7 @@ def create_activation(request, user):  # TODO Lose *request* argument
         repo.flush()
 
     # The application can configure a function that sends the email message.
-    send_activation_email = request.kerno.utilities[
-        "pluserable.send_activation_email"
-    ]
+    send_activation_email = request.kerno.utilities["pluserable.send_activation_email"]
     send_activation_email(request, user)
 
 
@@ -75,9 +69,7 @@ def send_activation_email(request, user):
         recipients=[user.email],
         body=strings.activation_email_plain.replace(
             "ACTIVATION_LINK",
-            get_activation_link(
-                request, user_id=user.id, code=user.activation.code
-            ),
+            get_activation_link(request, user_id=user.id, code=user.activation.code),
         ),
     )
     mailer = get_mailer(request)
@@ -93,9 +85,7 @@ def get_reset_link(request, code: str) -> str:
     So we take advantage of a ``scheme_domain_port`` configuration
     setting if provided.
     """
-    scheme_domain_port: str = request.registry.settings.get(
-        "scheme_domain_port", ""
-    )
+    scheme_domain_port: str = request.registry.settings.get("scheme_domain_port", "")
     return (
         scheme_domain_port + request.route_path("reset_password", code=code)
         if scheme_domain_port
@@ -152,15 +142,24 @@ class CheckCredentials(UserlessAction):
         else:
             return self.upeto.repo.get_user_by_username(handle)
 
-    def __call__(self, handle: str, password: str) -> UserRezulto:
-        """Get user object if credentials are valid, else prevent brute force."""
+    def __call__(self, handle: str, password: str, ip: str) -> UserRezulto:
+        """Get user object if credentials are valid; also prevent brute force."""
+        # First check redis for this IP to stop brute force attacks
+        bruteforce_aid = self.upeto.kerno.utilities["brute force class"](
+            kerno=self.upeto.kerno, ip=ip
+        )
+        seconds, error_msg = bruteforce_aid.is_login_blocked()
+        if error_msg:
+            raise AuthenticationFailure(error_msg)
+
+        # Brute force check passes, so now check the credentials.
         user = self.q_user(handle)  # IO
         try:
             self._check_credentials(user, handle, password)
-        except AuthenticationFailure:
-            # TODO if configured_redis:
-            #     write_ip
-            raise
+        except AuthenticationFailure as exc:
+            # If the credentials are wrong, store the IP in redis
+            exc.seconds = bruteforce_aid.store_login_failure()
+            raise exc
         assert user
         user.last_login_date = datetime.utcnow()
         rezulto: UserRezulto = UserRezulto(user=user)

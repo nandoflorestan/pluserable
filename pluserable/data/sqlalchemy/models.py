@@ -34,9 +34,7 @@ class ActivationMixin(ActivationBase, MinimalBase, ID):
     @declared_attr
     def valid_until(self):
         """How long will the activation key last."""
-        return sa.Column(
-            sa.DateTime, nullable=False, default=thirty_days_from_now
-        )
+        return sa.Column(sa.DateTime, nullable=False, default=thirty_days_from_now)
 
     @declared_attr
     def created_by(self):  # TODO Use according to doc above
@@ -160,7 +158,5 @@ class UserGroupMixin(MinimalBase, ID):
 
 
 __all__ = [
-    k
-    for k, v in locals().items()
-    if isinstance(v, type) and issubclass(v, MinimalBase)
+    k for k, v in locals().items() if isinstance(v, type) and issubclass(v, MinimalBase)
 ]

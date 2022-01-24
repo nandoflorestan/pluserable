@@ -20,9 +20,7 @@ def email_exists(node, val):
     if not user:
         raise c.Invalid(
             node,
-            get_strings(
-                request.registry
-            ).reset_password_email_must_exist.format(val),
+            get_strings(request.registry).reset_password_email_must_exist.format(val),
         )
 
 
@@ -33,9 +31,7 @@ def unique_email(node, val):
     if other:
         raise c.Invalid(
             node,
-            get_strings(request.registry).registration_email_exists.format(
-                other.email
-            ),
+            get_strings(request.registry).registration_email_exists.format(other.email),
         )
 
 
@@ -71,9 +67,7 @@ def unix_username(node, value):
     """Colander validator that ensures the username is alphanumeric."""
     request: KRequest = node.bindings["request"]
     if not ALPHANUM.match(value):
-        raise c.Invalid(
-            node, get_strings(request.registry).unacceptable_characters
-        )
+        raise c.Invalid(node, get_strings(request.registry).unacceptable_characters)
 
 
 ALPHANUM = re.compile(r"^[a-zA-Z0-9_.-]+$")
@@ -93,9 +87,7 @@ def username_does_not_contain_at(node, value):
     """
     request: KRequest = node.bindings["request"]
     if "@" in value:
-        raise c.Invalid(
-            node, get_strings(request.registry).username_may_not_contain_at
-        )
+        raise c.Invalid(node, get_strings(request.registry).username_may_not_contain_at)
 
 
 # Schema fragments
@@ -115,8 +107,7 @@ def get_username_creation_node(
         title=title,
         description=description,
         preparer=strip_preparer,
-        validator=validator
-        or c.All(c.Length(max=30), unix_username, unique_username),
+        validator=validator or c.All(c.Length(max=30), unix_username, unique_username),
     )
 
 
@@ -127,8 +118,7 @@ def get_email_node(validator=None, description=None):
         title=_("Email"),
         description=description,
         preparer=strip_lower_preparer,
-        validator=validator
-        or c.All(c.Email(), unique_email, email_domain_allowed),
+        validator=validator or c.All(c.Email(), unique_email, email_domain_allowed),
         widget=w.TextInputWidget(
             size=40,
             maxlength=260,
@@ -160,9 +150,7 @@ def get_checked_password_node(
 
 class UsernameLoginSchema(CSRFSchema):
 
-    handle = c.SchemaNode(
-        c.String(), title=_("User name"), preparer=strip_preparer
-    )
+    handle = c.SchemaNode(c.String(), title=_("User name"), preparer=strip_preparer)
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 

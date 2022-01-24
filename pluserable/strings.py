@@ -49,6 +49,12 @@ class UIStringsBase:
     login_button = _("Log in")
     login_done = _("You are now logged in.")
     logout_done = _("You have logged out.")
+    login_is_blocked = _(
+        "Your login attempt was ignored. You must wait {seconds} seconds "
+        "(until {until} UTC) before retrying. This wait helps prevent "
+        "brute force attacks on your password. The waiting time is "
+        "exponentially increased each time the credentials are found incorrect."
+    )
 
     wrong_email = _("Wrong email or password.")
     wrong_username = _("Wrong username or password.")
@@ -62,7 +68,7 @@ class UIStringsBase:
     email_domain_blocked = _("The domain {} is not acceptable.")
 
     registration_email_exists = _(
-        "Sorry, an account with the email {} " "already exists. Try logging in instead."
+        "Sorry, an account with the email {} already exists. Try logging in instead."
     )
     registration_username_exists = _(
         "Sorry, an account with this username already exists. "

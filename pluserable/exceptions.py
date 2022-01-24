@@ -8,6 +8,8 @@ from pluserable.web.pyramid.typing import PRequest
 class AuthenticationFailure(Exception):
     """Raised when handle and password do not match, during login."""
 
+    seconds: int  # user must wait until next login attempt
+
 
 class FormValidationFailure(Exception):  # TODO REMOVE
     def __init__(self, form, exc):  # noqa

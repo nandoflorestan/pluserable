@@ -28,14 +28,10 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
     def Group(self) -> TGroup:  # noqa
         return self.kerno.utilities[const.GROUP_CLASS]
 
-    def get_user_by_activation(
-        self, activation: TActivation
-    ) -> Optional[TUser]:
+    def get_user_by_activation(self, activation: TActivation) -> Optional[TUser]:
         """Return the user with ``activation``, or None."""
         return (
-            self.sas.query(self.User)
-            .filter(self.User.activation == activation)
-            .first()
+            self.sas.query(self.User).filter(self.User.activation == activation).first()
         )
 
     def get_user_by_id(self, id: int) -> Optional[TUser]:
@@ -87,9 +83,7 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
         user.activation = None
         self.delete(activation)
 
-    def delete_expired_activations(
-        self, now: Optional[datetime] = None
-    ) -> int:
+    def delete_expired_activations(self, now: Optional[datetime] = None) -> int:
         """Delete all old activations."""
         now = now or datetime.utcnow()
         oldies = self.sas.query(self.Activation).filter(
@@ -100,9 +94,7 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
             self.delete(old)
         return count
 
-    def get_or_create_user_by_email(
-        self, email: str, details: Dict[str, Any]
-    ) -> TUser:
+    def get_or_create_user_by_email(self, email: str, details: Dict[str, Any]) -> TUser:
         """Return User if ``email`` exists, else create User with ``details``.
 
         The returned User instance has a transient ``is_new`` flag.

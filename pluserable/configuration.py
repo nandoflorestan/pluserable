@@ -35,12 +35,29 @@ class PluserableConfigSchema(c.MappingSchema):
         missing=False,
         doc="Whether to log a user in directly after registration",
     )
+    email_domains_blacklist = DomainsSchema(missing="")
+    require_activation = c.SchemaNode(
+        c.Bool(),
+        missing=True,
+        doc="If true, users can only log in after confirming their email address",
+    )
+    redis_url = c.SchemaNode(
+        c.String(),
+        missing="",
+        doc="Prevents brute force. redis://username:password@localhost:6379/0",
+    )
+    seconds_after_login_fail = c.SchemaNode(
+        c.Int(),
+        missing=15,
+        doc="Number of seconds a user must wait before trying login again",
+        validator=c.Range(min=10),
+    )
+
     deform_retail = c.SchemaNode(
         c.Bool(),
         missing=False,
         doc="Whether to enable retail rendering of deform forms",
     )
-    email_domains_blacklist = DomainsSchema()
 
     activate_redirect = c.SchemaNode(
         c.String(),
@@ -67,12 +84,6 @@ class PluserableConfigSchema(c.MappingSchema):
         c.String(),
         missing="index",
         doc="Route or URL after a user resets their password",
-    )
-
-    require_activation = c.SchemaNode(
-        c.Bool(),
-        missing=True,
-        doc="When true users can only log in after confirming their email address",
     )
 
 

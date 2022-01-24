@@ -99,6 +99,7 @@ class AppTestCase(UnitTestCase):
         if post is None:
             post = {"csrf_token": "irrelevant but required"}
         request = testing.DummyRequest(post)
+        request.remote_addr = "127.0.0.1"
         request.session = Mock()
         request.method = request_method
         request.repo = self.repo
