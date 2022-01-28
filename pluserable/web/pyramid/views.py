@@ -12,7 +12,6 @@ from kerno.web.pyramid import kerno_view, IKerno
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import forget, remember
-from pyramid.url import route_url
 
 from pluserable import const
 from pluserable.actions import (

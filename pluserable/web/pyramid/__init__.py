@@ -48,7 +48,7 @@ def includeme(config) -> None:
         key="pluserable_configurator",
         default="pluserable.web.pyramid.views:get_default_pluserable_settings",
     )
-    settings["pluserable"] = configurator()
+    settings["pluserable"] = configurator()  # dictionary
 
     config.include("kerno.web.pyramid")
 
