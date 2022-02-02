@@ -180,7 +180,7 @@ class AuthView(BaseView):
             rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
-                ip=request.remote_addr,
+                ip=request.client_addr,
             )
         except AuthenticationFailure as e:
             raise HTTPBadRequest({"status": "failure", "reason": str(e)})
@@ -217,7 +217,7 @@ class AuthView(BaseView):
             rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
-                ip=request.remote_addr,
+                ip=request.client_addr,
             )
         except AuthenticationFailure as e:  # TODO View for this exception
             request.add_flash(plain=str(e), level="danger")
