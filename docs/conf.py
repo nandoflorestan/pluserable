@@ -72,7 +72,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pluserable'
-copyright = '2015-2021 by Nando Florestan, John Anderson and contributors'
+copyright = '2015-2022 by Nando Florestan, John Anderson and contributors'
 author = 'Nando Florestan'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -33,8 +33,8 @@ class PyTest(TestCommand):  # noqa
 
 
 requires = [
-    "bag >= 4.0.0",
-    "kerno > 0.6.0",
+    "bag >= 5.0.0",
+    "kerno >= 0.7.0",
     "sqlalchemy",
     "transaction",
     # "cryptacular",
@@ -58,9 +58,9 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
