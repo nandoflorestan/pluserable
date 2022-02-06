@@ -228,18 +228,27 @@ It is important that you analyze the characteristics of your web application
 and decide whether you need a ``username`` field for users to log in with.
 pluserable provides 2 modes of operation:
 
-- **email + username:** The user chooses a username when registering
-  and later she can log in by providing either the username or the
-  email address. Therefore, usernames may NOT contain the @ character.
-  **This mode is the default.** It is expressed by the Pyramid
-  configuration setting ``pluserable.handle = username``
-- **email only:** There is no ``username`` field and users only provide
-  their email address. You enable this mode by:
-    - Making your User model subclass ``NoUsernameMixin`` instead
-      of ``UsernameMixin``;
-    - Adding this configuration setting: ``pluserable.handle = email``,
-      which will make pluserable default to schemas that contain email
-      fields instead of username fields.
+1) email + username
+-------------------
+
+The user chooses a username when registering and later she can log in by
+providing either the username or the email address. Therefore, usernames
+may NOT contain the @ character.
+
+**This mode is the default.** It is expressed by the Pyramid configuration
+setting ``pluserable.handle = username``.
+
+2) email only
+-------------
+
+There is no ``username`` field and users only provide their email address.
+You enable this mode by:
+
+* Making your User model subclass ``NoUsernameMixin`` instead
+  of ``UsernameMixin``;
+* Adding this configuration setting: ``pluserable.handle = email``,
+  which will make pluserable default to schemas that contain email
+  fields instead of username fields.
 
 This choice should be made at the beginning of a project.  If later you
 change it and want to keep your data you must deal with the existing
@@ -271,8 +280,10 @@ Changing the templates
 If you would like to substitute the templates you can use pyramid's
 `override_asset <http://pyramid.readthedocs.org/en/latest/narr/assets.html#overriding-assets-section>`_::
 
-    config.override_asset(to_override="pluserable:templates/template.mako",
-        override_with="your_package:templates/anothertemplate.mako")
+    config.override_asset(
+        to_override="pluserable:templates/template.mako",
+        override_with="your_package:templates/anothertemplate.mako",
+    )
 
 The templates you have available to override are:
 
@@ -394,7 +405,7 @@ pluserable development
 See https://github.com/nandoflorestan/pluserable
 
 If you would like to help make any changes to *pluserable*, you can run its
-unit tests with py.test:
+unit tests with py.test::
 
     py.test
 

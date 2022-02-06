@@ -16,7 +16,8 @@ def get_default_connection(kerno, url="", redis_client=StrictRedis, **redis_opti
     Once a connection is established it is saved in `kerno.brute_redis`.
 
     ``url`` is a connection string that will be passed straight to
-    `StrictRedis.from_url`. Example:
+    `StrictRedis.from_url`. Example::
+
         redis://username:password@localhost:6379/0
     """
     # attempt to get an existing connection from the registry
