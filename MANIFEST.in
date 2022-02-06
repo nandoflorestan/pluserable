@@ -1,6 +1,6 @@
 global-exclude *.pyc
 global-exclude .DS_Store
-global-include test.ini
+global-exclude tests/
 include MANIFEST.in
 include *.txt *.ini *.cfg *.rst
 recursive-include pluserable *.mako
