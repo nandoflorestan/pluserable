@@ -71,8 +71,8 @@ setup(
     url="https://github.com/nandoflorestan/pluserable",
     keywords=["authentication", "horus", "pyramid", "user", "registration"],
     license="BSD",
-    packages=find_packages(),
-    include_package_data=True,
+    packages=find_packages(exclude=("tests")),
+    include_package_data=True,  # include non-code files from MANIFEST.in
     zip_safe=False,
     install_requires=requires,
     tests_require=requires + ["pytest", "mock", "webtest"],
