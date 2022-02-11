@@ -8,7 +8,7 @@ gen/
 
 *.py[co]
 
-# Packages
+# Distribution / packaging
 *.egg
 *.egg-info
 dist
@@ -20,7 +20,10 @@ parts
 bin
 develop-eggs
 .installed.cfg
+poetry.lock
 
+# Sphinx documentation
+docs/_build/
 docs/source/
 
 # Installer logs
@@ -44,4 +47,5 @@ htmlcov/
 # Tags for git-helpers
 tags
 
+# Editor projects
 .idea/
