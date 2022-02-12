@@ -27,7 +27,7 @@
 
 [tool.poetry.dependencies]
 	python = "^3.8"
-	# https://pypi.org/pypi?:action=list_classifiers
+	# https://python-poetry.org/docs/dependency-specification/
 	bag = ">= 5.0.0"
 	kerno = ">= 0.7.0"
 	sqlalchemy = "*"
