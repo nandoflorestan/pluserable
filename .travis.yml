@@ -6,7 +6,7 @@ python:
   - "pypy3"
 
 # command to install dependencies
-install: "pip install -e ."
+install: "poetry install"
 
 # command to run tests
-script: "python setup.py test"
+script: "py.test tests"
