@@ -42,6 +42,7 @@
 	"zope.interface" = "*"
 
 [tool.poetry.dev-dependencies]
+	paste = "*"
 	pytest = "*"
 	webtest = "*"
 

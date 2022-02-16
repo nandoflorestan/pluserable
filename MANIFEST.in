@@ -1,6 +1,0 @@
-global-exclude *.pyc
-global-exclude .DS_Store
-include MANIFEST.in
-include *.txt *.ini *.cfg *.rst
-recursive-include pluserable *.mako
-recursive-include pluserable *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
