@@ -36,8 +36,11 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
 
     def get_user_by_id(self, id: int) -> Optional[TUser]:
         """Return the user with ``id``, or None."""
-        # print("\nFetching {} #{}\n".format(self.User, id))
         return self.sas.query(self.User).get(id)
+
+    def one_user_by_id(self, id: int) -> TUser:
+        """Return the user with ``id``, or raise."""
+        return self.sas.query(self.User).filter_by(id=id).one()
 
     def _q_user_by_email(self, email: str) -> Query[TUser]:
         """Return a query for a user with ``email``."""
