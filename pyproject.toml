@@ -2,6 +2,7 @@
 	name = "pluserable"
 	version = "0.10.1.dev1"
 	description = "Generic user registration for the Pyramid web framework"
+	readme = "README.rst"
 	authors = ["Nando Florestan <nandoflorestan@gmail.com>"]
 	license = "BSD"
 	repository = "https://github.com/nandoflorestan/pluserable"
