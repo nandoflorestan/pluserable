@@ -1,14 +1,16 @@
 """Tests for *pluserable*."""
 
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import Mock
 from unittest import TestCase
 
-from pkg_resources import resource_filename
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 
 from tests.models import Activation, User
+
+INI_PATH = Path(__file__).parent / "test.ini"
 
 
 class UnitTestCase(TestCase):
@@ -38,21 +40,13 @@ class UnitTestCase(TestCase):
             return users
 
 
-def _get_ini_path(kind=""):
-    if kind:
-        kind = kind + "/"
-    path = resource_filename(__name__, kind + "test.ini")
-    return path
-
-
 def _make_eko(sas_factory=None):
     from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
     from kerno.start import Eko
 
-    eko = Eko.from_ini(_get_ini_path())
+    eko = Eko.from_ini(str(INI_PATH))
     if sas_factory:
         eko.utilities.register(BaseSQLAlchemyRepository.SAS, sas_factory)
-
     eko.include("pluserable")
     return eko
 
@@ -64,8 +58,8 @@ class AppTestCase(UnitTestCase):
     """
 
     @classmethod
-    def _read_pyramid_settings(cls, kind=""):
-        return appconfig("config:" + _get_ini_path(kind=kind))
+    def _read_pyramid_settings(cls):
+        return appconfig("config:" + str(INI_PATH))
 
     run_once = False
 
