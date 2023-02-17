@@ -48,7 +48,6 @@ def get_default_connection(kerno, url="", redis_client=StrictRedis, **redis_opti
 
     # save the new connection
     setattr(kerno, "brute_redis", redis)
-
     return redis
 
 

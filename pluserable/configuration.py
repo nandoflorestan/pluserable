@@ -2,6 +2,7 @@
 
 from bag.email_validator import DomainValidator
 import colander as c
+from kerno.colander import ListOfPositiveIntegers
 from kerno.typing import DictStr
 
 domain_validator = DomainValidator()
@@ -41,6 +42,8 @@ class PluserableConfigSchema(c.MappingSchema):
         missing=True,
         doc="If true, users can only log in after confirming their email address",
     )
+
+    # Brute force prevention
     redis_url = c.SchemaNode(
         c.String(),
         missing="",
@@ -51,6 +54,16 @@ class PluserableConfigSchema(c.MappingSchema):
         missing=15,
         doc="Number of seconds a user must wait before trying login again",
         validator=c.Range(min=10),
+    )
+    registration_protection_on = c.SchemaNode(
+        c.Bool(),
+        missing=True,
+        doc="Whether to restrict registration attempts per IP address",
+    )
+    registration_block_durations = ListOfPositiveIntegers(
+        missing=[30, 300, 7200, 86400],
+        doc="Sequence of waiting times in seconds",
+        validator=c.Length(min=1),
     )
 
     deform_retail = c.SchemaNode(

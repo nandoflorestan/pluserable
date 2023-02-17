@@ -53,7 +53,18 @@ class UIStringsBase:
         "Your login attempt was ignored. You must wait {seconds} seconds "
         "(until {until} UTC) before retrying. This wait helps prevent "
         "brute force attacks on your password. The waiting time is "
-        "exponentially increased each time the credentials are found incorrect."
+        "exponentially increased each time the credentials are found incorrect. "
+        "If you don't remember your password, it's best to reset it."
+    )
+    registration_blocked_title = _(
+        "You are temporarily blocked from registering again."
+    )
+    registration_is_blocked = _(
+        "Your registration attempt was ignored. You must wait {seconds} seconds "
+        "(until {until} UTC) before retrying. This wait helps prevent "
+        "brute force attacks. The number of registrations per day is severely "
+        "limited. If you don't know whether you already have an account, "
+        "it is best to try resetting your password."
     )
 
     wrong_email = _("Wrong email or password.")

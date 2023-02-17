@@ -20,6 +20,7 @@ Features (all of them optional) include:
 - Brute force prevention by storing in a redis server the IP address of
   any user who fails authentication.  Then the user must wait before
   trying to authenticate again, and the time doubles with each attempt.
+- Similar brute force prevention for user registration.
 - You can replace forms, templates, views, models, UI strings
   and email message content.
 
@@ -80,6 +81,10 @@ Minimal integration
         # Number of seconds a user must wait before trying login again.
         # Default value: 15, doubled on each attempt. Depends on a redis_url.
         # seconds_after_login_fail =
+
+        # Brute force prevention for registration
+        registration_protection_on = True
+        registration_block_durations = 30 300 7200 86400
 
         # Route or URL after a user confirms their email. Default: "index"
         # activate_redirect = index

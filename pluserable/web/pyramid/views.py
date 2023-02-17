@@ -20,6 +20,15 @@ from pluserable.actions import (
     create_activation,
 )
 from pluserable.data.typing import TUser
+from pluserable.events import (
+    EventLogin,
+    EventRegistration,
+    EventActivation,
+    EventPasswordReset,
+    EventProfileUpdated,
+)
+from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
+from pluserable.httpexceptions import HTTPBadRequest
 from pluserable.interfaces import (
     ILoginForm,
     ILoginSchema,
@@ -32,15 +41,8 @@ from pluserable.interfaces import (
     IProfileForm,
     IProfileSchema,
 )
-from pluserable.events import (
-    EventLogin,
-    EventRegistration,
-    EventActivation,
-    EventPasswordReset,
-    EventProfileUpdated,
-)
-from pluserable.exceptions import AuthenticationFailure, FormValidationFailure
-from pluserable.httpexceptions import HTTPBadRequest
+from pluserable.no_brute_force import NoBruteForce, min2sec, hour2sec
+from pluserable.no_brute_force.redis_backend import IPStorageRedis
 from pluserable.strings import get_strings
 from pluserable.web.pyramid.resources import UserFactory
 from pluserable.web.pyramid.typing import PRequest, UserlessPeto
@@ -374,12 +376,11 @@ class RegisterView(BaseView):  # noqa
 
     def register(self) -> DictStr:  # noqa.  TODO Extract action
         request = self.request
+        kerno = request.kerno
         if request.method in ("GET", "HEAD"):
             if request.identity:
                 return HTTPFound(location=self._after_register_url)
-
             return render_form(request, self.form)
-
         elif request.method != "POST":
             raise RuntimeError(f"register() request method: {request.method}")
 
@@ -390,14 +391,26 @@ class RegisterView(BaseView):  # noqa
             captured = validate_form(controls, self.form)
         except FormValidationFailure as e:
             return e.result(request)
+            # With the form validated, we know email and username are unique.
 
-        # With the form validated, we know email and username are unique.
+        # Protect registration against robots trying to create bogus users.
+        if kerno.pluserable_settings[  # type: ignore[attr-defined]
+            "registration_protection_on"
+        ]:
+            ip_limit = NoBruteForce(
+                kerno=kerno,
+                store=IPStorageRedis(
+                    kerno=kerno, operation="register", ip=request.client_addr
+                ),
+                block_durations=kerno.pluserable_settings[  # type: ignore[attr-defined]
+                    "registration_block_durations"
+                ],
+            )
+            ip_limit.check_and_raise_or_block_longer()
+
         user = self.persist_user(captured)
 
-        autologin = request.kerno.pluserable_settings[  # type: ignore[attr-defined]
-            "autologin"
-        ]
-
+        autologin = kerno.pluserable_settings["autologin"]  # type: ignore[attr-defined]
         if self.require_activation:
             create_activation(request, user)  # send activation email
             request.add_flash(
@@ -406,7 +419,7 @@ class RegisterView(BaseView):  # noqa
         elif not autologin:
             request.add_flash(plain=self.strings.registration_done, level="success")
 
-        request.kerno.events.broadcast(  # trigger a kerno event
+        kerno.events.broadcast(  # trigger a kerno event
             EventRegistration(
                 request=request,
                 user=user,
@@ -415,7 +428,6 @@ class RegisterView(BaseView):  # noqa
             )
         )
         if autologin:
-            request.repo.flush()  # in order to get user.id
             return authenticated(request, user.id)
         else:  # not autologin: user must log in just after registering.
             return HTTPFound(location=self._after_register_url)
@@ -426,6 +438,7 @@ class RegisterView(BaseView):  # noqa
         # custom registration form:
         user = self.User(**controls)
         self.request.repo.add(user)
+        self.request.repo.flush()  # in order to get user.id
         return user
 
     @kerno_view
