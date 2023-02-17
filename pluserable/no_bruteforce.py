@@ -1,4 +1,8 @@
-"""Prevent brute force by storing IP addresses in redis."""
+"""Prevent brute force login by storing IP addresses in redis.
+
+In time this should be replaced by our no_brute_force package
+which is more generic and reusable.
+"""
 
 from datetime import datetime, timedelta
 from typing import Dict, Tuple
