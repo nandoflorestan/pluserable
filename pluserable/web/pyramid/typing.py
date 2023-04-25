@@ -1,4 +1,5 @@
 # noqa
+from typing import Optional
 
 from kerno.peto import AbsUserlessPeto
 from kerno.web.pyramid.typing import KRequest
@@ -15,7 +16,7 @@ class PRequest(KRequest):
     """
 
     repo: AbstractRepo
-    user: TUser
+    user: Optional[TUser]
 
 
 UserlessPeto = AbsUserlessPeto[AbstractRepo]

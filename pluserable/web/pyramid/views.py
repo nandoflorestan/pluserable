@@ -2,7 +2,7 @@
 
 from abc import ABCMeta
 import logging
-from typing import cast, Optional
+from typing import cast, Iterable, Optional
 
 import colander
 import deform
@@ -68,6 +68,18 @@ def includeme(config) -> None:
             view=AuthView,
             attr="login_ajax",
         )
+
+
+def client_ip(request: PRequest, but_not: Iterable[str] = ("127.0.0.1",)) -> str:
+    """In Pyramid, return the IP address of the other extremity.
+
+    Will avoid returning "127.0.0.1", but this can be configured through the
+    parameter ``but_not``.
+
+    May return an empty string.
+    """
+    ip = request.headers.get("X-Real-Ip") or request.client_addr or ""
+    return "" if ip in but_not else ip
 
 
 def get_config_route(request: PRequest, config_key: str) -> str:
@@ -182,7 +194,7 @@ class AuthView(BaseView):
             rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
-                ip=request.client_addr,
+                ip=client_ip(request),
             )
         except AuthenticationFailure as e:
             raise HTTPBadRequest({"status": "failure", "reason": str(e)})
@@ -219,7 +231,7 @@ class AuthView(BaseView):
             rezulto = CheckCredentials(upeto=upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
-                ip=request.client_addr,
+                ip=client_ip(request),
             )
         except AuthenticationFailure as e:  # TODO View for this exception
             request.add_flash(plain=str(e), level="danger")
@@ -394,14 +406,16 @@ class RegisterView(BaseView):  # noqa
             # With the form validated, we know email and username are unique.
 
         # Protect registration against robots trying to create bogus users.
-        if kerno.pluserable_settings[  # type: ignore[attr-defined]
-            "registration_protection_on"
-        ]:
+        ip = client_ip(request)
+        if (
+            kerno.pluserable_settings[  # type: ignore[attr-defined]
+                "registration_protection_on"
+            ]
+            and ip
+        ):
             ip_limit = NoBruteForce(
                 kerno=kerno,
-                store=IPStorageRedis(
-                    kerno=kerno, operation="register", ip=request.client_addr
-                ),
+                store=IPStorageRedis(kerno=kerno, operation="register", ip=ip),
                 block_durations=kerno.pluserable_settings[  # type: ignore[attr-defined]
                     "registration_block_durations"
                 ],
