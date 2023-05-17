@@ -61,7 +61,7 @@ class UIStringsBase:
     )
     registration_is_blocked = _(
         "Your registration attempt was ignored. You must wait {seconds} seconds "
-        "(until {until} UTC) before retrying. This wait helps prevent "
+        "(until {until}) before retrying. This wait helps prevent "
         "brute force attacks. The number of registrations per day is severely "
         "limited. If you don't know whether you already have an account, "
         "it is best to try resetting your password."

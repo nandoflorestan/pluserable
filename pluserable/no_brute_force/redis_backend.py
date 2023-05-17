@@ -76,13 +76,7 @@ class IPStorageRedis(IPStorageDummy):
             return super().read()
 
     def write(self, entity: BlockedIP, timeout: int) -> None:
-        """Store ``entity`` with ``timeout``."""
+        """Store ``entity`` with a ``timeout`` in seconds for the redis key."""
         assert entity.blocked_until
-        self.redis.hmset(
-            self.key,
-            {
-                "attempts": entity.attempts,
-                "blocked_until": entity.blocked_until.isoformat(),
-            },
-        )
+        self.redis.hmset(self.key, entity.to_dict())
         self.redis.pexpire(self.key, timeout * 1000)  # milliseconds

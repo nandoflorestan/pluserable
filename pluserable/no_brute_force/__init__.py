@@ -48,11 +48,32 @@ class BlockedIP:
     attempts: int  # This gets incremented at each failed attempt.
     blocked_until: Optional[datetime]
 
+    def to_dict(self):
+        """Step for serialization to JSON."""
+        x = None if None is self.blocked_until else self.blocked_until.isoformat()
+        return {
+            "attempts": self.attempts,
+            "blocked_until": x,
+        }
+
     def get_remaining_time_blocked(self, now: Optional[datetime] = None) -> timedelta:
         if self.blocked_until is None:
             return timedelta(0)
         now = now or datetime.utcnow()
         return max(timedelta(0), self.blocked_until - now)
+
+    @property
+    def utc_blocked_until(self) -> str:
+        if not self.blocked_until:
+            return ""
+        return str(self.blocked_until).split(".")[0] + " UTC"
+
+    @property
+    def seconds_blocked(self) -> int:
+        """Return the remaining time blocked, in integer seconds."""
+        return int(str(self.get_remaining_time_blocked().total_seconds()).split(
+            "."
+        )[0])
 
     def __bool__(self):
         """Evaluate instance as truish if currently blocked."""
@@ -109,9 +130,10 @@ class NoBruteForce:
         The first operation blocks subsequent operations for a number of seconds
         and this number increases each time, until the last item in *block_durations*.
         """
-        seconds = self.block_durations[min(attempts - 1, len(self.block_durations) - 1)]
+        index: int = min(attempts - 1, len(self.block_durations) - 1)
+        seconds = self.block_durations[index]
         new_time = now + timedelta(seconds=seconds)
-        print(new_time, seconds)  # TODO remove
+        # print(new_time, seconds)  # TODO remove
         return (new_time, seconds)
 
     def block_longer(self, old: Optional[BlockedIP] = None) -> Tuple[BlockedIP, int]:
@@ -124,11 +146,10 @@ class NoBruteForce:
         return (new, seconds)
 
     def check_and_raise_or_block_longer(self) -> Tuple[BlockedIP, int]:
+        # TODO Check for correction (if/else) and move to registration code
         block = self.read()
         if block:
-            seconds = str(block.get_remaining_time_blocked().total_seconds()).split(
-                "."
-            )[0]
+            seconds = block.seconds_blocked
             # print(block, seconds, datetime.utcnow())
             strings = get_strings(self.kerno)
             raise MalbonaRezulto(
@@ -137,7 +158,7 @@ class NoBruteForce:
                 plain=strings.registration_is_blocked.format(
                     seconds=seconds, until=str(block.blocked_until).split(".")[0]
                 ),
-                headers={"Retry-After": seconds},
+                headers={"Retry-After": str(seconds)},
             )
         else:
             new, sec = self.block_longer(old=block)

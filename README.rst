@@ -78,13 +78,12 @@ Minimal integration
         # Syntax: redis://username:password@localhost:6379/0
         # redis_url =
 
-        # Number of seconds a user must wait before trying login again.
-        # Default value: 15, doubled on each attempt. Depends on a redis_url.
-        # seconds_after_login_fail =
-
         # Brute force prevention for registration
         registration_protection_on = True
         registration_block_durations = 30 300 7200 86400
+
+        # Brute force prevention for login
+        login_protection_on = True
 
         # Route or URL after a user confirms their email. Default: "index"
         # activate_redirect = index
@@ -369,17 +368,13 @@ in configuration::
 Brute force prevention
 ======================
 
-Brute force prevention is enabled by configuring ``redis_url``
-as mentioned above.  This will store in a redis server the IP address of
+Brute force prevention is enabled by configuring ``redis_url`` and
+``login_protection_on`` as mentioned above.
+This will store in a redis server the IP address of
 any user who fails authentication.  Then the user must wait before
 trying to authenticate again, and the time doubles with each attempt.
 
-If you wish to tweak the behavior of brute force prevention, or use a different
-storage, you can create a subclass, and then configure it as a kerno utility::
-
-    [kerno utilities]
-        # Below is the default class, but you can change it to your own.
-        brute force class = pluserable.no_bruteforce:BruteForceAidRedis
+``registration_protection_on`` prevents robots creating many accounts.
 
 
 Changing the primary key column name

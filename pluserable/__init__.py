@@ -89,13 +89,6 @@ def eki(eko: Eko) -> None:
         validate_pluserable_config(section)
     )
 
-    # If redis_url configured, use redis by default
-    if eko.kerno.pluserable_settings.get("redis_url"):  # type: ignore[attr-defined]
-        bfc = "pluserable.no_bruteforce:BruteForceAidRedis"
-    else:
-        bfc = "pluserable.no_bruteforce:BruteForceAidDummy"
-    eko.utilities.set_default("brute force class", bfc)
-
 
 def includeme(config):
     """Integrate pluserable with a Pyramid web app."""

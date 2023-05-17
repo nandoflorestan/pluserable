@@ -4,6 +4,7 @@ from bag.email_validator import DomainValidator
 import colander as c
 from kerno.colander import ListOfPositiveIntegers
 from kerno.typing import DictStr
+from pluserable.no_brute_force import DURATIONS
 
 domain_validator = DomainValidator()
 
@@ -49,11 +50,10 @@ class PluserableConfigSchema(c.MappingSchema):
         missing="",
         doc="Prevents brute force. redis://username:password@localhost:6379/0",
     )
-    seconds_after_login_fail = c.SchemaNode(
-        c.Int(),
-        missing=15,
-        doc="Number of seconds a user must wait before trying login again",
-        validator=c.Range(min=10),
+    login_protection_on = c.SchemaNode(
+        c.Bool(),
+        missing=True,
+        doc="Whether to restrict login attempts per IP address",
     )
     registration_protection_on = c.SchemaNode(
         c.Bool(),
@@ -102,6 +102,11 @@ class PluserableConfigSchema(c.MappingSchema):
 
 def validate_pluserable_config(adict: DictStr):
     """Validate pluserable settings and return a clean dictionary."""
+    dct = {k: v for k, v in adict.items()}
+    dct["registration_block_durations"] = (
+        dct.get("registration_block_durations", "")
+    ).split() or DURATIONS
+
     schema = PluserableConfigSchema()
-    clean = schema.deserialize(adict)
+    clean = schema.deserialize(dct)
     return clean

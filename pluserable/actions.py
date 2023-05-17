@@ -18,6 +18,8 @@ from pyramid_mailer.message import Message
 from pluserable import const
 from pluserable.data.typing import ActivationRezulto, TUser, UserRezulto
 from pluserable.exceptions import AuthenticationFailure
+from pluserable.no_brute_force import NoBruteForce
+from pluserable.no_brute_force.redis_backend import IPStorageRedis
 from pluserable.strings import get_strings, UIStringsBase
 from pluserable.web.pyramid.typing import UserlessPeto
 
@@ -144,21 +146,37 @@ class CheckCredentials(UserlessAction):
 
     def __call__(self, handle: str, password: str, ip: str) -> UserRezulto:
         """Get user object if credentials are valid; also prevent brute force."""
-        # First check redis for this IP to stop brute force attacks
-        bruteforce_aid = self.upeto.kerno.utilities["brute force class"](
-            kerno=self.upeto.kerno, ip=ip
-        )
-        seconds, error_msg = bruteforce_aid.is_login_blocked()
-        if error_msg:
-            raise AuthenticationFailure(error_msg)
+        kerno = self.upeto.kerno
+        ip_limit: Optional[NoBruteForce] = None
+
+        # Protect registration against robots trying to create bogus users.
+        if (
+            kerno.pluserable_settings[  # type: ignore[attr-defined]
+                "login_protection_on"  # TODO
+            ]
+            and ip
+        ):
+            ip_limit = NoBruteForce(
+                kerno=kerno,
+                store=IPStorageRedis(kerno=kerno, operation="login", ip=ip),
+            )
+            block = ip_limit.read()
+            if block:
+                # If already blocked, increase the time and raise
+                block, seconds = ip_limit.block_longer(old=block)
+                template: str = get_strings(kerno).login_is_blocked
+                raise AuthenticationFailure(
+                    template.format(seconds=seconds, until=block.utc_blocked_until)
+                )
 
         # Brute force check passes, so now check the credentials.
         user = self.q_user(handle)  # IO
         try:
             self._check_credentials(user, handle, password)
         except AuthenticationFailure as exc:
-            # If the credentials are wrong, store the IP in redis
-            exc.seconds = bruteforce_aid.store_login_failure()
+            if ip_limit:
+                # If the credentials are wrong, store the IP in redis
+                block, seconds = ip_limit.block_longer(old=block)
             raise exc
         assert user
         user.last_login_date = datetime.utcnow()
