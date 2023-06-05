@@ -51,9 +51,9 @@ class UIStringsBase:
     logout_done = _("You have logged out.")
     login_is_blocked = _(
         "Your login attempt was ignored. You must wait {seconds} seconds "
-        "(until {until}) before retrying. This wait helps prevent "
-        "brute force attacks on your password. The waiting time is "
-        "exponentially increased each time the credentials are found incorrect. "
+        "(until {until}) before retrying. "
+        "This wait helps prevent brute force attacks on your password. "
+        "The waiting time is exponentially increased each time. "
         "If you don't remember your password, it's best to reset it."
     )
     registration_blocked_title = _(
@@ -67,8 +67,12 @@ class UIStringsBase:
         "it is best to try resetting your password."
     )
 
-    wrong_email = _("Wrong email or password.")
-    wrong_username = _("Wrong username or password.")
+    wrong_email = _(
+        "Wrong email or password. You must wait {seconds} seconds before retrying."
+    )
+    wrong_username = _(
+        "Wrong username or password. You must wait {seconds} seconds before retrying."
+    )
     inactive_account = _("Your account is not active; please check your e-mail.")
 
     edit_profile_email_present = _(

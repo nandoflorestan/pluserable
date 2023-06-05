@@ -190,9 +190,9 @@ class CheckCredentials(UserlessAction):
         """Pure method (no IO) that checks credentials against ``user``."""
         if not user or not user.check_password(password):
             raise AuthenticationFailure(
-                self._strings.wrong_email
+                self._strings.wrong_email.format(seconds=15)
                 if "@" in handle
-                else self._strings.wrong_username
+                else self._strings.wrong_username.format(seconds=15)
             )
 
         if self._require_activation and not user.is_activated:
