@@ -51,7 +51,7 @@ class UIStringsBase:
     logout_done = _("You have logged out.")
     login_is_blocked = _(
         "Your login attempt was ignored. You must wait {seconds} seconds "
-        "(until {until} UTC) before retrying. This wait helps prevent "
+        "(until {until}) before retrying. This wait helps prevent "
         "brute force attacks on your password. The waiting time is "
         "exponentially increased each time the credentials are found incorrect. "
         "If you don't remember your password, it's best to reset it."

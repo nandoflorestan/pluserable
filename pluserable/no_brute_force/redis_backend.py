@@ -80,3 +80,7 @@ class IPStorageRedis(IPStorageDummy):
         assert entity.blocked_until
         self.redis.hmset(self.key, entity.to_dict())
         self.redis.pexpire(self.key, timeout * 1000)  # milliseconds
+
+    def reset(self):
+        """Delete the key, removing the temporary ban."""
+        self.redis.delete(self.key)

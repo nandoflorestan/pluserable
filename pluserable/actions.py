@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Optional
 
 from bag.reify import reify
+from kerno.kerno import Kerno
 from kerno.state import MalbonaRezulto, Rezulto
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -149,7 +150,7 @@ class CheckCredentials(UserlessAction):
         kerno = self.upeto.kerno
         ip_limit: Optional[NoBruteForce] = None
 
-        # Protect registration against robots trying to create bogus users.
+        # Protect login against robots trying to brute force passwords
         if (
             kerno.pluserable_settings[  # type: ignore[attr-defined]
                 "login_protection_on"  # TODO
@@ -235,3 +236,19 @@ class ActivateUser(UserlessAction):  # noqa
         #     title=self._strings.activation_email_verified_title,
         #     plain=self._strings.activation_email_verified)
         return ret
+
+
+def allow_immediate_login(kerno: Kerno, ip: str):
+    """Remove temporary login block for a certain **ip**."""
+    if not (
+        kerno.pluserable_settings[  # type: ignore[attr-defined]
+            "login_protection_on"  # TODO
+        ]
+        and ip
+    ):
+        return  # early because login protection is off
+    ip_limit = NoBruteForce(
+        kerno=kerno,
+        store=IPStorageRedis(kerno=kerno, operation="login", ip=ip),
+    )
+    ip_limit.remove_block()

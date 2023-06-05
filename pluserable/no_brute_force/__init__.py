@@ -103,6 +103,10 @@ class IPStorageDummy:
         """Store ``entity`` with ``timeout``."""
         pass
 
+    def reset(self):
+        """Delete the key, removing the temporary ban."""
+        pass
+
 
 class NoBruteForce:
     """App component that prevents brute forced operations."""
@@ -164,3 +168,7 @@ class NoBruteForce:
             new, sec = self.block_longer(old=block)
             # print(new, sec, datetime.utcnow())
             return (new, sec)
+
+    def remove_block(self):
+        """Delete the key, immediately allowing this operation for this IP."""
+        self.store.reset()

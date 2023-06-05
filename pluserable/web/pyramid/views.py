@@ -15,6 +15,7 @@ from pyramid.security import forget, remember
 
 from pluserable import const
 from pluserable.actions import (
+    allow_immediate_login,
     ActivateUser,
     CheckCredentials,
     create_activation,
@@ -353,6 +354,9 @@ class ForgotPasswordView(BaseView):  # noqa
 
             user.password = password
             request.repo.delete_activation(user, activation)
+
+            # If login is temporarily blocked for this IP, lift the restriction
+            allow_immediate_login(kerno=request.kerno, ip=client_ip(request))
 
             request.add_flash(plain=self.strings.reset_password_done, level="success")
             request.kerno.events.broadcast(  # trigger a kerno event
