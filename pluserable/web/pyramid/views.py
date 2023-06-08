@@ -79,7 +79,8 @@ def client_ip(request: PRequest, but_not: Iterable[str] = ("127.0.0.1",)) -> str
 
     May return an empty string.
     """
-    ip = request.headers.get("X-Real-Ip") or request.client_addr or ""
+    # https://adam-p.ca/blog/2022/03/x-forwarded-for/
+    ip = request.client_addr or ""
     return "" if ip in but_not else ip
 
 
