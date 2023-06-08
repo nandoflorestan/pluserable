@@ -45,6 +45,7 @@ from pluserable.interfaces import (
 from pluserable.no_brute_force import NoBruteForce, min2sec, hour2sec
 from pluserable.no_brute_force.redis_backend import IPStorageRedis
 from pluserable.strings import get_strings
+from pluserable.web.ip_address import public_client_ip
 from pluserable.web.pyramid.resources import UserFactory
 from pluserable.web.pyramid.typing import PRequest, UserlessPeto
 
@@ -71,17 +72,12 @@ def includeme(config) -> None:
         )
 
 
-def client_ip(request: PRequest, but_not: Iterable[str] = ("127.0.0.1",)) -> str:
+def client_ip(request: PRequest) -> str:
     """In Pyramid, return the IP address of the other extremity.
-
-    Will avoid returning "127.0.0.1", but this can be configured through the
-    parameter ``but_not``.
 
     May return an empty string.
     """
-    # https://adam-p.ca/blog/2022/03/x-forwarded-for/
-    ip = request.client_addr or ""
-    return "" if ip in but_not else ip
+    return public_client_ip(guess=request.client_addr, headers=request.headers)
 
 
 def get_config_route(request: PRequest, config_key: str) -> str:

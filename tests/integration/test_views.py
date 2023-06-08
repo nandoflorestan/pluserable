@@ -91,7 +91,8 @@ class TestAuthView(IntegrationTestBase):  # noqa
         view = AuthView(request)
         view.login()
         request.add_flash.assert_called_with(
-            plain="Wrong username or password.", level="danger"
+            plain="Wrong username or password. You must wait 15 seconds before retrying.",
+            level="danger",
         )
 
     def test_login_succeeds(self):
@@ -600,9 +601,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         def handle_profile_updated(event):
             event.request.repo.flush()
 
-        self.kerno.events.subscribe(
-            EventProfileUpdated, handle_profile_updated
-        )
+        self.kerno.events.subscribe(EventProfileUpdated, handle_profile_updated)
 
         request = self.get_request(
             post={
@@ -648,9 +647,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         request.matchdict.get = get
 
         handle_profile_updated = Mock()
-        self.kerno.events.subscribe(
-            EventProfileUpdated, handle_profile_updated
-        )
+        self.kerno.events.subscribe(EventProfileUpdated, handle_profile_updated)
 
         # The code being tested
         ProfileView(request).edit_profile()
