@@ -1,5 +1,5 @@
 from ipaddress import ip_address
-from typing import List
+from typing import List, Optional
 
 from kerno.typing import DictStr
 
@@ -16,7 +16,7 @@ def validate_public_ip(ip: str) -> str:
     return "" if ipo.is_private or ipo.is_loopback else str(ipo)
 
 
-def public_client_ip(guess: str, headers: DictStr) -> str:
+def public_client_ip(guess: Optional[str], headers: DictStr) -> str:
     """Best effort to return the IP address of the other extremity.
 
     This will never return IP addresses that are:
@@ -35,7 +35,7 @@ def public_client_ip(guess: str, headers: DictStr) -> str:
     This is because all IP addresses are easy to fake, except the rightmost one.
     See https://adam-p.ca/blog/2022/03/x-forwarded-for/
     """
-    vguess = validate_public_ip(guess)
+    vguess = validate_public_ip(guess or "")
     if vguess:
         return vguess
 
