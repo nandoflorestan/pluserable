@@ -120,10 +120,13 @@ def get_email_node(validator=None, description=None):
         preparer=strip_lower_preparer,
         validator=validator or c.All(c.Email(), unique_email, email_domain_allowed),
         widget=w.TextInputWidget(
-            size=40,
-            maxlength=260,
-            type="email",
-            placeholder=_("joe@example.com"),
+            attributes={
+                "type": "email",
+                "size": 40,
+                "maxlength": 260,
+                "required": "required",
+                "placeholder": _("joe@example.com"),
+            },
         ),
     )
 
