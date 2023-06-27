@@ -23,7 +23,7 @@ class TUser(Generic[TActivation, TGroup]):
     is_activated: bool
     last_login_date: datetime
 
-    def check_password(self, password: str) -> bool:
+    def check_password(self, password: str) -> bool:  # type: ignore[empty-body]
         """Check the ``password`` and return a boolean."""
         ...
 

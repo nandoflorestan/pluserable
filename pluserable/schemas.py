@@ -13,9 +13,9 @@ from kerno.web.pyramid import KRequest
 from pluserable.strings import get_strings, _
 
 
-def email_exists(node, val):
+def email_exists(node, val: str):
     """Colander validator that ensures a User exists with the email."""
-    request: KRequest = node.bindings["request"]
+    request = node.bindings["request"]
     user = request.repo.get_user_by_email(val)
     if not user:
         raise c.Invalid(
@@ -24,9 +24,9 @@ def email_exists(node, val):
         )
 
 
-def unique_email(node, val):
+def unique_email(node, val: str):
     """Colander validator that ensures the email does not exist."""
-    request: KRequest = node.bindings["request"]
+    request = node.bindings["request"]
     other = request.repo.get_user_by_email(val)
     if other:
         raise c.Invalid(
@@ -35,7 +35,7 @@ def unique_email(node, val):
         )
 
 
-def email_domain_allowed(node, val):
+def email_domain_allowed(node, val: str):
     """Colander validator that blocks configured email domains."""
     kerno: Kerno = node.bindings["kerno"]
     request: KRequest = node.bindings["request"]
@@ -53,9 +53,9 @@ def email_domain_allowed(node, val):
         )
 
 
-def unique_username(node, val):
+def unique_username(node, val: str):
     """Colander validator that ensures the username does not exist."""
-    request: KRequest = node.bindings["request"]
+    request = node.bindings["request"]
     user = request.repo.get_user_by_username(val)
     if user is not None:
         raise c.Invalid(
@@ -63,7 +63,7 @@ def unique_username(node, val):
         )
 
 
-def unix_username(node, value):
+def unix_username(node, value: str):
     """Colander validator that ensures the username is alphanumeric."""
     request: KRequest = node.bindings["request"]
     if not ALPHANUM.match(value):
@@ -73,7 +73,7 @@ def unix_username(node, value):
 ALPHANUM = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
 
-def username_does_not_contain_at(node, value):
+def username_does_not_contain_at(node, value: str):
     """Ensure the username does not contain an ``@`` character.
 
     This is important because the system can be configured to accept
