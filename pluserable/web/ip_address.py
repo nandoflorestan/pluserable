@@ -1,5 +1,5 @@
 from ipaddress import ip_address
-from typing import List, Optional
+from typing import Optional
 
 from kerno.typing import DictStr
 
@@ -39,7 +39,7 @@ def public_client_ip(guess: Optional[str], headers: DictStr) -> str:
     if vguess:
         return vguess
 
-    series: List[str] = (
+    series: list[str] = (
         headers.get("X-Forwarded-For", "")
         or headers.get("Hostx-Forwarded-For", "")
         or headers.get("X-Real-Ip", "")

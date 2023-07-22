@@ -1,6 +1,6 @@
 """Pyramid resources for an app that integrates pluserable."""
 
-from typing import Any, List, Tuple
+from typing import Any, Tuple
 
 from pyramid.authorization import Authenticated, Allow, ALL_PERMISSIONS
 
@@ -15,7 +15,7 @@ class BaseFactory:  # noqa
 
 class RootFactory(BaseFactory):  # noqa
     @property
-    def __acl__(self) -> List[Tuple[Any, Any, Any]]:
+    def __acl__(self) -> list[Tuple[Any, Any, Any]]:
         defaultlist = [
             (Allow, "group:admin", ALL_PERMISSIONS),
             (Allow, Authenticated, "view"),

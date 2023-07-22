@@ -1,7 +1,6 @@
 """Colander and Deform schemas."""
 
 import re
-from typing import List
 
 from bag.text import strip_preparer, strip_lower_preparer
 import colander as c
@@ -39,7 +38,7 @@ def email_domain_allowed(node, val: str):
     """Colander validator that blocks configured email domains."""
     kerno: Kerno = node.bindings["kerno"]
     request: KRequest = node.bindings["request"]
-    blocked_domains: List[str] = kerno.settings["pluserable"].get(
+    blocked_domains: list[str] = kerno.settings["pluserable"].get(
         "email_domains_blacklist", []
     )
     try:

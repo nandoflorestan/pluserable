@@ -1,5 +1,5 @@
 # noqa
-from typing import List, Optional
+from typing import Optional
 
 from kerno.web.pyramid.typing import KRequest
 from pyramid.authentication import AuthTktCookieHelper
@@ -44,7 +44,7 @@ class SecurityPolicy:  # noqa
     def forget(self, request: KRequest, **kw):  # noqa
         return self.authtkt.forget(request, **kw)
 
-    def _effective_principals(self, request: KRequest) -> List[str]:
+    def _effective_principals(self, request: KRequest) -> list[str]:
         principals = [Everyone]
         user = self.identity(request)
         if user is not None:
