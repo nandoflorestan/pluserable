@@ -1,11 +1,12 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from datetime import datetime
-from typing import Any, Dict, Generic, Optional
+from typing import Any, Generic, Optional
 
 from bag.reify import reify
 from bag.text import random_string
 from kerno.repository.sqlalchemy import Query
+from kerno.typing import DictStr
 from sqlalchemy import func
 
 from pluserable import const
@@ -97,7 +98,7 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
             self.delete(old)
         return count
 
-    def get_or_create_user_by_email(self, email: str, details: Dict[str, Any]) -> TUser:
+    def get_or_create_user_by_email(self, email: str, details: DictStr) -> TUser:
         """Return User if ``email`` exists, else create User with ``details``.
 
         The returned User instance has a transient ``is_new`` flag.
