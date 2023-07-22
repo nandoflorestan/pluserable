@@ -10,7 +10,7 @@ The redis key expires when the highest block duration is reached.
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 from kerno.state import MalbonaRezulto
 

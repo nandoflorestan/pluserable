@@ -1,7 +1,6 @@
 """A Redis storage backend for the no_brute_force module."""
 
 from datetime import datetime
-from typing import Dict
 
 from bag.reify import reify
 from redis import StrictRedis
@@ -64,7 +63,7 @@ class IPStorageRedis(IPStorageDummy):
 
     def read(self) -> BlockedIP:
         """Return the current record for the IP address."""
-        adict: Dict[bytes, bytes] = self.redis.hgetall(self.key)
+        adict: dict[bytes, bytes] = self.redis.hgetall(self.key)
         if adict:
             return BlockedIP(
                 attempts=int(adict[b"attempts"]),
