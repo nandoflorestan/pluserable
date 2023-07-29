@@ -1,6 +1,5 @@
 # noqa
 
-from unittest.mock import Mock, patch
 from tests.slow import FunctionalTestBase
 
 
