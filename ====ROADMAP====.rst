@@ -27,5 +27,18 @@ Refactoring
 Features
 ========
 
-- Prevent brute force attacks by storing IP addresses that failed authentication.
-- Integrate velruse so we will have login via Facebook, Google etc.
+- Login via Facebook, Google etc. - maybe through velruse
+
+
+If brute force prevention were through the database instead of redis
+--------------------------------------------------------------------
+
+::
+
+    ip_address table:
+        ip: string
+        blocked_since: date
+        blocked_reason: string
+        user_ids: set[int]
+
+We would need a Celery task to periodically delete old blocked ips.
