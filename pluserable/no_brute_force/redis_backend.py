@@ -83,3 +83,10 @@ class IPStorageRedis(IPStorageDummy):
     def reset(self):
         """Delete the key, removing the temporary ban."""
         self.redis.delete(self.key)
+
+    def reset_all_in_operation(self) -> list[str]:
+        """Delete all blocks of an operation (such as "login")."""
+        keys = self.redis.keys(pattern=f"{self.operation}-*")
+        if keys:
+            self.redis.delete(*keys)
+        return keys

@@ -1,3 +1,5 @@
+# noqa
+
 from ipaddress import ip_address
 from typing import Optional
 
@@ -10,6 +12,7 @@ def validate_public_ip(ip: str) -> str:
     Return an empty string if the IP is invalid, private or loopback.
     """
     try:
+        # return ip.strip()  # use this line when testing locally
         ipo = ip_address(ip.strip())
     except ValueError:
         return ""

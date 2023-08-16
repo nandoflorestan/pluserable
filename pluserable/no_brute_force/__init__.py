@@ -107,6 +107,10 @@ class IPStorageDummy:
         """Delete the key, removing the temporary ban."""
         pass
 
+    def reset_all_in_operation(self) -> list[str]:
+        """Delete all blocks of an operation (such as "login")."""
+        return [f"{self.operation}-192.168.1.1"]  # the deleted keys
+
 
 class NoBruteForce:
     """App component that prevents brute forced operations."""
