@@ -17,24 +17,27 @@ from kerno.state import MalbonaRezulto
 from pluserable.strings import get_strings
 
 
-def min2sec(x: int) -> int:
+def min2sec(x: int) -> int:  # noqa
     return x * 60
 
 
-def hour2sec(x: int) -> int:
+def hour2sec(x: int) -> int:  # noqa
     return x * 60 * 60
 
 
 DURATIONS = [  # Default operation block durations
     15,  # seconds
-    min2sec(2),
-    min2sec(9),
-    min2sec(30),
-    hour2sec(2),
-    hour2sec(4),
-    hour2sec(8),
-    hour2sec(16),
-    hour2sec(24),
+    30,
+    60,
+    120,
+    # min2sec(2),
+    # min2sec(9),
+    # min2sec(30),
+    # hour2sec(2),
+    # hour2sec(4),
+    # hour2sec(8),
+    # hour2sec(16),
+    # hour2sec(24),
 ]
 
 
