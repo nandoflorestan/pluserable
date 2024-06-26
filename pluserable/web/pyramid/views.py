@@ -84,7 +84,9 @@ def get_config_route(request: PRequest, config_key: str) -> str:
     """Resolve ``config_key`` to a URL, usually for redirection."""
     settings = request.kerno.pluserable_settings  # type: ignore[attr-defined]
     try:
-        return request.route_path(settings[config_key])
+        url = request.route_path(settings[config_key])
+        # print("get_config_route:", url)
+        return url
     except KeyError:
         return settings[config_key]
 
@@ -102,6 +104,10 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     msg = get_strings(request.registry).login_done
     if not autologin and msg:
         request.add_flash(plain=msg, level="success")
+    # print(
+    #     f"{request.params.get('next')} or "
+    #     f"{get_config_route(request, 'login_redirect')}"
+    # )
     return HTTPFound(
         headers=remember(request, userid),
         location=request.params.get("next")
@@ -239,6 +245,7 @@ class AuthView(BaseView):
         request.kerno.events.broadcast(  # trigger a kerno event
             EventLogin(request=request, upeto=upeto, rezulto=rezulto)
         )
+        # print("calling authenticated")
         return authenticated(request, rezulto.user.id)
 
     def logout(self, url: Optional[str] = None) -> HTTPFound:
