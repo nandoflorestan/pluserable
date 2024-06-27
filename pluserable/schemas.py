@@ -150,34 +150,37 @@ def get_checked_password_node(
 # -------
 
 
-class UsernameLoginSchema(CSRFSchema):
+class BareEmailLoginSchema(c.Schema):
+    """For login, some apps just use email and have no username column.
 
-    handle = c.SchemaNode(c.String(), title=_("User name"), preparer=strip_preparer)
-    password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
-
-
-class EmailLoginSchema(CSRFSchema):
-    """For login, some apps just use email and have no username column."""
+    This version of the schema has no csrf_token field.
+    """
 
     handle = get_email_node(validator=c.Email())
     password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
 
 
-class UsernameRegisterSchema(CSRFSchema):
+class EmailLoginSchema(CSRFSchema, BareEmailLoginSchema):
+    """For login, some apps just use email and have no username column."""
 
+
+class UsernameLoginSchema(CSRFSchema):
+    handle = c.SchemaNode(c.String(), title=_("User name"), preparer=strip_preparer)
+    password = c.SchemaNode(c.String(), widget=w.PasswordWidget())
+
+
+class UsernameRegisterSchema(CSRFSchema):
     username = get_username_creation_node()
     email = get_email_node()
     password = get_checked_password_node()
 
 
 class EmailRegisterSchema(CSRFSchema):
-
     email = get_email_node()
     password = get_checked_password_node()
 
 
 class ForgotPasswordSchema(CSRFSchema):
-
     email = get_email_node(
         validator=c.All(c.Email(), email_exists),
         description=_("The email address under which you have your account."),
@@ -185,7 +188,6 @@ class ForgotPasswordSchema(CSRFSchema):
 
 
 class UsernameResetPasswordSchema(CSRFSchema):
-
     username = c.SchemaNode(
         c.String(),
         title=_("User name"),
@@ -197,7 +199,6 @@ class UsernameResetPasswordSchema(CSRFSchema):
 
 
 class EmailResetPasswordSchema(CSRFSchema):
-
     email = c.SchemaNode(
         c.String(),
         title=_("Email"),
@@ -209,7 +210,6 @@ class EmailResetPasswordSchema(CSRFSchema):
 
 
 class UsernameProfileSchema(CSRFSchema):
-
     username = c.SchemaNode(
         c.String(),
         widget=w.TextInputWidget(template="readonly/textinput"),
@@ -221,6 +221,5 @@ class UsernameProfileSchema(CSRFSchema):
 
 
 class EmailProfileSchema(CSRFSchema):
-
     email = get_email_node(description=None, validator=c.Email())
     password = get_checked_password_node(missing=c.null)
