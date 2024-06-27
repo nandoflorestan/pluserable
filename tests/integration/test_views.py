@@ -115,7 +115,7 @@ class TestAuthView(IntegrationTestBase):  # noqa
         view = AuthView(request)
         response = view.login()
 
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
         assert user.last_login_date > datetime(2018, 1, 1)
 
     def test_inactive_login_fails(self):
@@ -175,7 +175,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         view = RegisterView(request)
         response = view.register()
 
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
         user = request.repo.get_user_by_username("admin")
         assert isinstance(user, User)
         assert not user.is_activated
@@ -239,7 +239,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         request.add_flash.assert_called_with(
             plain=UIStringsBase.registration_done, level="success"
         )
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
         user = request.repo.get_user_by_username("admin")
         assert user.is_activated is True
 
@@ -295,7 +295,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
         assert the_user is user
         assert the_user.activation is None
         assert the_user.is_activated
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
     def test_activation_works(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -321,7 +321,7 @@ class TestRegisterView(IntegrationTestBase):  # noqa
 
         assert len(activations) == 1
         assert user1.is_activated
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
     def test_activate_invalid_code_raises(self):  # noqa
         self.config.add_route("index", "/")
@@ -418,7 +418,7 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
         request.add_flash.assert_called_with(
             plain=UIStringsBase.reset_password_email_sent, level="success"
         )
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
     def test_invalid_reset_gets_404(self):  # noqa
         self.config.registry.registerUtility(DummyMailer(), IMailer)
@@ -524,7 +524,7 @@ class TestForgotPasswordView(IntegrationTestBase):  # noqa
 
         response = view.reset_password()
         assert user.check_password("test123")
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
 
 class TestLoggedIn(LoggedIntegrationTest):  # noqa
@@ -534,7 +534,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         view = ForgotPasswordView(request)
 
         response = view.forgot_password()
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
     def test_login_redirects_if_logged_in(self):  # noqa
         self.config.add_route("index", "/")
@@ -542,8 +542,8 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         view = AuthView(request)
 
         response = view.login()
-        assert response.status_int == 302
-        assert response.headers["Location"] == "/"
+        assert response.status_int == 303  # HTTPSeeOther
+        assert response.headers["Location"] == "http://example.com/"
 
     def test_logout(self):
         """User logs out successfully."""
@@ -557,7 +557,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
 
         view = AuthView(request)
         with patch("pluserable.web.pyramid.views.forget") as forget:
-            with patch("pluserable.web.pyramid.views.HTTPFound") as HTTPFound:
+            with patch("pluserable.web.pyramid.views.redirect") as redirect:
                 view.logout()
                 request.add_flash.assert_called_with(
                     plain=UIStringsBase.logout_done, level="success"
@@ -565,7 +565,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
 
                 forget.assert_called_with(request)
                 assert invalidate.called
-                assert HTTPFound.called
+                assert redirect.called
 
     def test_profile_view_bad_id(self):  # noqa
         self.config.add_route("index", "/")
@@ -665,7 +665,7 @@ class TestLoggedIn(LoggedIntegrationTest):  # noqa
         view = RegisterView(request)
 
         response = view.register()
-        assert response.status_int == 302
+        assert response.status_int == 303  # HTTPSeeOther
 
     def test_update_profile_invalid(self):  # noqa
         from pluserable.interfaces import IProfileSchema

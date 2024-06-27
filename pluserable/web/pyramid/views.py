@@ -9,8 +9,9 @@ import deform
 from kerno.state import to_dict
 from kerno.typing import DictStr
 from kerno.web.pyramid import kerno_view, IKerno
+from kerno.web.pyramid.response import redirect
 from pyramid.decorator import reify
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.security import forget, remember
 
 from pluserable import const
@@ -91,7 +92,7 @@ def get_config_route(request: PRequest, config_key: str) -> str:
         return settings[config_key]
 
 
-def authenticated(request: PRequest, userid: int) -> HTTPFound:
+def authenticated(request: PRequest, userid: int) -> HTTPSeeOther:
     """Set the auth cookies and redirect.
 
     ...either to the URL indicated in the "next" request parameter,
@@ -108,11 +109,8 @@ def authenticated(request: PRequest, userid: int) -> HTTPFound:
     #     f"{request.params.get('next')} or "
     #     f"{get_config_route(request, 'login_redirect')}"
     # )
-    return HTTPFound(
-        headers=remember(request, userid),
-        location=request.params.get("next")
-        or get_config_route(request, "login_redirect"),
-    )
+    url = request.params.get("next") or get_config_route(request, "login_redirect")
+    return redirect(url, request, headers=remember(request, userid))
 
 
 def render_form(request: PRequest, form, appstruct=None, **kw) -> DictStr:
@@ -209,12 +207,12 @@ class AuthView(BaseView):
         )
         return {"status": "okay", "user": to_dict(rezulto.user)}
 
-    def login(self, handle=None) -> DictStr:
+    def login(self, handle=None) -> DictStr | HTTPSeeOther:
         """Present the login form, or validate data and authenticate user."""
         request = self.request
         if request.method in ("GET", "HEAD"):
             if request.identity:
-                return HTTPFound(location=self.login_redirect_view)
+                return redirect(self.login_redirect_view, request)
             return render_form(
                 request,
                 self.form,
@@ -248,7 +246,7 @@ class AuthView(BaseView):
         # print("calling authenticated")
         return authenticated(request, rezulto.user.id)
 
-    def logout(self, url: Optional[str] = None) -> HTTPFound:
+    def logout(self, url: Optional[str] = None) -> HTTPSeeOther:
         """Remove the auth cookies and redirect...
 
         ...to the view defined in the ``logout_redirect`` setting,
@@ -259,13 +257,13 @@ class AuthView(BaseView):
         if msg:
             request.add_flash(plain=msg, level="success")
         request.session.invalidate()
-        return HTTPFound(
-            location=url or self.logout_redirect_view, headers=forget(request)
+        return redirect(
+            url or self.logout_redirect_view, request, headers=forget(request)
         )
 
 
 class ForgotPasswordView(BaseView):  # noqa
-    def forgot_password(self) -> HTTPFound:  # TODO Extract action
+    def forgot_password(self) -> HTTPSeeOther:  # TODO Extract action
         """Show or process the "forgot password" form.
 
         Create a token and send email for user to click link.
@@ -279,8 +277,8 @@ class ForgotPasswordView(BaseView):  # noqa
 
         if request.method == "GET":
             if request.identity:
-                return HTTPFound(
-                    location=get_config_route(request, "forgot_password_redirect")
+                return redirect(
+                    get_config_route(request, "forgot_password_redirect"), request
                 )
             else:
                 return render_form(request, form)
@@ -307,7 +305,7 @@ class ForgotPasswordView(BaseView):  # noqa
         send_reset_password_email(request, user)
 
         request.add_flash(plain=self.strings.reset_password_email_sent, level="success")
-        return HTTPFound(location=get_config_route(request, "forgot_password_redirect"))
+        return redirect(get_config_route(request, "forgot_password_redirect"), request)
 
     def reset_password(self) -> DictStr:  # TODO Extract action
         """Show or process the "reset password" form.
@@ -366,8 +364,8 @@ class ForgotPasswordView(BaseView):  # noqa
             request.kerno.events.broadcast(  # trigger a kerno event
                 EventPasswordReset(request, user, password)
             )
-            return HTTPFound(
-                location=get_config_route(request, "reset_password_redirect")
+            return redirect(
+                get_config_route(request, "reset_password_redirect"), request
             )
         else:
             raise RuntimeError(f"Reset password method: {request.method}")
@@ -394,12 +392,12 @@ class RegisterView(BaseView):  # noqa
     def _after_register_url(self):
         return get_config_route(self.request, "register_redirect")
 
-    def register(self) -> DictStr:  # noqa.  TODO Extract action
+    def register(self) -> DictStr | HTTPSeeOther:  # noqa.  TODO Extract action
         request = self.request
         kerno = request.kerno
         if request.method in ("GET", "HEAD"):
             if request.identity:
-                return HTTPFound(location=self._after_register_url)
+                return redirect(self._after_register_url, request)
             return render_form(request, self.form)
         elif request.method != "POST":
             raise RuntimeError(f"register() request method: {request.method}")
@@ -452,7 +450,7 @@ class RegisterView(BaseView):  # noqa
         if autologin:
             return authenticated(request, user.id)
         else:  # not autologin: user must log in just after registering.
-            return HTTPFound(location=self._after_register_url)
+            return redirect(self._after_register_url, request)
 
     def persist_user(self, controls: DictStr) -> TUser:
         """To change how the user is stored, override this method."""
@@ -464,7 +462,7 @@ class RegisterView(BaseView):  # noqa
         return user
 
     @kerno_view
-    def activate(self) -> HTTPFound:  # noqa
+    def activate(self) -> HTTPSeeOther:  # noqa
         # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
         ret = ActivateUser(upeto=UserlessPeto.from_pyramid(request))(
@@ -479,7 +477,7 @@ class RegisterView(BaseView):  # noqa
             EventActivation(request=request, user=ret.user, activation=ret.activation)
         )
         # If an exception is raised in an event subscriber, this never runs:
-        return HTTPFound(location=self._after_activate_url)
+        return redirect(self._after_activate_url, request)
 
 
 class ProfileView(BaseView):  # noqa
@@ -498,7 +496,7 @@ class ProfileView(BaseView):  # noqa
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)
 
-    def edit_profile(self) -> DictStr:
+    def edit_profile(self) -> DictStr | HTTPSeeOther:
         """Let the user change her own email or password."""
         request = self.request
         user = request.identity
@@ -538,7 +536,7 @@ class ProfileView(BaseView):  # noqa
                         ).edit_profile_email_present.format(email=email),
                         level="danger",
                     )
-                    return HTTPFound(location=request.url)
+                    return redirect(request.url, request)
                 # TODO When user changes email, she must activate again
                 if email != user.email:
                     user.email = email
@@ -559,7 +557,7 @@ class ProfileView(BaseView):  # noqa
                     )
                 )
                 request.add_flash(plain=self.strings.edit_profile_done, level="success")
-            return HTTPFound(location=request.url)
+            return redirect(request.url, request)
         else:
             raise RuntimeError(f"edit_profile method: {request.method}")
 

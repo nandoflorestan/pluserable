@@ -41,7 +41,7 @@ class TestViews(FunctionalTestBase):  # noqa
                 "csrf_token": "irrelevant but required",
             },
         )
-        assert res.status_int == 302
+        assert res.status_int == 303  # HTTPSeeOther
 
     def test_inactive_login(self):
         """Make sure inactive users can't sign in."""
@@ -58,7 +58,4 @@ class TestViews(FunctionalTestBase):  # noqa
                 "csrf_token": "irrelevant but required",
             },
         )
-        assert (
-            b"Your account is not active; please check your e-mail."
-            in res.body
-        )
+        assert b"Your account is not active; please check your e-mail." in res.body
