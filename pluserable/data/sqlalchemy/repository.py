@@ -1,7 +1,7 @@
 """Use the SQLAlchemy session to retrieve and store models."""
 
 from datetime import datetime
-from typing import Any, Generic, Optional
+from typing import Generic, Optional
 
 from bag.reify import reify
 from bag.text import random_string
@@ -102,7 +102,7 @@ class Repository(AbstractRepo, Generic[TActivation, TGroup]):
         """Return User if ``email`` exists, else create User with ``details``.
 
         The returned User instance has a transient ``is_new`` flag.
-        If the user is new, they need to go through password recovery.
+        If the user is new, they need to go through activation.
         # TODO No access to tmp_password, create activation, send email
         """
         opt_user = self.get_user_by_email(email)
