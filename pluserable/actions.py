@@ -64,7 +64,7 @@ def send_activation_email(request, user):
     """Send an extremely simple email message with the activation link.
 
     Although this works fine, most apps will want to build a personalized
-    email message and send it via celery or something else asynchronous.
+    email message and send it via celery or another asynchronous queue.
     """
     strings = get_strings(request.kerno)
     message = Message(
