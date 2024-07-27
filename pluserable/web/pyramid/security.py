@@ -3,11 +3,7 @@ from typing import Optional
 
 from kerno.web.pyramid.typing import KRequest
 from pyramid.authentication import AuthTktCookieHelper
-from pyramid.authorization import (
-    ACLHelper,
-    Authenticated,
-    Everyone,
-)
+from pyramid.authorization import ACLHelper, Authenticated, Everyone
 
 from pluserable.data.typing import TTUser
 
@@ -46,7 +42,7 @@ class SecurityPolicy:  # noqa
 
     def _effective_principals(self, request: KRequest) -> list[str]:
         principals = [Everyone]
-        user = self.identity(request)
+        user = request.identity
         if user is not None:
             principals += [Authenticated, f"u:{user.id}"]
             principals += [str(g) for g in user.groups]
@@ -55,6 +51,7 @@ class SecurityPolicy:  # noqa
 
     def permits(self, request: KRequest, context, permission: str):  # noqa
         principals = self._effective_principals(request)
+        # print("permits context: ", context)
         return self.acl.permits(context, principals, permission)
 
 
