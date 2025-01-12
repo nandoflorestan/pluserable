@@ -7,6 +7,7 @@ from pluserable.schemas import (
     UsernameLoginSchema,
     UsernameRegisterSchema,
 )
+from pluserable.web.pyramid.typing import UserlessPeto
 
 from tests.integration import IntegrationTestBase
 
@@ -20,10 +21,8 @@ class TestSchemas(IntegrationTestBase):  # noqa
                 "csrf_token": "irrelevant but required",
             }
         )
-        schema = UsernameLoginSchema().bind(
-            request=request, kerno=request.kerno
-        )
-
+        # upeto = UserlessPeto.from_pyramid(request)
+        schema = UsernameLoginSchema().bind(request=request)
         result = schema.deserialize(request.POST)
 
         assert result["handle"] == "sagan"
@@ -31,9 +30,8 @@ class TestSchemas(IntegrationTestBase):  # noqa
 
     def test_invalid_login_schema(self):  # noqa
         request = self.get_request()
-        schema = UsernameLoginSchema().bind(
-            request=request, kerno=request.kerno
-        )
+        # upeto = UserlessPeto.from_pyramid(request)
+        schema = UsernameLoginSchema().bind(request=request)
 
         def deserialize_empty():
             try:
@@ -56,9 +54,8 @@ class TestSchemas(IntegrationTestBase):  # noqa
             "csrf_token": "irrelevant but required",
         }
         request = self.get_request(post=POST)
-        schema = UsernameRegisterSchema().bind(
-            request=request, kerno=request.kerno
-        )
+        upeto = UserlessPeto.from_pyramid(request)
+        schema = UsernameRegisterSchema().bind(request=request, peto=upeto)
 
         def run():
             try:
@@ -81,9 +78,8 @@ class TestSchemas(IntegrationTestBase):  # noqa
             "csrf_token": "irrelevant but required",
         }
         request = self.get_request(post=POST)
-        schema = UsernameRegisterSchema().bind(
-            request=request, kerno=request.kerno
-        )
+        upeto = UserlessPeto.from_pyramid(request)
+        schema = UsernameRegisterSchema().bind(request=request, peto=upeto)
 
         result = schema.deserialize(request.POST)
         assert result["username"] == handle
@@ -92,9 +88,8 @@ class TestSchemas(IntegrationTestBase):  # noqa
 
     def test_registration_schema(self):  # noqa
         request = self.get_request()
-        schema = EmailRegisterSchema().bind(
-            request=request, kerno=request.kerno
-        )
+        upeto = UserlessPeto.from_pyramid(request)
+        schema = EmailRegisterSchema().bind(request=request, peto=upeto)
         adict = {
             "email": "brou@haha.com",
             "password": "haha",

@@ -153,6 +153,7 @@ class BaseView(metaclass=ABCMeta):
     def __init__(self, request: PRequest):  # noqa
         # TODO REMOVE MOST OF THESE LINES
         self._request = request
+        self.upeto = UserlessPeto.from_pyramid(request)
         self.Activation = request.kerno.utilities[const.ACTIVATION_CLASS]
         self.User: type = request.kerno.utilities[const.USER_CLASS]
         self.settings = request.registry.settings
@@ -174,7 +175,7 @@ class AuthView(BaseView):
         self.logout_redirect_view = get_config_route(request, "logout_redirect")
 
         schema = request.registry.getUtility(ILoginSchema)
-        self.schema = schema().bind(request=request, kerno=request.kerno)
+        self.schema = schema().bind(request=request, peto=self.upeto)
 
         form = request.registry.getUtility(ILoginForm)
         self.form = form(self.schema, buttons=(self.strings.login_button,))
@@ -192,8 +193,7 @@ class AuthView(BaseView):
             raise HTTPBadRequest({"invalid": e.asdict()})
 
         try:
-            upeto = UserlessPeto.from_pyramid(request)
-            rezulto = CheckCredentials(upeto=upeto)(
+            rezulto = CheckCredentials(upeto=self.upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
                 ip=client_ip(request),
@@ -203,7 +203,7 @@ class AuthView(BaseView):
 
         request.user = rezulto.user
         request.kerno.events.broadcast(  # trigger a kerno event
-            EventLogin(request=request, upeto=upeto, rezulto=rezulto)
+            EventLogin(request=request, upeto=self.upeto, rezulto=rezulto)
         )
         return {"status": "okay", "user": to_dict(rezulto.user)}
 
@@ -228,9 +228,8 @@ class AuthView(BaseView):
         except FormValidationFailure as e:
             return e.result(request)
 
-        upeto = UserlessPeto.from_pyramid(request)
         try:
-            rezulto = CheckCredentials(upeto=upeto)(
+            rezulto = CheckCredentials(upeto=self.upeto)(
                 handle=captured["handle"],
                 password=captured["password"],
                 ip=client_ip(request),
@@ -241,7 +240,7 @@ class AuthView(BaseView):
 
         request.user = rezulto.user
         request.kerno.events.broadcast(  # trigger a kerno event
-            EventLogin(request=request, upeto=upeto, rezulto=rezulto)
+            EventLogin(request=request, upeto=self.upeto, rezulto=rezulto)
         )
         # print("calling authenticated")
         return authenticated(request, rezulto.user.id)
@@ -270,7 +269,7 @@ class ForgotPasswordView(BaseView):  # noqa
         """
         request = self.request
         schema = request.registry.getUtility(IForgotPasswordSchema)
-        schema = schema().bind(request=request, kerno=request.kerno)
+        schema = schema().bind(request=self.request, peto=self.upeto)
 
         form = request.registry.getUtility(IForgotPasswordForm)
         form = form(schema)
@@ -333,7 +332,7 @@ class ForgotPasswordView(BaseView):  # noqa
             return AuthView(request).logout(url=request.path_qs)
 
         schema = request.registry.getUtility(IResetPasswordSchema)
-        schema = schema().bind(request=request, kerno=request.kerno)
+        schema = schema().bind(request=self.request, peto=self.upeto)
 
         form = request.registry.getUtility(IResetPasswordForm)
         form = form(schema)
@@ -375,7 +374,7 @@ class RegisterView(BaseView):  # noqa
     def __init__(self, request: PRequest):  # noqa
         super(RegisterView, self).__init__(request)
         schema = request.registry.getUtility(IRegisterSchema)
-        self.schema = schema().bind(request=self.request, kerno=request.kerno)
+        self.schema = schema().bind(request=self.request, peto=self.upeto)
 
         form = request.registry.getUtility(IRegisterForm)
         self.form = form(self.schema)
@@ -491,7 +490,7 @@ class ProfileView(BaseView):  # noqa
 
     def _get_form(self):
         schema = self.request.registry.getUtility(IProfileSchema)
-        self.schema = schema().bind(request=self.request, kerno=self.request.kerno)
+        self.schema = schema().bind(request=self.request, peto=self.upeto)
 
         form = self.request.registry.getUtility(IProfileForm)
         return form(self.schema)

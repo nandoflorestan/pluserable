@@ -1,17 +1,33 @@
 """Strings for easy internationalization."""
 
+from __future__ import annotations  # allows forward references; python 3.7+
+from typing import TYPE_CHECKING
+
 from pyramid.i18n import TranslationStringFactory
-from pluserable import const
 from kerno.web.pyramid import IKerno
+
+from pluserable import const
+
+if TYPE_CHECKING:
+    from kerno.kerno import Kerno
+    from pyramid.registry import Registry
+    from pluserable.web.pyramid.typing import UserlessPeto
 
 _ = TranslationStringFactory("pluserable")
 
 
-def get_strings(reg):
+def get_strings(reg: UserlessPeto | Kerno | Registry):
     """Return the configured Strings class."""
-    if hasattr(reg, "getUtility"):  # reg must be a Zope/Pyramid registry
-        reg = reg.getUtility(IKerno)  # otherwise reg gotta be the Kerno:
-    return reg.utilities[const.STRING_CLASS]
+    if hasattr(reg, "kerno"):  # reg might be a Peto
+        kerno = reg.kerno
+    elif hasattr(reg, "getUtility"):  # reg must be a Zope/Pyramid registry
+        kerno = reg.getUtility(IKerno)
+    # Check for "utilities" must come AFTER check for "getUtility"!
+    elif hasattr(reg, "utilities"):  # reg must be a Kerno instance
+        kerno = reg
+    else:
+        raise TypeError(f"reg cannot be a {type(reg)}.")
+    return kerno.utilities[const.STRING_CLASS]
 
 
 class UIStringsBase:
