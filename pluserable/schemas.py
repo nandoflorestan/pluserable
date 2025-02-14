@@ -15,16 +15,6 @@ if TYPE_CHECKING:
     from pluserable.web.pyramid.typing import UserlessPeto
 
 
-def email_exists(node, val: str):
-    """Colander validator that ensures a User exists with the email."""
-    peto: UserlessPeto = node.bindings["peto"]
-    user = peto.repo.get_user_by_email(val)
-    if not user:
-        raise c.Invalid(
-            node, get_strings(peto).reset_password_email_must_exist.format(val)
-        )
-
-
 def email_domain_allowed(node, val: str):
     """Colander validator that blocks configured email domains."""
     peto: UserlessPeto = node.bindings["peto"]
@@ -167,7 +157,7 @@ class EmailRegisterSchema(CSRFSchema):
 
 class ForgotPasswordSchema(CSRFSchema):
     email = get_email_node(
-        validator=c.All(c.Email(), email_exists),
+        validator=c.Email(),
         description=_("The email address under which you have your account."),
     )
 

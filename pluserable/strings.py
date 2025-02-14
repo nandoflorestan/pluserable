@@ -98,9 +98,6 @@ class UIStringsBase:
 
     email_domain_blocked = _("The domain {} is not acceptable.")
 
-    registration_email_exists = _(
-        "Sorry, an account with the email {} already exists. Try logging in instead."
-    )
     registration_username_exists = _(
         "Sorry, an account with this username already exists. "
         "Please enter another one."
@@ -108,10 +105,6 @@ class UIStringsBase:
     registration_done = _("You have been registered. You may log in now!")
 
     reset_password_done = _("Your password has been reset!")
-    reset_password_email_must_exist = _(
-        'We have no user with the email "{}". '
-        "Try correcting this address or trying another."
-    )
     reset_password_email_body = _(
         """\
 Hello, {username}!
@@ -128,7 +121,8 @@ Regards,
     # You don't want to say "E-mail not registered" or anything like that
     # because it gives spammers context:
     reset_password_email_sent = _(
-        "Please check your e-mail to finish resetting your password."
+        "If you have an account with us, you are receiving an email message. "
+        "Please check your email to finish resetting your password."
     )
     username_may_not_contain_at = _("May not contain this character: @")
     user_not_found_title = _("User not found")

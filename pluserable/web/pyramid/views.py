@@ -265,7 +265,8 @@ class ForgotPasswordView(BaseView):  # noqa
     def forgot_password(self) -> HTTPSeeOther:  # TODO Extract action
         """Show or process the "forgot password" form.
 
-        Create a token and send email for user to click link.
+        If the email isn't registered, succeed anyway to avoid user enumeration.
+        If email found, create a token and send email for user to click link.
         """
         request = self.request
         schema = request.registry.getUtility(IForgotPasswordSchema)
@@ -291,7 +292,10 @@ class ForgotPasswordView(BaseView):  # noqa
             return e.result(request)
 
         repo = request.repo
-        user = repo.one_user_by_email(captured["email"])
+        user = repo.get_user_by_email(captured["email"])
+        if user is None:
+            return self._succeed_forgot_password()
+
         # If user already has activation, reuse it
         if user.activation is None:  # TODO add test for this condition
             user.activation = self.Activation()
@@ -302,9 +306,15 @@ class ForgotPasswordView(BaseView):  # noqa
             "pluserable.send_reset_password_email"
         ]
         send_reset_password_email(request, user)
+        return self._succeed_forgot_password()
 
-        request.add_flash(plain=self.strings.reset_password_email_sent, level="success")
-        return redirect(get_config_route(request, "forgot_password_redirect"), request)
+    def _succeed_forgot_password(self):
+        self.request.add_flash(
+            plain=self.strings.reset_password_email_sent, level="success"
+        )
+        return redirect(
+            get_config_route(self.request, "forgot_password_redirect"), self.request
+        )
 
     def reset_password(self) -> DictStr:  # TODO Extract action
         """Show or process the "reset password" form.
