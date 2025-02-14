@@ -408,7 +408,6 @@ class RegisterView(BaseView):  # noqa
             captured = validate_form(controls, self.form)
         except FormValidationFailure as e:
             return e.result(request)
-            # With the form validated, we know email and username are unique.
 
         # Protect registration against robots trying to create bogus users.
         ip = client_ip(request)
@@ -427,16 +426,17 @@ class RegisterView(BaseView):  # noqa
             )
             ip_limit.check_and_raise_or_block_longer()
 
+        # If the user already exists, we don't tell them, to prevent
+        # user enumeration. Instead, we "silently succeed".
+        autologin = kerno.pluserable_settings["autologin"]  # type: ignore[attr-defined]
+        user = request.repo.get_user_by_email(captured["email"])
+        if user:
+            return self._on_success(user, autologin)
+
         user = self.persist_user(captured)
 
-        autologin = kerno.pluserable_settings["autologin"]  # type: ignore[attr-defined]
         if self.require_activation:
             create_activation(request, user)  # send activation email
-            request.add_flash(
-                plain=self.strings.activation_check_email, level="success"
-            )
-        elif not autologin:
-            request.add_flash(plain=self.strings.registration_done, level="success")
 
         kerno.events.broadcast(  # trigger a kerno event
             EventRegistration(
@@ -446,10 +446,21 @@ class RegisterView(BaseView):  # noqa
                 activation_is_required=self.require_activation,
             )
         )
+        return self._on_success(user, autologin)
+
+    def _on_success(self, user: TUser, autologin: bool):
+        if self.require_activation:
+            self.request.add_flash(
+                plain=self.strings.activation_check_email, level="success"
+            )
+        elif not autologin:
+            self.request.add_flash(
+                plain=self.strings.registration_done, level="success"
+            )
         if autologin:
-            return authenticated(request, user.id)
+            return authenticated(self.request, user.id)
         else:  # not autologin: user must log in just after registering.
-            return redirect(self._after_register_url, request)
+            return redirect(self._after_register_url, self.request)
 
     def persist_user(self, controls: DictStr) -> TUser:
         """To change how the user is stored, override this method."""

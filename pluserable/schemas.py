@@ -25,16 +25,6 @@ def email_exists(node, val: str):
         )
 
 
-def unique_email(node, val: str):
-    """Colander validator that ensures the email does not exist."""
-    peto: UserlessPeto = node.bindings["peto"]
-    other = peto.repo.get_user_by_email(val)
-    if other:
-        raise c.Invalid(
-            node, get_strings(peto).registration_email_exists.format(other.email)
-        )
-
-
 def email_domain_allowed(node, val: str):
     """Colander validator that blocks configured email domains."""
     peto: UserlessPeto = node.bindings["peto"]
@@ -112,7 +102,7 @@ def get_email_node(validator=None, description=None):
         title=_("Email"),
         description=description,
         preparer=strip_lower_preparer,
-        validator=validator or c.All(c.Email(), unique_email, email_domain_allowed),
+        validator=validator or c.All(c.Email(), email_domain_allowed),
         widget=w.TextInputWidget(
             attributes={
                 "type": "email",
