@@ -151,12 +151,10 @@ class CheckCredentials(UserlessAction):
         ip_limit: Optional[NoBruteForce] = None
 
         # Protect login against robots trying to brute force passwords
-        if (
-            kerno.pluserable_settings[  # type: ignore[attr-defined]
-                "login_protection_on"  # TODO
-            ]
-            and ip
-        ):
+        is_on = kerno.pluserable_settings[  # type: ignore[attr-defined]
+            "login_protection_on"
+        ]
+        if is_on and ip:
             ip_limit = NoBruteForce(
                 kerno=kerno,
                 store=IPStorageRedis(kerno=kerno, operation="login", ip=ip),

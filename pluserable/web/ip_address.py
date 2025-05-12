@@ -16,6 +16,7 @@ def validate_public_ip(ip: str) -> str:
         ipo = ip_address(ip.strip())
     except ValueError:
         return ""
+    # return str(ipo) # for testing in dev
     return "" if ipo.is_private or ipo.is_loopback else str(ipo)
 
 
