@@ -22,9 +22,10 @@ classifiers = [
 	"Programming Language :: Python :: Implementation :: PyPy",
 	"Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Typing :: Typed",
 ]
 # A list of keywords (max: 5) that the package is related to
-keywords = ["authentication", "horus", "pyramid", "user", "registration"]
+keywords = ["authentication", "cookie", "pyramid", "user", "registration"]
 
 [tool.poetry.dependencies]
 python = ">= 3.11"
