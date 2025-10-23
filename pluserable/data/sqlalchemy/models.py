@@ -118,7 +118,9 @@ class GroupMixin(GroupBase, MinimalBase, ID):
             # order_by='%s.user.username' % UsernameMixin.__tablename__,
             passive_deletes=True,
             passive_updates=True,
-            backref=pluralize(GroupMixin.__tablename__),
+            backref=sa.orm.backref(
+                pluralize(GroupMixin.__tablename__), cascade_backrefs=False
+            ),
         )
 
     # Removing the only mention of GroupPermission in the entire project:
