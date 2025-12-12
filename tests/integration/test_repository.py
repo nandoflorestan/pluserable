@@ -11,6 +11,9 @@ class TestRepository(IntegrationTestBase):
         """q_groups() returns all groups."""
         user = self.create_users(count=1)
         group = Group(name="admin", description="group for admins")
+        # Ensure the group is added to the session before modifying relationships
+        # so SQLAlchemy will persist the association correctly.
+        self.repo.add(group)
         group.users.append(user)
         self.sas.flush()
 
