@@ -49,9 +49,9 @@ Minimal integration
   <https://github.com/nandoflorestan/pluserable/blob/master/pluserable/tests/models.py>`_.
 
 - In your Pyramid configuration file, create a section called
-  "kerno utilities" like this::
+  "kerno_utilities" like this::
 
-    [kerno utilities]
+    [kerno_utilities]
         # Let pluserable know which model classes to use:
         activation class = some.app.models:Activation
         group class = some.app.models:Group
@@ -323,9 +323,8 @@ This is where we store all the UI strings in *pluserable*.
 If you'd like to change one or two messages, simply create a subclass
 and configure it::
 
-    [kerno utilities]
+    [kerno_utilities]
         # (...bla bla bla...)
-
         # Determining the UI strings is as easy as pointing to a class:
         string class = pluserable.strings:UIStringsBase
 
@@ -349,7 +348,7 @@ asynchronously (e. g. using celery), or to determine the content of the
 email messages.  Plug your function in through kerno utilities -- for example
 in configuration::
 
-    [kerno utilities]
+    [kerno_utilities]
     pluserable.send_activation_email = myapp.actions:send_activation_email
     pluserable.send_reset_password_email = myapp.actions:send_reset_password_email
 
