@@ -9,7 +9,7 @@ from kerno.web.pyramid import IKerno
 from pluserable import const
 
 if TYPE_CHECKING:
-    from kerno.kerno import Kerno
+    from kerno.bases import Kerno
     from pyramid.registry import Registry
     from pluserable.web.pyramid.typing import UserlessPeto
 

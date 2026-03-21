@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional
 
 from bag.reify import reify
-from kerno.kerno import Kerno
+from kerno.bases import Kerno
 from kerno.state import MalbonaRezulto
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message

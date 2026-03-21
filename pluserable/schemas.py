@@ -15,10 +15,10 @@ if TYPE_CHECKING:
     from pluserable.web.pyramid.typing import UserlessPeto
 
 
-def email_domain_allowed(node, val: str):
+def email_domain_allowed(node, val: str) -> None:
     """Colander validator that blocks configured email domains."""
     peto: UserlessPeto = node.bindings["peto"]
-    blocked_domains: list[str] = peto.kerno.settings["pluserable"].get(
+    blocked_domains: list[str] = peto.kerno.config.pluserable.get(
         "email_domains_blacklist", []
     )
     try:
@@ -29,7 +29,7 @@ def email_domain_allowed(node, val: str):
         raise c.Invalid(node, get_strings(peto).email_domain_blocked.format(domain))
 
 
-def unique_username(node, val: str):
+def unique_username(node, val: str) -> None:
     """Colander validator that ensures the username does not exist."""
     peto: UserlessPeto = node.bindings["peto"]
     user = peto.repo.get_user_by_username(val)
@@ -37,7 +37,7 @@ def unique_username(node, val: str):
         raise c.Invalid(node, get_strings(peto).registration_username_exists)
 
 
-def unix_username(node, value: str):
+def unix_username(node, value: str) -> None:
     """Colander validator that ensures the username is alphanumeric."""
     peto: UserlessPeto = node.bindings["peto"]
     if not ALPHANUM.match(value):

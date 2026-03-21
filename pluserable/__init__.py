@@ -22,6 +22,7 @@ from pluserable.schemas import (
     EmailResetPasswordSchema,
     EmailProfileSchema,
 )
+from pluserable.typing import PKerno
 
 
 class BaseStrategy:
@@ -55,7 +56,7 @@ class EmailStrategy(BaseStrategy):
     ]
 
 
-def eki(eko: Eko) -> None:
+def eki(eko: Eko[PKerno]) -> None:
     """Initialize the Pluserable core (isolated from any web framework)."""
     # Persistence is done by a Repository class. The default uses SQLAlchemy:
     eko.include("kerno.repository")  # adds add_repository_mixin() to eko
@@ -80,13 +81,9 @@ def eki(eko: Eko) -> None:
         "pluserable.actions:send_reset_password_email",
     )
 
-    # Other settings are read from the [pluserable] configuration section:
-    try:
-        section = eko.kerno.settings["pluserable"]
-    except Exception:
-        section = {}
-    eko.kerno.pluserable_settings = (  # type: ignore[attr-defined]
-        validate_pluserable_config(section)
+    # Other settings are reified from kerno.config.pluserable, a dictionary:
+    eko.kerno.pluserable_settings = validate_pluserable_config(
+        eko.kerno.config.pluserable
     )
 
 
