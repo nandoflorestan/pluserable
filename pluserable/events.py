@@ -3,7 +3,7 @@
 from kerno.typing import DictStr
 
 from pluserable.data.typing import TUser, UserRezulto
-from pluserable.web.pyramid.typing import PRequest, UserlessPeto
+from pluserable.web.pyramid.typing import PRequest, PUserlessPeto
 
 # TODO from dataclasses import dataclass
 
@@ -37,7 +37,7 @@ class EventLogin(BaseEvent):
     """Fired when a user authenticates."""
 
     def __init__(
-        self, request: PRequest, upeto: UserlessPeto, rezulto: UserRezulto
+        self, request: PRequest, upeto: PUserlessPeto, rezulto: UserRezulto
     ):  # noqa
         super().__init__(request=request, user=rezulto.user)
         self.upeto = upeto

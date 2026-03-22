@@ -12,12 +12,12 @@ import deform.widget as w
 from pluserable.strings import get_strings, _
 
 if TYPE_CHECKING:
-    from pluserable.web.pyramid.typing import UserlessPeto
+    from pluserable.web.pyramid.typing import PUserlessPeto
 
 
 def email_domain_allowed(node, val: str) -> None:
     """Colander validator that blocks configured email domains."""
-    peto: UserlessPeto = node.bindings["peto"]
+    peto: PUserlessPeto = node.bindings["peto"]
     blocked_domains: list[str] = peto.kerno.config.pluserable.get(
         "email_domains_blacklist", []
     )
@@ -31,7 +31,7 @@ def email_domain_allowed(node, val: str) -> None:
 
 def unique_username(node, val: str) -> None:
     """Colander validator that ensures the username does not exist."""
-    peto: UserlessPeto = node.bindings["peto"]
+    peto: PUserlessPeto = node.bindings["peto"]
     user = peto.repo.get_user_by_username(val)
     if user is not None:
         raise c.Invalid(node, get_strings(peto).registration_username_exists)
@@ -39,7 +39,7 @@ def unique_username(node, val: str) -> None:
 
 def unix_username(node, value: str) -> None:
     """Colander validator that ensures the username is alphanumeric."""
-    peto: UserlessPeto = node.bindings["peto"]
+    peto: PUserlessPeto = node.bindings["peto"]
     if not ALPHANUM.match(value):
         raise c.Invalid(node, get_strings(peto).unacceptable_characters)
 
@@ -59,7 +59,7 @@ def username_does_not_contain_at(node, value: str):
     validator here in case someone wishes to use it instead of
     ``unix_username``.
     """
-    peto: UserlessPeto = node.bindings["peto"]
+    peto: PUserlessPeto = node.bindings["peto"]
     if "@" in value:
         raise c.Invalid(node, get_strings(peto).username_may_not_contain_at)
 

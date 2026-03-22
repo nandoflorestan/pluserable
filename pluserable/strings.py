@@ -4,6 +4,7 @@ from __future__ import annotations  # allows forward references; python 3.7+
 from typing import TYPE_CHECKING
 
 from pyramid.i18n import TranslationStringFactory
+from kerno.protocols import IUserlessPeto
 from kerno.web.pyramid import IKerno
 
 from pluserable import const
@@ -11,12 +12,11 @@ from pluserable import const
 if TYPE_CHECKING:
     from kerno.bases import Kerno
     from pyramid.registry import Registry
-    from pluserable.web.pyramid.typing import UserlessPeto
 
 _ = TranslationStringFactory("pluserable")
 
 
-def get_strings(reg: UserlessPeto | Kerno | Registry):
+def get_strings(reg: IUserlessPeto | Kerno | Registry):
     """Return the configured Strings class."""
     if hasattr(reg, "kerno"):  # reg might be a Peto
         kerno = reg.kerno

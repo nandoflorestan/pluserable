@@ -7,7 +7,7 @@ from pluserable.schemas import (
     UsernameLoginSchema,
     UsernameRegisterSchema,
 )
-from pluserable.web.pyramid.typing import UserlessPeto
+from pluserable.web.pyramid.typing import PUserlessPeto
 
 from tests.integration import IntegrationTestBase
 
@@ -54,7 +54,7 @@ class TestSchemas(IntegrationTestBase):  # noqa
             "csrf_token": "irrelevant but required",
         }
         request = self.get_request(post=POST)
-        upeto = UserlessPeto.from_pyramid(request)
+        upeto = PUserlessPeto.from_pyramid(request)
         schema = UsernameRegisterSchema().bind(request=request, peto=upeto)
 
         def run():
@@ -78,7 +78,7 @@ class TestSchemas(IntegrationTestBase):  # noqa
             "csrf_token": "irrelevant but required",
         }
         request = self.get_request(post=POST)
-        upeto = UserlessPeto.from_pyramid(request)
+        upeto = PUserlessPeto.from_pyramid(request)
         schema = UsernameRegisterSchema().bind(request=request, peto=upeto)
 
         result = schema.deserialize(request.POST)
@@ -88,7 +88,7 @@ class TestSchemas(IntegrationTestBase):  # noqa
 
     def test_registration_schema(self):  # noqa
         request = self.get_request()
-        upeto = UserlessPeto.from_pyramid(request)
+        upeto = PUserlessPeto.from_pyramid(request)
         schema = EmailRegisterSchema().bind(request=request, peto=upeto)
         adict = {
             "email": "brou@haha.com",

@@ -1,13 +1,17 @@
 """Tests for *pluserable*."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock
 from unittest import TestCase
 
+from kerno.typing import DictStr
+from kerno.start import Eko
 from paste.deploy.loadwsgi import appconfig
 from pyramid import testing
 
+from pluserable.web.pyramid.typing import PKerno
 from tests.models import Activation, User
 
 INI_PATH = Path(__file__).parent / "test.ini"
@@ -40,11 +44,23 @@ class UnitTestCase(TestCase):
             return users
 
 
-def _make_eko(sas_factory=None):
-    from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
-    from kerno.start import Eko
+@dataclass
+class PConfig:
+    kerno_utilities: DictStr
+    pluserable: DictStr
 
-    eko = Eko.from_ini(str(INI_PATH))
+
+def _make_eko(
+    ini_files=[INI_PATH], encoding: str = "utf-8", sas_factory=None
+) -> Eko[PKerno]:
+    from bag.settings import read_ini_files
+    from kerno.repository.sqlalchemy import BaseSQLAlchemyRepository
+
+    settings = read_ini_files(*ini_files, encoding=encoding)
+    config = PConfig(
+        kerno_utilities=settings["kerno_utilities"], pluserable=settings["pluserable"]
+    )  # (**settings)
+    eko = Eko(config=config, const={}, kerno_class=PKerno)
     if sas_factory:
         eko.utilities.register(BaseSQLAlchemyRepository.SAS, sas_factory)
     eko.include("pluserable")

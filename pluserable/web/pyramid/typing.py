@@ -2,10 +2,9 @@
 from dataclasses import dataclass, field
 from typing import Optional, Protocol
 
-from kerno.bases import Kerno
+from kerno.bases import Kerno, DictStr, UserlessPeto as UPeto, Peto as KPeto
 from kerno.event import EventHub
 from kerno.protocols import IConfig
-from kerno.peto import AbsUserlessPeto, DictStr
 from kerno.web.pyramid.typing import KRequest
 
 from pluserable.data.repository import AbstractRepo
@@ -32,8 +31,8 @@ class PKerno(Kerno):
 class PRequest(KRequest):
     """Typing stub for a Pyramid/kerno request object.
 
-    It is recommended that you subclass with a more specific
-    typing annotation for the ``user`` instance variable.
+    It is recommended that you subclass with more specific typing annotations
+    for each instance variable.
     """
 
     kerno: PKerno  # override the type
@@ -41,5 +40,19 @@ class PRequest(KRequest):
     user: Optional[TUser]
 
 
-UserlessPeto = AbsUserlessPeto[AbstractRepo, PKerno]
-# Peto = AbstractPeto[AbstractRepo, TUser]
+@dataclass
+class PUserlessPeto(UPeto):
+    """Convenience type for actions NOT done by a logged user.
+
+    An application should subclass this to replace variable types.
+    """
+
+    kerno: PKerno  # override type of the global application object
+    repo: AbstractRepo  # override type of the data access layer
+
+
+@dataclass
+class PPeto(PUserlessPeto, KPeto):
+    """Convenience type for actions done by a logged user."""
+
+    user: TUser  # the current user requesting an operation. Not None!

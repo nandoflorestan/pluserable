@@ -22,7 +22,6 @@ from pluserable.schemas import (
     EmailResetPasswordSchema,
     EmailProfileSchema,
 )
-from pluserable.typing import PKerno
 
 
 class BaseStrategy:
@@ -54,6 +53,9 @@ class EmailStrategy(BaseStrategy):
         (IResetPasswordSchema, EmailResetPasswordSchema),
         (IProfileSchema, EmailProfileSchema),
     ]
+
+
+from pluserable.web.pyramid.typing import PKerno
 
 
 def eki(eko: Eko[PKerno]) -> None:

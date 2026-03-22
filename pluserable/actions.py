@@ -22,7 +22,7 @@ from pluserable.exceptions import AuthenticationFailure
 from pluserable.no_brute_force import NoBruteForce
 from pluserable.no_brute_force.redis_backend import IPStorageRedis
 from pluserable.strings import get_strings, UIStringsBase
-from pluserable.web.pyramid.typing import UserlessPeto
+from pluserable.web.pyramid.typing import PUserlessPeto
 
 
 def get_activation_link(request, user_id: int, code: str) -> str:
@@ -123,7 +123,7 @@ def send_reset_password_email(request, user):
 class UserlessAction:
     """Base class for our actions."""
 
-    def __init__(self, upeto: UserlessPeto):  # noqa
+    def __init__(self, upeto: PUserlessPeto):  # noqa
         self.upeto = upeto
 
     @reify

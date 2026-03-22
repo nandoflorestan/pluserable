@@ -48,7 +48,7 @@ from pluserable.no_brute_force.redis_backend import IPStorageRedis
 from pluserable.strings import get_strings
 from pluserable.web.ip_address import public_client_ip
 from pluserable.web.pyramid.resources import UserFactory
-from pluserable.web.pyramid.typing import PRequest, UserlessPeto
+from pluserable.web.pyramid.typing import PRequest, PUserlessPeto
 
 LOG = logging.getLogger(__name__)
 
@@ -153,7 +153,7 @@ class BaseView(metaclass=ABCMeta):
     def __init__(self, request: PRequest):  # noqa
         # TODO REMOVE MOST OF THESE LINES
         self._request = request
-        self.upeto = UserlessPeto.from_pyramid(request)
+        self.upeto = PUserlessPeto.from_pyramid(request)
         self.Activation = request.kerno.utilities[const.ACTIVATION_CLASS]
         self.User: type = request.kerno.utilities[const.USER_CLASS]
         self.settings = request.registry.settings
@@ -485,7 +485,7 @@ class RegisterView(BaseView):  # noqa
     def activate(self) -> HTTPSeeOther:  # noqa
         # http://localhost:6543/activate/10/89008993e9d5
         request = self.request
-        ret = ActivateUser(upeto=UserlessPeto.from_pyramid(request))(
+        ret = ActivateUser(upeto=PUserlessPeto.from_pyramid(request))(
             code=request.matchdict.get("code", None),
             user_id=request.matchdict.get("user_id", None),
         )
