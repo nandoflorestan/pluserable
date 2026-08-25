@@ -35,6 +35,10 @@ class AbstractRepo(
         """Return the user with ``id``, or raise."""
 
     @abstractmethod
+    def get_user_by_external_id(self, external_id: str) -> Optional[TTUser]:
+        """Return the user with ``external_id``, or None."""
+
+    @abstractmethod
     def get_user_by_email(self, email: str) -> Optional[TTUser]:
         """Return a user with ``email``, or None."""
 
