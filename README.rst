@@ -26,7 +26,7 @@ Features (all of them optional) include:
 
 It is gradually being refactored to support other web frameworks, too.
 
-The documentation is at http://docs.nando.audio/pluserable/latest/
+The documentation is at https://docs.revulo.dev/pluserable/latest/
 
 
 Minimal integration
